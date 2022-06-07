@@ -34,7 +34,7 @@ HEADERS += downloadmanager.h \
            subsonic.h \
            subsong.h \
            subpodcast.h \
-           xml.h
+           rssparser.h
 SOURCES += downloadmanager.cc \
            episode.cc \
            episodemodel.cc \
@@ -52,4 +52,4 @@ SOURCES += downloadmanager.cc \
            subsonic.cc \
            subsong.cc \
            subpodcast.cc \
-           xml.cc
+           rssparser.cc

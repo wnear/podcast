@@ -10,6 +10,7 @@ struct EpisodeData
         QString title;
         QString url;
         QString location;
+        bool cached;
         QDateTime updatetime;
         int duration;
 };

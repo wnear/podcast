@@ -20,19 +20,19 @@ class Podcast : public QWidget
 
     private:
         QString datapath() const;
-        QString datapath_pod(const QString &name) const;
         void read_opml(const QString &filename);
         void write_opml(const QString &filename);
 
         void savepod(QString title, QString url);
 
-        
+        bool load();
+        bool save();
 
-        void load();
-        void save();
-
-        void podUpdate(int idx);
-        void podLoad(int idx);
+        QString getConfigDirectory( PodData &name) const;
+        bool load(PodData &name);
+        bool save(PodData &name);
+        void podLoad(PodData &pod);
+        void podUpdate(PodData &pod);
         
     private:
         class Private;
