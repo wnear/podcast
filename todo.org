@@ -1,0 +1,27 @@
+** save and load local file
+- [ ] have to change all? maybe partially change? to save the disk usage.
+- [ ] 
+
+** subsonic podcast
+- [ ] sync with subsonic
+- [ ] get podcasts
+- [ ] get podcast info
+ - [ ] podcast info field
+  - [ ] xxx
+  - [ ] xxx
+ - [ ] context menu
+- [ ] get episode xx
+ - [ ] episode info field.
+ - [ ] episode context menu
+- [ ] playqueue.
+- [ ] player
+ - [ ] audio engine.
+ - [ ] ui of mini
+ - [ ] ui of max
+ - [ ] functionality
+  - [ ] notes
+  - [ ] bookmarks
+  - [ ] play speed
+  - [ ] stop timer.
+  
+- [ ] stackwidget should put widgets by name, to clarify thing.
