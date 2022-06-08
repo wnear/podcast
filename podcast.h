@@ -28,7 +28,7 @@ class Podcast : public QWidget
         bool load();
         bool save();
 
-        QString getConfigDirectory( PodData &name) const;
+        QString datapath( PodData &name) const;
         bool load(PodData &name);
         bool save(PodData &name);
         void podLoad(PodData &pod);

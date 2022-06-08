@@ -1,6 +1,7 @@
 #include "rssparser.h"
 
 #include <QIODevice>
+#include <QDir>
 #include "podmodel.h"
 #include "episodemodel.h"
 #include <QXmlStreamReader>
@@ -162,8 +163,10 @@ void RssParser::parseEpisode()
                     auto ret = std::find_if(m_pod->episodes.begin(), m_pod->episodes.end(), [episode](auto && ep){
                                                 return ep.title == episode.title;
                                             });
-                    if(ret == m_pod->episodes.end())
+                    if(ret == m_pod->episodes.end()){
+                        episode.location = QDir(m_pod->location).filePath(episode.url.fileName());
                         m_pod->episodes.push_back(episode);
+                    }
                 }
 
                 return;

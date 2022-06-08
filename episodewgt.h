@@ -1,10 +1,10 @@
 #ifndef _EPISODE_WIDGET_H
 #define _EPISODE_WIDGET_H
 
-#include <QWidget>
+#include <QFrame>
 #include "episodemodel.h"
 
-class EpisodeWidget :public QWidget
+class EpisodeWidget :public QFrame
 {
     Q_OBJECT
 
@@ -12,6 +12,9 @@ class EpisodeWidget :public QWidget
         EpisodeWidget(EpisodeData& data, QWidget *parent = nullptr);
         ~EpisodeWidget(){}
         QString msg() const;
+    public slots:
+        void onCustomContextMenuRequested(const QPoint &);
+
     private:
         int id;
         EpisodeData &m_data;

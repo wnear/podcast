@@ -161,7 +161,7 @@ QString Podcast::datapath() const
     return ensureDirExist(app_datapath, "podcast");
 }
 
-QString Podcast::getConfigDirectory(PodData &pod) const
+QString Podcast::datapath(PodData &pod) const
 { return ensureDirExist(datapath(), pod.title); }
 
 void Podcast::importdlg()
@@ -224,7 +224,7 @@ void Podcast::savepod(QString title, QString url) {
 }
 
 bool Podcast::save(PodData &pod){
-    auto file = QDir(getConfigDirectory(pod)).filePath("pods_detail.json");
+    auto file = QDir(datapath(pod)).filePath("pods_detail.json");
     QFile f(file);
     if(f.open(QIODevice::WriteOnly) == false){
         qDebug()<<"erro to open pod cofig for write: "<<pod.title;
@@ -245,6 +245,7 @@ bool Podcast::save(PodData &pod){
                                 {"cached", e.cached},
                                 {"updatetime", e.updatetime.toString()},
                                 {"duration", e.duration},
+                                {"location", e.location},
                                 {"url", e.url.toString()},
                       });
     }
@@ -256,7 +257,7 @@ bool Podcast::save(PodData &pod){
 }
 
 bool Podcast::load(PodData &pod){
-    auto file = QDir(getConfigDirectory(pod)).filePath("pods_detail.json");
+    auto file = QDir(datapath(pod)).filePath("pods_detail.json");
     QFile f(file);
     if(f.exists() == false || f.open(QIODevice::ReadOnly) == false){
         qDebug()<<"erro to open pod cofig for read: "<<pod.title;
@@ -274,6 +275,8 @@ bool Podcast::load(PodData &pod){
     if(! pod_.isEmpty()){
         pod.title = pod_["title"].toString();
         pod.url = pod_["url"].toString();
+        if(pod.location.isEmpty())
+            pod.location = datapath(pod);
     }
     auto eps = obj["episodes"].toArray();
     for(auto i: eps){
@@ -283,6 +286,9 @@ bool Podcast::load(PodData &pod){
         //x.url = QUrl(obj["url"].toString());
         x.url = QUrl::fromEncoded(obj["url"].toString().toLatin1());
         x.cached = obj["cached"].toBool();
+        x.location = obj["location"].toString();
+        if(x.location.isEmpty())
+            x.location = QDir(pod.location).filePath(x.url.fileName());
         x.updatetime = QDateTime::fromString(obj["updatetime"].toString()) ;
         x.duration = obj["duration"].toInt();
         pod.episodes.push_back(x);

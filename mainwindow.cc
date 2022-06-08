@@ -9,6 +9,7 @@
 
 #include <QMenuBar>
 #include <QMenu>
+#include <QToolBar>
 #include <QAction>
 
 #include <QTextEdit>
@@ -53,6 +54,7 @@ Mainwindow::Mainwindow(QWidget *parent):
 
     this->setCentralWidget(d->base);
     setupMenu();
+    setupToolbar();
 }
 Mainwindow::~Mainwindow()
 {
@@ -70,5 +72,13 @@ void Mainwindow::setupMenu()
     bar->addMenu("Help");
     bar->addMenu("About");
     bar->addMenu("...");
+}
+void Mainwindow::setupToolbar()
+{
+    auto *bar = this->addToolBar("file");
 
+    auto icon = QIcon::fromTheme("download");
+    auto act = new QAction(icon, "hello");
+    bar->addAction(act);
+    bar->setToolButtonStyle(Qt::ToolButtonIconOnly);
 }

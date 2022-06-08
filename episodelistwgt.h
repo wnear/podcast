@@ -7,6 +7,8 @@ class PodData;
 
 class EpisodeListWidget : public QWidget 
 {
+    Q_OBJECT
+
     public:
         EpisodeListWidget(QWidget *parent = nullptr);
         void setPod(PodData* pod);

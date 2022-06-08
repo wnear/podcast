@@ -11,6 +11,7 @@ class Mainwindow : public QMainWindow
 
     private:
         void setupMenu();
+        void setupToolbar();
         class Private;
         Private *d;
     
