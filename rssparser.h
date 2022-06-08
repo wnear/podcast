@@ -10,7 +10,7 @@ class RssParser
 public:
     RssParser(QIODevice *, PodData *);
     bool parse();
-    ~RssParser();
+    ~RssParser(){}
 private:
 
 private:

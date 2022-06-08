@@ -6,7 +6,7 @@
 
 
 RssParser::RssParser(QIODevice *f, PodData *pod):m_pod(pod), m_file(f)
-{ }
+{}
 
 bool RssParser::parse()
 {

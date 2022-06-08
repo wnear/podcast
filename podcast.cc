@@ -18,6 +18,13 @@
 #include <QNetworkReply>
 #include <QEventLoop>
 
+
+#include <QListWidget>
+#include <QListWidgetItem>
+
+#include <QScrollArea>
+
+#include "episodewgt.h"
 #include "podcast.h"
 #include "rssparser.h"
 
@@ -40,7 +47,7 @@ namespace {
 class Podcast::Private{
 public:
     QListView *list;
-    QListView *detail;
+    QWidget *detail;
     PodModel *podsmodel;
     QString lastxml;
     QString totalxml;
@@ -56,7 +63,32 @@ Podcast::Podcast(QWidget *parent): QWidget(parent)
     d->list = new QListView(this);
     d->podsmodel = new PodModel(m_pods, this);
     d->list->setModel(d->podsmodel);
-    d->detail = new QListView(this);
+
+    if(0) {
+        // fail to show....
+        d->detail = new QListWidget(this);
+        auto *lw = qobject_cast<QListWidget*>(d->detail);
+        for(auto i = 0; i<10; i++){
+            auto t = new QListWidgetItem;
+            lw->addItem(t);
+            lw->setItemWidget(t, new EpisodeWidget(this));
+        }
+        connect(lw, &QListWidget::itemClicked, [lw](auto &&item){
+                    qDebug()<< qobject_cast<EpisodeWidget*>(lw->itemWidget(item))->msg();
+
+                 } );
+    }
+
+    if(1){
+        d->detail = new QScrollArea(this);
+        auto *scrl = qobject_cast<QScrollArea*>(d->detail);
+        auto wgt = new QWidget(this);
+        auto lay = new QVBoxLayout(wgt);
+        for(auto i = 0; i<10; i++)
+            lay->addWidget(new EpisodeWidget(this));
+        scrl->setWidget(wgt);
+    }
+
     lay->addWidget(d->list);
 
     connect(d->list, &QListView::clicked, [this](auto &&idx){
