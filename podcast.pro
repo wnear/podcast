@@ -22,6 +22,7 @@ HEADERS += downloadmanager.h \
            episode.h \
            episodemodel.h \
            episodewgt.h \
+           episodelistwgt.h \
            localsave.h \
            mainwindow.h \
            opml.h \
@@ -39,6 +40,7 @@ SOURCES += downloadmanager.cc \
            episode.cc \
            episodemodel.cc \
            episodewgt.cc \
+           episodelistwgt.cc \
            localsave.cc \
            main.cc \
            mainwindow.cc \

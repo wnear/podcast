@@ -27,6 +27,7 @@
 #include "episodewgt.h"
 #include "podcast.h"
 #include "rssparser.h"
+#include "episodelistwgt.h"
 
 namespace {
 
@@ -47,7 +48,7 @@ namespace {
 class Podcast::Private{
 public:
     QListView *list;
-    QWidget *detail;
+    EpisodeListWidget *detail;
     PodModel *podsmodel;
     QString lastxml;
     QString totalxml;
@@ -61,11 +62,13 @@ Podcast::Podcast(QWidget *parent): QWidget(parent)
     d->net = new QNetworkAccessManager();
     QVBoxLayout *lay = new QVBoxLayout(this);
     d->list = new QListView(this);
+    d->detail = new EpisodeListWidget(this);
     d->podsmodel = new PodModel(m_pods, this);
     d->list->setModel(d->podsmodel);
+    
 
     if(0) {
-        // fail to show....
+        /*
         d->detail = new QListWidget(this);
         auto *lw = qobject_cast<QListWidget*>(d->detail);
         for(auto i = 0; i<10; i++){
@@ -77,18 +80,8 @@ Podcast::Podcast(QWidget *parent): QWidget(parent)
                     qDebug()<< qobject_cast<EpisodeWidget*>(lw->itemWidget(item))->msg();
 
                  } );
+                 */
     }
-
-    if(1){
-        d->detail = new QScrollArea(this);
-        auto *scrl = qobject_cast<QScrollArea*>(d->detail);
-        auto wgt = new QWidget(this);
-        auto lay = new QVBoxLayout(wgt);
-        for(auto i = 0; i<10; i++)
-            lay->addWidget(new EpisodeWidget(this));
-        scrl->setWidget(wgt);
-    }
-
     lay->addWidget(d->list);
 
     connect(d->list, &QListView::clicked, [this](auto &&idx){
@@ -98,7 +91,14 @@ Podcast::Podcast(QWidget *parent): QWidget(parent)
                 int row = idx.row();
                 qDebug()<<"url is "<<url;
                 podLoad(m_pods[row]);
+                int cnt = m_pods[row].episodes.count();
+                if(cnt > 0){
+                    qDebug()<<"by load from cache, get episodes of count: " << cnt;
+                    d->detail->setPod(& m_pods[row]);
+                }
                 podUpdate(m_pods[row]);
+                qDebug()<<"podUpdate finish";
+                d->detail->setPod(& m_pods[row]);
                 
             });
 }
@@ -234,13 +234,20 @@ bool Podcast::save(PodData &pod){
     QJsonObject whole;
     whole["podinfo"] = QJsonObject{{"title", pod.title}, {"url", pod.url}};
     QJsonArray eps;
-    for(auto e: pod.episodes)
+    for(auto e: pod.episodes) {
+        // QJsonObject obj;
+        // obj["title"] = e.title;
+        // obj["url"] = e.url.toString();
+        // obj["cached"] = e.cached;
+        // obj["update"] = e.updatetime.toString();
+        // obj["duration"] = e.duration;
         eps.push_back(QJsonObject{{"title", e.title},
-                                {"url", e.url},
                                 {"cached", e.cached},
                                 {"updatetime", e.updatetime.toString()},
                                 {"duration", e.duration},
+                                {"url", e.url.toString()},
                       });
+    }
     whole["episodes"] = eps;
     QJsonDocument doc;
     doc.setObject(whole);
@@ -263,16 +270,22 @@ bool Podcast::load(PodData &pod){
         return false;
     }
     auto &&obj = doc.object();
-    //auto pod_ = obj["podinfo"];
+    auto pod_ = obj["podinfo"].toObject();
+    if(! pod_.isEmpty()){
+        pod.title = pod_["title"].toString();
+        pod.url = pod_["url"].toString();
+    }
     auto eps = obj["episodes"].toArray();
     for(auto i: eps){
         EpisodeData x;
         auto && obj = i.toObject();
         x.title = obj["title"].toString();
-        x.url = obj["url"].toString();
+        //x.url = QUrl(obj["url"].toString());
+        x.url = QUrl::fromEncoded(obj["url"].toString().toLatin1());
         x.cached = obj["cached"].toBool();
         x.updatetime = QDateTime::fromString(obj["updatetime"].toString()) ;
         x.duration = obj["duration"].toInt();
+        pod.episodes.push_back(x);
     }
     return true;
 }
@@ -289,6 +302,7 @@ bool Podcast::load(PodData &pod){
 
  */ 
 void Podcast::podUpdate(PodData &pod){
+    return;
     qDebug()<<QString("request begin for %1[%2]").arg(pod.title).arg(pod.url);
     QNetworkRequest req;
     req.setUrl(pod.url);
@@ -307,7 +321,7 @@ void Podcast::podUpdate(PodData &pod){
     auto parser = RssParser(reply, &pod);
     auto ret = parser.parse();
 
-    //save(pod);
+    save(pod);
 }
 
 //load from local storage.

@@ -2,17 +2,19 @@
 #define _EPISODE_WIDGET_H
 
 #include <QWidget>
+#include "episodemodel.h"
 
 class EpisodeWidget :public QWidget
 {
     Q_OBJECT
 
     public:
-        EpisodeWidget(QWidget *parent = nullptr);
+        EpisodeWidget(EpisodeData& data, QWidget *parent = nullptr);
         ~EpisodeWidget(){}
         QString msg() const;
     private:
         int id;
+        EpisodeData &m_data;
 };
 
 #endif

@@ -4,6 +4,7 @@
 
 class QIODevice;
 class PodData;
+class QXmlStreamReader;
 
 class RssParser
 {
@@ -12,10 +13,12 @@ public:
     bool parse();
     ~RssParser(){}
 private:
+    void parseEpisode();
 
 private:
     PodData *m_pod;
     QIODevice *m_file;
+    QXmlStreamReader *reader;
 };
 
 

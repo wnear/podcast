@@ -4,15 +4,20 @@
 #include <QString>
 #include <QDateTime>
 #include <QAbstractListModel>
+#include <QUrl>
 
 struct EpisodeData
 {
         QString title;
-        QString url;
+        QString author;
+        QUrl url;
+        QString description;
+        QDateTime updatetime;
+        QString updatetime_str;
+        int duration;
+
         QString location;
         bool cached;
-        QDateTime updatetime;
-        int duration;
 };
 class EpisodeModel : public QAbstractListModel
 {

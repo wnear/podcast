@@ -3,15 +3,19 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QGridLayout>
+#include <QTextEdit>
+#include <QDebug>
 
 static int a = 0;
 
-EpisodeWidget::EpisodeWidget(QWidget *parent):QWidget(parent), id(a++)
+EpisodeWidget::EpisodeWidget(EpisodeData &data, QWidget *parent):QWidget(parent), id(a++),m_data(data) 
 {
-    auto *lay = new QHBoxLayout(this);
-    lay->addWidget(new QPushButton("add"));
-    lay->addWidget(new QPushButton("delete"));
-    lay->addWidget(new QLabel(QString("label of %1").arg(id)));
+
+    auto *lay = new QVBoxLayout(this);
+    lay->addWidget(new QLabel(QString("Episode: %1").arg(m_data.title)));
+    lay->addWidget(new QTextEdit(QString("Detail: %1 ").arg(m_data.description)));
     this->setLayout(lay);
     // connect(this, &QWidget::mouse)
 }
