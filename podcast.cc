@@ -29,6 +29,8 @@
 #include "rssparser.h"
 #include "episodelistwgt.h"
 
+#include "downloadmanager.h"
+
 namespace {
 
     QString ensureDirExist(const QString &parent, const QString &dirname)
@@ -257,15 +259,28 @@ bool Podcast::save(PodData &pod){
 }
 
 bool Podcast::load(PodData &pod){
-    auto file = QDir(datapath(pod)).filePath("pods_detail.json");
-    QFile f(file);
-    if(f.exists() == false || f.open(QIODevice::ReadOnly) == false){
+    QString xml = QDir(this->datapath(pod)).filePath(c_podcast_localxml);
+    QFile xmlfile(xml);
+    if(QFile(xml).exists() == false) {
+        this->podUpdate(pod);
+    }
+    QString json_str = QDir(datapath(pod)).filePath("pods_detail.json");
+    QFile json_file(json_str);
+    auto isNewer = [](const QString &lhs, const QString &rhs){
+        return QFileInfo(lhs).lastModified() > QFileInfo(rhs).lastModified();
+    };
+    if(json_file.exists() == false || isNewer(xml, json_str)){
+        auto parser = RssParser(&xmlfile, &pod);
+        auto ret = parser.parse();
+        save(pod);
+    }
+    if(json_file.open(QIODevice::ReadOnly) == false){
         qDebug()<<"erro to open pod cofig for read: "<<pod.title;
         return false;
     }
 
     QJsonParseError err;
-    auto doc = QJsonDocument::fromJson(f.readAll(), &err);
+    auto doc = QJsonDocument::fromJson(json_file.readAll(), &err);
     if(err.error != QJsonParseError::NoError){
         qDebug()<<"json parse error for load pod: "<<err.errorString();
         return false;
@@ -308,26 +323,18 @@ bool Podcast::load(PodData &pod){
 
  */ 
 void Podcast::podUpdate(PodData &pod){
+    if(pod.job_id != -1){
+        auto status = DownloadManager::instance()->getJobStatus(pod.job_id);
+        if(status == DOING){
+            qDebug()<<"job downloading";
+            return;
+        } else {
+            qDebug()<<status;
+        }
+    }
+    auto res = QDir(this->datapath(pod)).filePath(c_podcast_localxml);
+    pod.job_id = DownloadManager::instance()->addjob(pod.url, res);
     return;
-    qDebug()<<QString("request begin for %1[%2]").arg(pod.title).arg(pod.url);
-    QNetworkRequest req;
-    req.setUrl(pod.url);
-    auto *reply = d->net->get(req);
-    QEventLoop loop;
-    connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
-    connect(reply, &QNetworkReply::errorOccurred, [reply](){
-                qDebug()<<"request error: "<<reply->errorString();
-            });
-    connect(reply, &QNetworkReply::downloadProgress, [](auto &&recv, auto &&total){
-                qDebug()<<QString("request, progress: [%1/%2]").arg(recv).arg(total);
-            });
-    loop.exec();
-    qDebug()<<"request finish";
-    
-    auto parser = RssParser(reply, &pod);
-    auto ret = parser.parse();
-
-    save(pod);
 }
 
 //load from local storage.

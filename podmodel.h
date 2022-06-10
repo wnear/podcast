@@ -8,6 +8,8 @@
 #include <QAbstractListModel>
 
 
+constexpr char c_podcast_localxml[] = "podcast.xml";
+
 struct PodData
 {
 
@@ -20,7 +22,9 @@ struct PodData
         }
         QString title;
         QString url;
+        int job_id{-1};
         QString location;
+        QString xmllocation;
         QDateTime lastEpisodeUpdate;
         QString language;
         int episodeCount;

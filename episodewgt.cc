@@ -17,12 +17,13 @@
 
 #include <QFile>
 
+#include "downloadmanager.h"
 
 static int a = 0;
 static QNetworkAccessManager net;
 static PlayerEngine player;
 
-struct EpisodeWidget::Private {
+struct EpisodeWidgetPrivate {
     QLabel *title;
     QLabel *progress;
     QTextEdit *info;
@@ -30,7 +31,7 @@ struct EpisodeWidget::Private {
 
 EpisodeWidget::EpisodeWidget(EpisodeData &data, QWidget *parent):QFrame(parent), id(a++),m_data(data) 
 {
-    d = new Private;
+    d = new EpisodeWidgetPrivate;
     d->title = new QLabel(this);
     d->progress = new QLabel("0%", this);
     d->info = new QTextEdit(this);
@@ -57,6 +58,7 @@ QString EpisodeWidget::msg() const
 void EpisodeWidget::onCustomContextMenuRequested(const QPoint &pos)
 {
     QString fileOndisk = m_data.location;
+    auto dwld = DownloadManager::instance();
 
     auto menu = new QMenu;
     menu->addAction("hello");
@@ -69,27 +71,12 @@ void EpisodeWidget::onCustomContextMenuRequested(const QPoint &pos)
                         player.play(this->m_data.location);
                         });
     } else {
-        menu->addAction("Download", [this](){
-                            QNetworkRequest req;
-                            req.setUrl(m_data.url);
-                            auto *reply = net.get(req);
-                            QEventLoop loop;
-                            connect(reply, &QNetworkReply::finished, [reply, this](){
-                                        QFile f(m_data.location);
-                                        f.open(QIODevice::WriteOnly);
-                                        f.write(reply->readAll());
-                                    });
-                            connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
-                            connect(reply, &QNetworkReply::errorOccurred, [reply](){
-                                        qDebug()<<"request error: "<<reply->errorString();
-                                    });
-                            connect(reply, &QNetworkReply::downloadProgress, [this](auto &&recv, auto &&total){
-                                        qDebug()<<QString("request, progress: [%1/%2]").arg(recv).arg(total);
-                                        d->progress->setText(QString("[%1%]").arg(recv*100/total ));
-                                    });
-                            loop.exec();
+        menu->addAction("Download", [this, dwld](){
+                            m_data.jobid = dwld->addjob(m_data.url, m_data.location);
                         });
     }
+    /** check download state **/
+    
 
 
     menu->exec(mapToGlobal(pos));

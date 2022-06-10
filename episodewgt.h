@@ -16,8 +16,7 @@ class EpisodeWidget :public QFrame
         void onCustomContextMenuRequested(const QPoint &);
 
     private:
-        struct Private;
-        Private *d;
+        struct EpisodeWidgetPrivate *d;
         int id;
         EpisodeData &m_data;
 };

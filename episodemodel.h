@@ -11,6 +11,7 @@ struct EpisodeData
         QString title;
         QString author;
         QUrl url;
+        int filesize;
         QString description;
         QDateTime updatetime;
         QString updatetime_str;
@@ -18,6 +19,7 @@ struct EpisodeData
 
         QString location;
         bool cached;
+        int jobid;  // runtime value, to access the download status.
 };
 class EpisodeModel : public QAbstractListModel
 {

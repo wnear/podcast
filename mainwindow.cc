@@ -14,6 +14,9 @@
 
 #include <QTextEdit>
 #include <QStackedWidget>
+#include <QDebug>
+
+#include "downloadmanagerwgt.h"
 
 class Mainwindow::Private
     {
@@ -79,6 +82,16 @@ void Mainwindow::setupToolbar()
 
     auto icon = QIcon::fromTheme("download");
     auto act = new QAction(icon, "hello");
+    auto download = new QAction(icon,"download" );
+    connect(download, &QAction::triggered, [this](){
+                DownloadManagerWidget dlg(this);
+                dlg.setModal(true);
+                qDebug()<<"before exec";
+                dlg.exec();
+                qDebug()<<"after exec";
+            });
     bar->addAction(act);
+    bar->addAction(download);
+
     bar->setToolButtonStyle(Qt::ToolButtonIconOnly);
 }

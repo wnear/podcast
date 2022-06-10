@@ -19,6 +19,7 @@ INCLUDEPATH += .
 
 # Input
 HEADERS += downloadmanager.h \
+           downloadmanagerwgt.h \
            episode.h \
            episodemodel.h \
            episodewgt.h \
@@ -37,6 +38,7 @@ HEADERS += downloadmanager.h \
            subpodcast.h \
            rssparser.h
 SOURCES += downloadmanager.cc \
+           downloadmanagerwgt.cc \
            episode.cc \
            episodemodel.cc \
            episodewgt.cc \

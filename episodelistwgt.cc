@@ -7,7 +7,7 @@
 #include <QLabel>
 #include <QDebug>
 
-struct EpisodeListWidget::Private {
+struct EpisodeListWidgetPrivate {
     QScrollArea *scrollArea;
     QVBoxLayout *listLay;
 
@@ -17,7 +17,7 @@ struct EpisodeListWidget::Private {
 
 EpisodeListWidget::EpisodeListWidget(QWidget *parent): QWidget(parent)
 {
-    d = new Private;
+    d = new EpisodeListWidgetPrivate;
     d->scrollArea = new QScrollArea(this);
     d->scrollArea->setWidget(new QWidget(this));
     //d->scrollArea->setFrameShape(QFrame::NoFrame);  //枠線をなくす

@@ -14,8 +14,7 @@ class EpisodeListWidget : public QWidget
         void setPod(PodData* pod);
     private:
         QWidget *scrollWidget(); 
-        struct Private;
-        Private *d;
+        struct EpisodeListWidgetPrivate *d;
     };
 
 
