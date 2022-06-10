@@ -259,21 +259,42 @@ bool Podcast::save(PodData &pod){
 }
 
 bool Podcast::load(PodData &pod){
-    QString xml = QDir(this->datapath(pod)).filePath(c_podcast_localxml);
-    QFile xmlfile(xml);
-    if(QFile(xml).exists() == false) {
-        this->podUpdate(pod);
-    }
-    QString json_str = QDir(datapath(pod)).filePath("pods_detail.json");
-    QFile json_file(json_str);
-    auto isNewer = [](const QString &lhs, const QString &rhs){
+    auto isNewer = [](const QFile &lhs, const QFile &rhs){
         return QFileInfo(lhs).lastModified() > QFileInfo(rhs).lastModified();
     };
-    if(json_file.exists() == false || isNewer(xml, json_str)){
-        auto parser = RssParser(&xmlfile, &pod);
-        auto ret = parser.parse();
-        save(pod);
+
+    QString xml = QDir(this->datapath(pod)).filePath(c_podcast_localxml);
+    QFile xml_file(xml);
+    QString json_str = QDir(datapath(pod)).filePath("pods_detail.json");
+    QFile json_file(json_str);
+
+    // if both data is not existed, download.
+    if(json_file.exists() == false && xml_file.exists() == false) {
+        this->podUpdate(pod);
+        return false;
     }
+
+    if(xml_file.exists()){
+        // if json not existed, or not update.
+        if(json_file.exists() == false || isNewer(xml_file, json_file))
+        {
+            if(xml_file.open(QIODevice::ReadOnly) == false){
+                qDebug()<<"error to open for read: "<<xml_file.fileName();
+                return false;
+            };
+            auto parser = RssParser(&xml_file, &pod);
+            xml_file.close();
+            bool ret = parser.parse();
+            if(ret) save(pod);
+            else return false;
+        }
+    }
+
+    // json should exist by now.
+    if(json_file.exists() == false){
+        return false;
+    }
+
     if(json_file.open(QIODevice::ReadOnly) == false){
         qDebug()<<"erro to open pod cofig for read: "<<pod.title;
         return false;
@@ -281,6 +302,9 @@ bool Podcast::load(PodData &pod){
 
     QJsonParseError err;
     auto doc = QJsonDocument::fromJson(json_file.readAll(), &err);
+    if(doc.isNull()){
+        qDebug()<<"not valid json file";
+    }
     if(err.error != QJsonParseError::NoError){
         qDebug()<<"json parse error for load pod: "<<err.errorString();
         return false;

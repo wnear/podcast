@@ -26,11 +26,15 @@ public:
         data.append(d->readAll());
     }
     void save() {
+        qDebug()<<"job save download";
         QFile f(dest);
-        assert(f.exists() == false);
-        if(this->dest.isEmpty() || f.open(QIODevice::WriteOnly))
+        //assert(f.exists() == false);
+        if(this->dest.isEmpty() || f.open(QIODevice::WriteOnly) == false){
+            qDebug()<<"error to save";
             return;
+        }
         f.write(data);
+        qDebug()<<"job save download, after";
     }
 };
 
@@ -69,8 +73,10 @@ jobid_t DownloadManager::addjob(QUrl url, const QString &dest)
                 job->status = COMPLETE;
                 job->end_time = QDateTime::currentDateTime();
                 int elpase = job->end_time.secsTo(job->start_time);
-                job->speed =QString("%1 kBps").arg(job->total/elpase/1000) ;
+                if(elpase !=0)
+                    job->speed =QString("%1 kBps").arg(job->total/elpase/1000) ;
                 job->save();
+                qDebug()<<"network, download complete";
                 emit stateChanged(job->id, job->status);
             });
 
@@ -78,6 +84,7 @@ jobid_t DownloadManager::addjob(QUrl url, const QString &dest)
                 job->status = ERR;
                 job->end_time = QDateTime::currentDateTime();
                 job->errorStr = reply->errorString();
+                qDebug()<<"network request error: "<<job->errorStr;
                 emit stateChanged(job->id, job->status);
             });
     connect(reply, &QNetworkReply::downloadProgress, [this, job](int cur, int total){

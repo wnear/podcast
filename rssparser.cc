@@ -42,6 +42,11 @@ bool parseUntilElement(QXmlStreamReader *reader, const QString &name)
 
 RssParser::RssParser(QIODevice *f, PodData *pod): m_pod(pod), m_file(f)
 {
+    bool ret = true;
+    if (!m_file->isOpen())
+        ret = m_file->open(QIODevice::ReadOnly);
+    if(ret == false)
+        qDebug()<<"error to open device in rss parser";
     reader = new QXmlStreamReader{m_file};
 }
 
@@ -50,7 +55,10 @@ bool RssParser::parse()
     qDebug()<<"parser::parse();";
 
     bool ret = parseUntilElement(reader, "channel");
-    if(ret == false) return false;
+    if(ret == false) {
+        qDebug()<<"Channel not found, early exit.";
+        //return false;
+    }
 
     while(!reader->atEnd()) {
         QXmlStreamReader::TokenType type = reader->readNext();
