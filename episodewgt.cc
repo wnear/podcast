@@ -21,7 +21,6 @@
 
 static int a = 0;
 static QNetworkAccessManager net;
-static PlayerEngine player;
 
 struct EpisodeWidgetPrivate {
     QLabel *title;
@@ -29,7 +28,7 @@ struct EpisodeWidgetPrivate {
     QTextEdit *info;
 };
 
-EpisodeWidget::EpisodeWidget(EpisodeData &data, QWidget *parent):QFrame(parent), id(a++),m_data(data) 
+EpisodeWidget::EpisodeWidget(EpisodeData *data, QWidget *parent):QFrame(parent), id(a++),m_data(data)
 {
     d = new EpisodeWidgetPrivate;
     d->title = new QLabel(this);
@@ -42,11 +41,16 @@ EpisodeWidget::EpisodeWidget(EpisodeData &data, QWidget *parent):QFrame(parent),
     lay->addWidget(d->info);
     this->setLayout(lay);
 
-    d->title->setText(m_data.title);
-    d->info->setText(m_data.description);
+    d->title->setText(m_data->title);
+    d->info->setText(m_data->description);
 
     this->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, &QWidget::customContextMenuRequested, this, &EpisodeWidget::onCustomContextMenuRequested);
+    // connect(DownloadManager::instance(), &DownloadManager::progress, [this](int id, int recv, int total){
+    //             if(m_data->jobid== -1)return;
+    //             if(m_data->jobid == id)
+    //                 d->progress->setText(QString("%1%").arg(recv*1.0/total * 100, 4, 'f', 2));
+    //         });
 }
 
 QString EpisodeWidget::msg() const 
@@ -57,22 +61,23 @@ QString EpisodeWidget::msg() const
 
 void EpisodeWidget::onCustomContextMenuRequested(const QPoint &pos)
 {
-    QString fileOndisk = m_data.location;
+    QString fileOndisk = m_data->location;
     auto dwld = DownloadManager::instance();
+    auto *player = PlayerEngine::instance();
 
     auto menu = new QMenu;
     menu->addAction("hello");
-    menu->addAction("play on stream", [this](){
-                        player.play(this->m_data.url);
+    menu->addAction("play on stream", [player, this](){
+                        player->play(this->m_data->url);
                     });
     if(! fileOndisk.isEmpty() && QFile(fileOndisk).exists())
     {
-        menu->addAction("Play On disk", [this](){
-                        player.play(this->m_data.location);
+        menu->addAction("Play On disk", [player, this](){
+                        player->play(this->m_data->location);
                         });
     } else {
         menu->addAction("Download", [this, dwld](){
-                            m_data.jobid = dwld->addjob(m_data.url, m_data.location);
+                            m_data->jobid = dwld->addjob(m_data->url, m_data->location);
                         });
     }
     /** check download state **/

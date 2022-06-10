@@ -1,5 +1,5 @@
 #include "episodelistwgt.h"
-#include "podmodel.h"
+#include "poddata.h"
 #include "episodewgt.h"
 
 #include <QVBoxLayout>
@@ -45,9 +45,10 @@ void EpisodeListWidget::setPod(PodData *pod)
     for(auto i : childs)i->deleteLater();
     
     int count = pod->episodes.count();
+    count = std::min(10, count);
     if(count == 0)return;
 
     for(int i = 0; i < count; i++){
-        scrollWidget()->layout()->addWidget(new EpisodeWidget(pod->episodes[i], scrollWidget()));
+        scrollWidget()->layout()->addWidget(new EpisodeWidget(&pod->episodes[i], scrollWidget()));
     }
 }

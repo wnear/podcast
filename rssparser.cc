@@ -2,8 +2,8 @@
 
 #include <QIODevice>
 #include <QDir>
-#include "podmodel.h"
-#include "episodemodel.h"
+#include "poddata.h"
+#include "episodedata.h"
 #include <QXmlStreamReader>
 #include <QDebug>
 
@@ -42,22 +42,25 @@ bool parseUntilElement(QXmlStreamReader *reader, const QString &name)
 
 RssParser::RssParser(QIODevice *f, PodData *pod): m_pod(pod), m_file(f)
 {
-    bool ret = true;
-    if (!m_file->isOpen())
-        ret = m_file->open(QIODevice::ReadOnly);
-    if(ret == false)
-        qDebug()<<"error to open device in rss parser";
     reader = new QXmlStreamReader{m_file};
 }
 
 bool RssParser::parse()
 {
+    bool ret = true;
+    if (!m_file->isOpen()){
+        if(m_file->open(QIODevice::ReadOnly) == false){
+            qDebug()<<"open file error in rssparser::parse()";
+            return false;
+        }
+    }
+
     qDebug()<<"parser::parse();";
 
-    bool ret = parseUntilElement(reader, "channel");
+    ret = parseUntilElement(reader, "channel");
     if(ret == false) {
         qDebug()<<"Channel not found, early exit.";
-        //return false;
+        return false;
     }
 
     while(!reader->atEnd()) {

@@ -58,6 +58,7 @@ status_t DownloadManager::getJobStatus(jobid_t id){
 // temp file??
 jobid_t DownloadManager::addjob(QUrl url, const QString &dest)
 {
+    qDebug()<<__FILE__<<__LINE__ <<"add job for"<<url.toString();
     QNetworkRequest req(url);
     auto job = new JobInfo;
     job->id = m_cur;

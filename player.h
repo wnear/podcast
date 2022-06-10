@@ -2,19 +2,21 @@
 #define __PLAYER_H
 
 #include <QString>
+#include <QFrame>
 
-class Player
+class Player : public QFrame
 {
     public:
-        Player();
+        Player(QWidget *parent);
         void Pause ();
         void Play();
         void Stop();
         void setVolume(int x);
 
-        ~Player();
+        ~Player(){};
 
     private:
+        class PlayerPrivate *d;
         QString m_currentMedia;
         int m_position;
         int m_volume;

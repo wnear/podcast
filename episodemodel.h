@@ -6,21 +6,8 @@
 #include <QAbstractListModel>
 #include <QUrl>
 
-struct EpisodeData
-{
-        QString title;
-        QString author;
-        QUrl url;
-        int filesize;
-        QString description;
-        QDateTime updatetime;
-        QString updatetime_str;
-        int duration;
+#include "episodedata.h"
 
-        QString location;
-        bool cached;
-        int jobid;  // runtime value, to access the download status.
-};
 class EpisodeModel : public QAbstractListModel
 {
     Q_OBJECT

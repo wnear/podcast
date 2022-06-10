@@ -94,14 +94,8 @@ Podcast::Podcast(QWidget *parent): QWidget(parent)
                 qDebug()<<"url is "<<url;
                 podLoad(m_pods[row]);
                 int cnt = m_pods[row].episodes.count();
-                if(cnt > 0){
-                    qDebug()<<"by load from cache, get episodes of count: " << cnt;
-                    d->detail->setPod(& m_pods[row]);
-                }
-                podUpdate(m_pods[row]);
-                qDebug()<<"podUpdate finish";
+                qDebug()<<"by load from cache, get episodes of count: " << cnt;
                 d->detail->setPod(& m_pods[row]);
-                
             });
 }
 
@@ -143,8 +137,6 @@ bool Podcast::load()
     }
     for(auto i: doc.array()) {
         auto item = i.toObject();
-        qDebug()<<item.value("title").toString();
-        qDebug()<<item.value("url").toString();
         m_pods.push_back(PodData(item.value("title").toString(),
                                  item.value("url").toString()));
     }
@@ -260,7 +252,9 @@ bool Podcast::save(PodData &pod){
 
 bool Podcast::load(PodData &pod){
     auto isNewer = [](const QFile &lhs, const QFile &rhs){
-        return QFileInfo(lhs).lastModified() > QFileInfo(rhs).lastModified();
+        bool ret = QFileInfo(lhs).lastModified() > QFileInfo(rhs).lastModified();
+        qDebug()<<"xml is "<<(ret?"newer":"older");
+        return ret;
     };
 
     QString xml = QDir(this->datapath(pod)).filePath(c_podcast_localxml);
@@ -278,13 +272,9 @@ bool Podcast::load(PodData &pod){
         // if json not existed, or not update.
         if(json_file.exists() == false || isNewer(xml_file, json_file))
         {
-            if(xml_file.open(QIODevice::ReadOnly) == false){
-                qDebug()<<"error to open for read: "<<xml_file.fileName();
-                return false;
-            };
             auto parser = RssParser(&xml_file, &pod);
-            xml_file.close();
             bool ret = parser.parse();
+            xml_file.close();
             if(ret) save(pod);
             else return false;
         }

@@ -2,14 +2,14 @@
 #define _EPISODE_WIDGET_H
 
 #include <QFrame>
-#include "episodemodel.h"
+#include "episodedata.h"
 
 class EpisodeWidget :public QFrame
 {
     Q_OBJECT
 
     public:
-        EpisodeWidget(EpisodeData& data, QWidget *parent = nullptr);
+        EpisodeWidget(EpisodeData* data, QWidget *parent = nullptr);
         ~EpisodeWidget(){}
         QString msg() const;
     public slots:
@@ -18,7 +18,7 @@ class EpisodeWidget :public QFrame
     private:
         struct EpisodeWidgetPrivate *d;
         int id;
-        EpisodeData &m_data;
+        EpisodeData *m_data;
 };
 
 #endif

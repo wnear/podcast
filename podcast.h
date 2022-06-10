@@ -5,7 +5,7 @@
 #include <QDateTime>
 
 #include "podmodel.h"
-#include "episodemodel.h"
+#include "episodedata.h"
 
 
 class Podcast : public QWidget

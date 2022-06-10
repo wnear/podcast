@@ -12,9 +12,13 @@ class EpisodeListWidget : public QWidget
     public:
         EpisodeListWidget(QWidget *parent = nullptr);
         void setPod(PodData* pod);
+        void loadmore(){
+            m_count += 5;
+        }
     private:
         QWidget *scrollWidget(); 
         struct EpisodeListWidgetPrivate *d;
+        int m_count = 10;
     };
 
 

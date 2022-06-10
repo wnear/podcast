@@ -15,6 +15,9 @@
 #include <QTextEdit>
 #include <QStackedWidget>
 #include <QDebug>
+#include <QFrame>
+#include "player.h"
+#include <QVBoxLayout>
 
 #include "downloadmanagerwgt.h"
 
@@ -23,7 +26,9 @@ class Mainwindow::Private
     public:
     QSplitter *base;
     QTabWidget *left; 
-    QStackedWidget * right; 
+    QFrame     *right;
+    QStackedWidget * rightdetail; 
+    Player *rightPlayer;
 
         Podcast *localpod;
         SubPodcast *subpod;
@@ -37,21 +42,30 @@ Mainwindow::Mainwindow(QWidget *parent):
 
     d->base = new QSplitter(this);
     d->left = new QTabWidget(this);
-    d->right = new QStackedWidget(this);
+
+    d->right = new QFrame(this);
+    d->rightdetail = new QStackedWidget(this);
+    d->rightPlayer = new Player(this);
+    auto *lay = new QVBoxLayout(d->right);
+    lay->addWidget(d->rightdetail, 1);
+    lay->addWidget(d->rightPlayer, 0);
+    d->right->setLayout(lay);
+
+    
 
     d->localpod = new Podcast(this);
     d->subpod = new SubPodcast(this);
     d->subsong = new SubSong(this);
 
     d->left->addTab(d->localpod, "Podcasts");
-    d->right->addWidget(d->localpod->detail());
+    d->rightdetail->addWidget(d->localpod->detail());
 
     // d->left->addTab(d->subpod, "Subsonic Podcasts");
     // d->right->addWidget(d->subpod->detail());
     // d->left->addTab(d->subsong, "Subsonic songs");
     // d->right->addWidget(d->subsong->detail());
 
-    connect(d->left, &QTabWidget::currentChanged, d->right, &QStackedWidget::setCurrentIndex);
+    connect(d->left, &QTabWidget::currentChanged, d->rightdetail, &QStackedWidget::setCurrentIndex);
     d->base->addWidget(d->left);
     d->base->addWidget(d->right);
 
