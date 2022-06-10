@@ -68,22 +68,6 @@ Podcast::Podcast(QWidget *parent): QWidget(parent)
     d->podsmodel = new PodModel(m_pods, this);
     d->list->setModel(d->podsmodel);
     
-
-    if(0) {
-        /*
-        d->detail = new QListWidget(this);
-        auto *lw = qobject_cast<QListWidget*>(d->detail);
-        for(auto i = 0; i<10; i++){
-            auto t = new QListWidgetItem;
-            lw->addItem(t);
-            lw->setItemWidget(t, new EpisodeWidget(this));
-        }
-        connect(lw, &QListWidget::itemClicked, [lw](auto &&item){
-                    qDebug()<< qobject_cast<EpisodeWidget*>(lw->itemWidget(item))->msg();
-
-                 } );
-                 */
-    }
     lay->addWidget(d->list);
 
     connect(d->list, &QListView::clicked, [this](auto &&idx){

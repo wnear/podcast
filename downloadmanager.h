@@ -45,14 +45,14 @@ public:
     DownloadManager(QObject *parent = nullptr);
     bool isDownloading(jobid_t);
     jobid_t addjob(QUrl url, const QString &dest = "");
-    void abort_job(jobid_t){}
+    void abort_job(jobid_t);
     void rmove_job(jobid_t){}
     QPair<int, int> getJobProgress(jobid_t);
     status_t getJobStatus(jobid_t);
     QString toString();
 
     
-    ~DownloadManager(){}
+    ~DownloadManager();
 
 signals:
     void progress(jobid_t, int a, int b);

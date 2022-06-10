@@ -5,7 +5,7 @@
 class JobInfo {
 public:
     jobid_t id;
-    status_t status;
+    status_t state;
     QString errorStr;
     QUrl url;
     QString dest;
@@ -41,6 +41,8 @@ public:
 DownloadManager*  DownloadManager::ins = nullptr;
 
 DownloadManager::DownloadManager(QObject *parent) :QObject(parent) { }
+DownloadManager::~DownloadManager()
+{}
 
 QPair<int, int> DownloadManager::getJobProgress(jobid_t id){
     auto j = m_jobs[id];
@@ -50,7 +52,7 @@ QPair<int, int> DownloadManager::getJobProgress(jobid_t id){
 
 status_t DownloadManager::getJobStatus(jobid_t id){
     if(m_jobs.keys().contains(id))
-        return m_jobs[id]->status;
+        return m_jobs[id]->state;
     else 
         return NOTFOND;
 }
@@ -65,28 +67,28 @@ jobid_t DownloadManager::addjob(QUrl url, const QString &dest)
     job->url = url;
     job->dest = dest;
     job->start_time = QDateTime::currentDateTime();
-    job->status = DOING;
+    job->state = DOING;
     job->errorStr = "";
 
     auto *reply = m_net.get(req);
     //finish
     connect(reply, &QNetworkReply::finished, [this, job](){
-                job->status = COMPLETE;
+                job->state = COMPLETE;
                 job->end_time = QDateTime::currentDateTime();
                 int elpase = job->end_time.secsTo(job->start_time);
                 if(elpase !=0)
                     job->speed =QString("%1 kBps").arg(job->total/elpase/1000) ;
                 job->save();
                 qDebug()<<"network, download complete";
-                emit stateChanged(job->id, job->status);
+                emit stateChanged(job->id, job->state);
             });
 
     connect(reply, &QNetworkReply::errorOccurred, [this, reply, job](){
-                job->status = ERR;
+                job->state = ERR;
                 job->end_time = QDateTime::currentDateTime();
                 job->errorStr = reply->errorString();
                 qDebug()<<"network request error: "<<job->errorStr;
-                emit stateChanged(job->id, job->status);
+                emit stateChanged(job->id, job->state);
             });
     connect(reply, &QNetworkReply::downloadProgress, [this, job](int cur, int total){
                 job->setProgress(cur, total);
@@ -126,5 +128,9 @@ QString DownloadManager::toString()
         res.push_back("===================");
     }
     return res.join(QChar::LineSeparator);
-    
+}
+
+
+void DownloadManager::abort_job(jobid_t) 
+{
 }
