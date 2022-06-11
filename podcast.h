@@ -33,8 +33,10 @@ class Podcast : public QWidget
         bool save(PodData &name);
         void podLoad(PodData &pod);
         void podUpdate(PodData &pod);
-        
-    private:
+        bool parsexml(PodData &pod);
+        bool updatexml(PodData &pod);
+
+      private:
         class Private;
         Private *d;
         QList<PodData> m_pods;

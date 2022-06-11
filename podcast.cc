@@ -4,6 +4,7 @@
 
 #include <QFile>
 #include <QStandardPaths>
+#include <QMenu>
 
 
 #include <QListView>
@@ -30,6 +31,8 @@
 #include "episodelistwgt.h"
 
 #include "downloadmanager.h"
+#include "log.h"
+#include "jsonop.h"
 
 namespace {
 
@@ -67,15 +70,30 @@ Podcast::Podcast(QWidget *parent): QWidget(parent)
     d->detail = new EpisodeListWidget(this);
     d->podsmodel = new PodModel(m_pods, this);
     d->list->setModel(d->podsmodel);
+
     
     lay->addWidget(d->list);
 
+    d->list->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(d->list, &QWidget::customContextMenuRequested, this, [this](const QPoint &pos){
+                auto idx = d->list->indexAt(pos);
+                int row = idx.row();
+                PodData &pod = m_pods[row];
+                podLoad(m_pods[row]);
+                auto menu = new QMenu(this);
+                menu->addAction("reparse", this, [this, &pod](){
+                                    this->parsexml(pod);
+                                });
+                menu->addAction("update", this, [this, &pod](){
+                                    this->updatexml(pod);
+                                });
+                menu->exec(mapToGlobal(pos));
+            });
     connect(d->list, &QListView::clicked, [this](auto &&idx){
                 // title/ url ==> feed ==> detailview ==> detailview update.
                 auto model = qobject_cast<PodModel *>(d->list->model());
                 auto url = model->data(idx, PodModel::UrlRole).toString();
                 int row = idx.row();
-                qDebug()<<"url is "<<url;
                 podLoad(m_pods[row]);
                 int cnt = m_pods[row].episodes.count();
                 qDebug()<<"by load from cache, get episodes of count: " << cnt;
@@ -203,35 +221,7 @@ void Podcast::savepod(QString title, QString url) {
 
 bool Podcast::save(PodData &pod){
     auto file = QDir(datapath(pod)).filePath("pods_detail.json");
-    QFile f(file);
-    if(f.open(QIODevice::WriteOnly) == false){
-        qDebug()<<"erro to open pod cofig for write: "<<pod.title;
-        return false;
-    }
-
-    QJsonObject whole;
-    whole["podinfo"] = QJsonObject{{"title", pod.title}, {"url", pod.url}};
-    QJsonArray eps;
-    for(auto e: pod.episodes) {
-        // QJsonObject obj;
-        // obj["title"] = e.title;
-        // obj["url"] = e.url.toString();
-        // obj["cached"] = e.cached;
-        // obj["update"] = e.updatetime.toString();
-        // obj["duration"] = e.duration;
-        eps.push_back(QJsonObject{{"title", e.title},
-                                {"cached", e.cached},
-                                {"updatetime", e.updatetime.toString()},
-                                {"duration", e.duration},
-                                {"location", e.location},
-                                {"url", e.url.toString()},
-                      });
-    }
-    whole["episodes"] = eps;
-    QJsonDocument doc;
-    doc.setObject(whole);
-    f.write(doc.toJson());
-    return true;
+    return jsonsave(&pod, file);
 }
 
 bool Podcast::load(PodData &pod){
@@ -256,57 +246,14 @@ bool Podcast::load(PodData &pod){
         // if json not existed, or not update.
         if(json_file.exists() == false || isNewer(xml_file, json_file))
         {
-            auto parser = RssParser(&xml_file, &pod);
-            bool ret = parser.parse();
-            xml_file.close();
-            if(ret) save(pod);
-            else return false;
+            bool ret = this->parsexml(pod);
+            if(ret == false)
+                return ret;
         }
     }
 
     // json should exist by now.
-    if(json_file.exists() == false){
-        return false;
-    }
-
-    if(json_file.open(QIODevice::ReadOnly) == false){
-        qDebug()<<"erro to open pod cofig for read: "<<pod.title;
-        return false;
-    }
-
-    QJsonParseError err;
-    auto doc = QJsonDocument::fromJson(json_file.readAll(), &err);
-    if(doc.isNull()){
-        qDebug()<<"not valid json file";
-    }
-    if(err.error != QJsonParseError::NoError){
-        qDebug()<<"json parse error for load pod: "<<err.errorString();
-        return false;
-    }
-    auto &&obj = doc.object();
-    auto pod_ = obj["podinfo"].toObject();
-    if(! pod_.isEmpty()){
-        pod.title = pod_["title"].toString();
-        pod.url = pod_["url"].toString();
-        if(pod.location.isEmpty())
-            pod.location = datapath(pod);
-    }
-    auto eps = obj["episodes"].toArray();
-    for(auto i: eps){
-        EpisodeData x;
-        auto && obj = i.toObject();
-        x.title = obj["title"].toString();
-        //x.url = QUrl(obj["url"].toString());
-        x.url = QUrl::fromEncoded(obj["url"].toString().toLatin1());
-        x.cached = obj["cached"].toBool();
-        x.location = obj["location"].toString();
-        if(x.location.isEmpty())
-            x.location = QDir(pod.location).filePath(x.url.fileName());
-        x.updatetime = QDateTime::fromString(obj["updatetime"].toString()) ;
-        x.duration = obj["duration"].toInt();
-        pod.episodes.push_back(x);
-    }
-    return true;
+    return jsonload(&pod, json_str);
 }
 
 // update with network.
@@ -318,21 +265,9 @@ bool Podcast::load(PodData &pod){
 4. add data => pod -> other field.
 5. add episode => pod->episodes
 6. sync pod data => local json
-
  */ 
 void Podcast::podUpdate(PodData &pod){
-    if(pod.job_id != -1){
-        auto status = DownloadManager::instance()->getJobStatus(pod.job_id);
-        if(status == DOING){
-            qDebug()<<"job downloading";
-            return;
-        } else {
-            qDebug()<<status;
-        }
-    }
-    auto res = QDir(this->datapath(pod)).filePath(c_podcast_localxml);
-    pod.job_id = DownloadManager::instance()->addjob(pod.url, res);
-    return;
+    updatexml(pod);
 }
 
 //load from local storage.
@@ -343,3 +278,44 @@ void Podcast::podLoad(PodData &pod){
 
 void Podcast::exportdlg() {}
 void Podcast::write_opml(const QString &filename) {}
+
+bool Podcast::updatexml(PodData &pod)
+{
+    if(pod.job_id != -1){
+        auto status = DownloadManager::instance()->getJobStatus(pod.job_id);
+        if(status == TASK_DOWNLOADING){
+            binfo("some one want's to try download  a pod twice?");
+            return false;
+        } else {
+            binfo("retry a failed xml download({})", pod.url.toStdString());
+            binfo("last time the job ret is {}.", status);
+            qDebug()<<status;
+        }
+    }
+    auto res = QDir(this->datapath(pod)).filePath(c_podcast_localxml);
+    pod.job_id = DownloadManager::instance()->addjob(pod.url, res);
+    connect(DownloadManager::instance(), &DownloadManager::stateChanged, this,
+            [&pod, this](int id, auto st){
+                if(id == pod.job_id){
+                    if(st == TASK_COMPLETE){
+                        this->parsexml(pod);
+                        if(pod.title == this->d->detail->current())
+                            this->d->detail->refresh();
+                    }
+                }
+            });
+    return true;
+}
+
+bool Podcast::parsexml(PodData &pod) 
+{
+    QString xml = QDir(this->datapath(pod)).filePath(c_podcast_localxml);
+    QFile xml_file(xml);
+    auto parser = RssParser(&xml_file, &pod);
+    if(parser.parse()){
+        save(pod);
+        return true;
+    }
+    return false;
+    
+}

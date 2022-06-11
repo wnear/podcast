@@ -26,7 +26,7 @@ struct PodData
         QString language;
         int episodeCount;
         int episodeDuratinSum;
-        QList<EpisodeData> episodes;
+        QList<EpisodeData* > episodes;
 
         const QString c_podcast_default_filename = "podcast.xml";
 };

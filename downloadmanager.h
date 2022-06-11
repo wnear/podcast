@@ -23,12 +23,12 @@ show
 
 using jobid_t = int;
 
-enum status_t {
-    BUFFER = 0,
-    DOING,
-    ERR,
-    ABORT,
-    COMPLETE,
+enum jobstatus_t {
+    TASK_BUFFER = 0,
+    TASK_DOWNLOADING,
+    TASK_NETERROR,
+    TASK_USR_ABORT,
+    TASK_COMPLETE,
     NOTFOND,
 };
 
@@ -44,11 +44,11 @@ public:
     }
     DownloadManager(QObject *parent = nullptr);
     bool isDownloading(jobid_t);
-    jobid_t addjob(QUrl url, const QString &dest = "");
+    jobid_t addjob(QUrl url, const QString &dest = "", int start = 0);
     void abort_job(jobid_t);
     void rmove_job(jobid_t){}
     QPair<int, int> getJobProgress(jobid_t);
-    status_t getJobStatus(jobid_t);
+    jobstatus_t getJobStatus(jobid_t);
     QString toString();
 
     
@@ -56,7 +56,7 @@ public:
 
 signals:
     void progress(jobid_t, int a, int b);
-    void stateChanged(jobid_t, status_t);
+    void stateChanged(jobid_t, jobstatus_t);
 
 private:
     static DownloadManager *ins;

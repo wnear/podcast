@@ -3,6 +3,7 @@
 #include <QIODevice>
 #include <QDir>
 #include "poddata.h"
+#include "log.h"
 #include "episodedata.h"
 #include <QXmlStreamReader>
 #include <QDebug>
@@ -118,7 +119,7 @@ bool RssParser::parse()
 
 void RssParser::parseEpisode()
 {
-    EpisodeData episode;
+    EpisodeData *episode = new EpisodeData;
     while(!reader->atEnd()) {
         QXmlStreamReader::TokenType type = reader->readNext();
 
@@ -128,40 +129,44 @@ void RssParser::parseEpisode()
                 const QString lower_namespace = reader->namespaceUri().toString().toLower();
 
                 if(name == "title") {
-                    episode.title = (reader->readElementText());
+                    episode->title = (reader->readElementText());
                 } else if(name == "description") {
-                    episode.description = (reader->readElementText());
+                    episode->description = (reader->readElementText());
                 } else if(name == "pubDate") {
                     QString date = reader->readElementText();
-                    episode.updatetime_str = date;
+                    episode->updatetime_str = date;
                 } else if(name == "duration" /* && lower_namespace == kItunesNamespace */) {
                     // http://www.apple.com/itunes/podcasts/specs.html
                     QStringList parts = reader->readElementText().split(':');
+                    QList<int> pi;
+                    std::transform(parts.begin(), parts.end(), std::back_inserter(pi), [](QString a){
+                                       return a.toInt();
+                                   });
+                    episode->duration = std::accumulate(std::begin(pi), std::end(pi), 0, [](auto x, auto y){ return x * 60 + y; });
+                    // #FIXME 
+                    // why this fail...
+                    //episode->duration = std::accumulate(std::begin(parts), std::end(parts), 0, [](auto x, auto y){ return x.toInt()* 60 + y.toInt(); });
 
-                    if(parts.count() == 2) {
-                        episode.duration = (parts[0].toInt() * 60 + parts[1].toInt());
-                    } else if(parts.count() >= 3) {
-                        episode.duration = (parts[0].toInt() * 60 * 60 + parts[1].toInt() * 60 +
-                                            parts[2].toInt());
-                    }
                 } else if(name == "enclosure") {
                     const QString type2 = reader->attributes().value("type").toString();
                     const QUrl url = QUrl::fromEncoded(
                                          reader->attributes().value("url").toString().toLatin1());
 
                     if(type2.startsWith("audio/") || type2.startsWith("x-audio/")) {
-                        episode.url = (url);
+                        episode->url = (url);
                     }
                     // If the URL doesn't have a type, see if it's one of the obvious types
                     else if(type2.isEmpty() && (url.path().endsWith(".mp3", Qt::CaseInsensitive)
                                                 || url.path().endsWith(".m4a", Qt::CaseInsensitive)
                                                 || url.path().endsWith(".wav", Qt::CaseInsensitive))) {
-                        episode.url = (url);
+                        episode->url = (url);
                     }
+                    episode->filesize = reader->attributes().value("length").toInt();
+                    qDebug()<<"episode filesize: "<<episode->filesize;
 
                     backToParent(reader);
                 } else if(name == "author" /*&& lower_namespace == kItunesNamespace*/) {
-                    episode.author = (reader->readElementText());
+                    episode->author = (reader->readElementText());
                 } else {
                     backToParent(reader);
                 }
@@ -170,13 +175,15 @@ void RssParser::parseEpisode()
             }
 
             case QXmlStreamReader::EndElement:
-                if(!episode.url.isEmpty()) {
+                if(!episode->url.isEmpty()) {
                     auto ret = std::find_if(m_pod->episodes.begin(), m_pod->episodes.end(), [episode](auto && ep){
-                                                return ep.title == episode.title;
+                                                return ep->title == episode->title;
                                             });
                     if(ret == m_pod->episodes.end()){
-                        episode.location = QDir(m_pod->location).filePath(episode.url.fileName());
+                        episode->location = QDir(m_pod->location).filePath(episode->url.fileName());
+                        binfo("ending of parser, duration({}), filesize({}), location({})", episode->duration, episode->filesize, episode->location.toStdString());
                         m_pod->episodes.push_back(episode);
+                        
                     }
                 }
 

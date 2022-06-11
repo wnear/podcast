@@ -1,4 +1,6 @@
 #include "player_engine.h"
+#include "log.h"
+
 #include <QMediaPlayer>
 #include <QDebug>
 #include <QMutex>
@@ -41,6 +43,7 @@ void PlayerEngine::play(QUrl url){
     player->setMedia(url);
     player->setVolume(100);
     player->play();
+    binfo("duration: {} ", duration());
 }
 
 void PlayerEngine::pause(){

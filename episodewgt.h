@@ -12,13 +12,15 @@ class EpisodeWidget :public QFrame
         EpisodeWidget(EpisodeData* data, QWidget *parent = nullptr);
         ~EpisodeWidget(){}
         QString msg() const;
-    public slots:
+        void setProgressText();
+
+      public slots:
         void onCustomContextMenuRequested(const QPoint &);
 
     private:
         struct EpisodeWidgetPrivate *d;
         int id;
-        EpisodeData *m_data;
+        EpisodeData *m_data{nullptr};
 };
 
 #endif

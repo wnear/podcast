@@ -28,11 +28,50 @@ struct EpisodeWidgetPrivate {
     QTextEdit *info;
 };
 
-EpisodeWidget::EpisodeWidget(EpisodeData *data, QWidget *parent):QFrame(parent), id(a++),m_data(data)
+namespace {
+QString size_human(int size_byte){
+    return QString("%1 MB").arg(size_byte*1.0/1024/1024,0, 'f', 2 );
+}
+QString percent(float val){
+    return QString("[%1 %]").arg(val * 100,0, 'f', 1 );
+}
+QString percentStr(int cur, int total){
+    return percent(cur*1.0/total);
+}
+}
+
+void EpisodeWidget::setProgressText() {
+    QString title = m_data->stateString();
+    QString progress;
+    int cur{m_data->currentSize()}, total{m_data->filesize};
+    do {
+        if(m_data->getState() == pd::MediaFileDownloading){
+            if(total == 0){                         // filesize not have meaning.
+                total += m_data->net_totalsize;     
+                if(total)                           // filesize not have meaning ,but net_total has, still can save.
+                    total += cur;
+            }
+            cur += m_data->net_cursize;
+        } else {
+        }
+
+        if(total == 0){
+            progress = size_human(cur);
+        } else {
+            progress = percentStr(cur,total);
+        }
+    }while(0);
+
+    d->progress->setText(title + progress);
+}
+
+EpisodeWidget::EpisodeWidget(EpisodeData *data, QWidget *parent)
+                            :QFrame(parent), id(a++),m_data(data)
 {
     d = new EpisodeWidgetPrivate;
     d->title = new QLabel(this);
     d->progress = new QLabel("0%", this);
+    setProgressText();
     d->info = new QTextEdit(this);
 
     auto *lay = new QVBoxLayout(this);
@@ -45,12 +84,10 @@ EpisodeWidget::EpisodeWidget(EpisodeData *data, QWidget *parent):QFrame(parent),
     d->info->setText(m_data->description);
 
     this->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(this, &QWidget::customContextMenuRequested, this, &EpisodeWidget::onCustomContextMenuRequested);
-    // connect(DownloadManager::instance(), &DownloadManager::progress, [this](int id, int recv, int total){
-    //             if(m_data->jobid== -1)return;
-    //             if(m_data->jobid == id)
-    //                 d->progress->setText(QString("%1%").arg(recv*1.0/total * 100, 4, 'f', 2));
-    //         });
+    connect(this, &QWidget::customContextMenuRequested, this,
+            &EpisodeWidget::onCustomContextMenuRequested);
+    connect(DownloadManager::instance(), &DownloadManager::progress,
+            this,  &EpisodeWidget::setProgressText);
 }
 
 QString EpisodeWidget::msg() const 
@@ -62,7 +99,7 @@ QString EpisodeWidget::msg() const
 void EpisodeWidget::onCustomContextMenuRequested(const QPoint &pos)
 {
     QString fileOndisk = m_data->location;
-    auto dwld = DownloadManager::instance();
+    auto dw = DownloadManager::instance();
     auto *player = PlayerEngine::instance();
 
     auto menu = new QMenu;
@@ -70,19 +107,20 @@ void EpisodeWidget::onCustomContextMenuRequested(const QPoint &pos)
     menu->addAction("play on stream", [player, this](){
                         player->play(this->m_data->url);
                     });
-    if(! fileOndisk.isEmpty() && QFile(fileOndisk).exists())
-    {
+    
+    if(m_data->canPlay()) {
         menu->addAction("Play On disk", [player, this](){
-                        player->play(this->m_data->location);
-                        });
-    } else {
-        menu->addAction("Download", [this, dwld](){
-                            m_data->jobid = dwld->addjob(m_data->url, m_data->location);
+                            auto file = this->m_data->location;
+                            qDebug()<<"contexmenu, play: "<<file;
+                            player->play(this->m_data->location);
                         });
     }
-    /** check download state **/
-    
 
+    if(m_data->canDownlad())
+    { menu->addAction("start Download", [this](){ m_data->startDownload(); }); }
+
+    if(m_data->canAbort())
+    { menu->addAction("Abort Downloading", [this](){ m_data->abortDownload(); }); }
 
     menu->exec(mapToGlobal(pos));
 }

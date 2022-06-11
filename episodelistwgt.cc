@@ -34,12 +34,17 @@ EpisodeListWidget::EpisodeListWidget(QWidget *parent): QWidget(parent)
 }
 
 QWidget *EpisodeListWidget::scrollWidget()
-{
-    return   (d->scrollArea->widget());
-}
+{ return (d->scrollArea->widget()); }
+
+void EpisodeListWidget::refresh() 
+{ this->setPod(cur); }
+
+QString EpisodeListWidget::current() const 
+{ return cur == nullptr ? "" : cur->title; }
 
 void EpisodeListWidget::setPod(PodData *pod)
 {
+    cur = pod;
     auto childs = this->findChildren<EpisodeWidget*>();
     scrollWidget()->findChild<QWidget*>();
     for(auto i : childs)i->deleteLater();
@@ -49,6 +54,7 @@ void EpisodeListWidget::setPod(PodData *pod)
     if(count == 0)return;
 
     for(int i = 0; i < count; i++){
-        scrollWidget()->layout()->addWidget(new EpisodeWidget(&pod->episodes[i], scrollWidget()));
+        scrollWidget()->layout()->addWidget(new EpisodeWidget((EpisodeData *)(pod->episodes[i]), scrollWidget()));
     }
 }
+

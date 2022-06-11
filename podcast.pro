@@ -18,42 +18,57 @@ INCLUDEPATH += .
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 # Input
+
+CONFIG += link_pkgconfig
+
+PKGCONFIG += spdlog
+CONFIG += C++20
+
 HEADERS += downloadmanager.h \
            downloadmanagerwgt.h \
            episodedata.h \
+           episodelistwgt.h \
            episodemodel.h \
            episodewgt.h \
-           episodelistwgt.h \
+           global.h \
+           jsonop.h \
            localsave.h \
+           log.h \
            mainwindow.h \
+           network.h \
            opml.h \
            player.h \
            player_engine.h\
            podcast.h \
            podmodel.h \
-           network.h \
+           rssparser.h \
            setting.h \
-           subsonic.h \
-           subsong.h \
            subpodcast.h \
-           rssparser.h
+           subsong.h \
+           subsonic.h \
+
+
+
 SOURCES += downloadmanager.cc \
            downloadmanagerwgt.cc \
            episodedata.cc \
+           episodelistwgt.cc \
            episodemodel.cc \
            episodewgt.cc \
-           episodelistwgt.cc \
+           global.cc \
+           jsonop.cc \
            localsave.cc \
+           log.cc \
            main.cc \
            mainwindow.cc \
+           network.cc \
            opml.cc \
            player.cc \
            player_engine.cc\
            podcast.cc \
            podmodel.cc \
-           network.cc \
+           rssparser.cc \
            setting.cc \
-           subsonic.cc \
-           subsong.cc \
            subpodcast.cc \
-           rssparser.cc
+           subsong.cc \
+           subsonic.cc \

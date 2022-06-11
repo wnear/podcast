@@ -5,11 +5,12 @@
 class JobInfo {
 public:
     jobid_t id;
-    status_t state;
+    jobstatus_t state;
     QString errorStr;
     QUrl url;
     QString dest;
     QByteArray data;
+    QNetworkReply *reply;
     int cur;
     int total;
     QDateTime start_time;
@@ -28,12 +29,14 @@ public:
     void save() {
         qDebug()<<"job save download";
         QFile f(dest);
+        
         //assert(f.exists() == false);
         if(this->dest.isEmpty() || f.open(QIODevice::WriteOnly) == false){
             qDebug()<<"error to save";
             return;
         }
         f.write(data);
+        f.close();
         qDebug()<<"job save download, after";
     }
 };
@@ -50,7 +53,7 @@ QPair<int, int> DownloadManager::getJobProgress(jobid_t id){
 }
 
 
-status_t DownloadManager::getJobStatus(jobid_t id){
+jobstatus_t DownloadManager::getJobStatus(jobid_t id){
     if(m_jobs.keys().contains(id))
         return m_jobs[id]->state;
     else 
@@ -58,22 +61,30 @@ status_t DownloadManager::getJobStatus(jobid_t id){
 }
 
 // temp file??
-jobid_t DownloadManager::addjob(QUrl url, const QString &dest)
+jobid_t DownloadManager::addjob(QUrl url, const QString &dest, int start)
 {
     qDebug()<<__FILE__<<__LINE__ <<"add job for"<<url.toString();
+    qDebug()<<__FILE__<<__LINE__ <<"complete will be saved to: "<<dest;
+    
     QNetworkRequest req(url);
+    if(start != 0){
+        qDebug()<<"special downloading, continue from positon of: "<<start;
+        req.setRawHeader (QByteArray ("Range"), QString ("bytes=%1-").arg(start).toLocal8Bit ());
+    }
+
     auto job = new JobInfo;
     job->id = m_cur;
     job->url = url;
     job->dest = dest;
     job->start_time = QDateTime::currentDateTime();
-    job->state = DOING;
+    job->state = TASK_DOWNLOADING;
     job->errorStr = "";
 
     auto *reply = m_net.get(req);
+    job->reply = reply;
     //finish
     connect(reply, &QNetworkReply::finished, [this, job](){
-                job->state = COMPLETE;
+                job->state = TASK_COMPLETE;
                 job->end_time = QDateTime::currentDateTime();
                 int elpase = job->end_time.secsTo(job->start_time);
                 if(elpase !=0)
@@ -84,7 +95,7 @@ jobid_t DownloadManager::addjob(QUrl url, const QString &dest)
             });
 
     connect(reply, &QNetworkReply::errorOccurred, [this, reply, job](){
-                job->state = ERR;
+                job->state = TASK_NETERROR;
                 job->end_time = QDateTime::currentDateTime();
                 job->errorStr = reply->errorString();
                 qDebug()<<"network request error: "<<job->errorStr;
@@ -131,6 +142,10 @@ QString DownloadManager::toString()
 }
 
 
-void DownloadManager::abort_job(jobid_t) 
+void DownloadManager::abort_job(jobid_t id) 
 {
+    auto *job = m_jobs.value(id);
+    if(job != nullptr && job->state == TASK_DOWNLOADING){
+        job->reply->abort();
+    }
 }
