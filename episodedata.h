@@ -13,6 +13,7 @@ enum EpisodeState{
     MediaFileDownloading,
     MediaFileDownloadError,
     MediaFileDownloadFinish,
+    MediaFileDownloadPause,
     
     MediaFileNone,
     MediaFilePartially,
@@ -24,21 +25,22 @@ enum EpisodeState{
 
 class EpisodeData : public QObject
 {
-    Q_OBJECT
-    Q_PROPERTY( int actualSize READ currentSize)
+        Q_OBJECT
+        Q_PROPERTY( int actualSize READ currentSize)
 
-    public:
-        EpisodeData(QObject *parent = nullptr):QObject(parent){}
+        public:
+        EpisodeData(QObject *parent = nullptr);
         ~EpisodeData() = default;
         int jobid{-1};  // runtime value, to access the download status.
         QString title;
         QString author;
         QUrl url;
-        int net_cursize{0};        // During downloading, current download bytesize.
-        int net_totalsize{0};      // During downloading, bytesize need to download reported from Network, not very useful if not a fresh download.
+        int net_cursize{0};  // During downloading, current download bytesize.
+        int net_totalsize{
+            0};  // During downloading, bytesize need to download reported from Network, not very useful if not a fresh download.
 
-        //int actualSize;         // media file current size of the disk file.
-        int filesize{0};           // media file filesize, parsed from the xml description.
+        int actualSize;   // media file current size of the disk file.
+        int filesize{0};  // media file filesize, parsed from the xml description.
         QString description;
         QDateTime updatetime;
         QString updatetime_str;
@@ -49,9 +51,8 @@ class EpisodeData : public QObject
 
         QString stateString();
         pd::EpisodeState getState() const;
-        void setState(pd::EpisodeState s){
-            state = s;
-        }
+        void setState(pd::EpisodeState s) { state = s; }
+        void calculateCurrentSize();
         int currentSize() const;
         QString currentSize_str() const;
 
@@ -62,14 +63,20 @@ class EpisodeData : public QObject
 
         bool canAbort() const;
         void abortDownload();
+        bool canDelete() const;
+        bool deleteMediafile();
 
-      private:
+        void test();
+
+        signals:
+            void fileChanged();
+    private:
         /**
-        *
-        * original state is None, the returned state is calculated by size checking, 
-        * after download, state is changed manually, indicate downloading error if existed, 
-        * carrying more meaning.
-        */
+       *
+       * original state is None, the returned state is calculated by size checking,
+       * after download, state is changed manually, indicate downloading error if existed,
+       * carrying more meaning.
+       */
         pd::EpisodeState state{pd::MediaFileUnknown};  
 
 };

@@ -33,6 +33,7 @@
 #include "downloadmanager.h"
 #include "log.h"
 #include "jsonop.h"
+#include "global.h"
 
 namespace {
 
@@ -312,10 +313,11 @@ bool Podcast::parsexml(PodData &pod)
     QString xml = QDir(this->datapath(pod)).filePath(c_podcast_localxml);
     QFile xml_file(xml);
     auto parser = RssParser(&xml_file, &pod);
-    if(parser.parse()){
+    bool ret = parser.parse();
+    if(ret) {
+        pod.location = Data::podcast_datapath(pod.title);
         save(pod);
-        return true;
     }
-    return false;
+    return ret;
     
 }

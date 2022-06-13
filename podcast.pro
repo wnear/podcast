@@ -46,6 +46,7 @@ HEADERS += downloadmanager.h \
            subpodcast.h \
            subsong.h \
            subsonic.h \
+           utils.h \
 
 
 
@@ -72,3 +73,4 @@ SOURCES += downloadmanager.cc \
            subpodcast.cc \
            subsong.cc \
            subsonic.cc \
+           utils.cc \

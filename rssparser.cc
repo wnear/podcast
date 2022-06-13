@@ -48,6 +48,7 @@ RssParser::RssParser(QIODevice *f, PodData *pod): m_pod(pod), m_file(f)
 
 bool RssParser::parse()
 {
+    m_pod->episodes.clear();
     bool ret = true;
     if (!m_file->isOpen()){
         if(m_file->open(QIODevice::ReadOnly) == false){
@@ -95,23 +96,18 @@ bool RssParser::parse()
                 ret->set_url(QUrl::fromEncoded(reader->readElementText().toLatin1()));
                 }
                 */
-                if(name == "item") {
-                    parseEpisode();
-                } else {
-                    backToParent(reader);
-                }
-
+                if(name == "item") { parseEpisode(); } else { backToParent(reader); }
                 break;
             }
-
             case QXmlStreamReader::EndElement:
+                // binfo("{} episode cnt, {}", m_pod->title.toStdString(), m_pod->episodes.length());
                 return m_pod->episodes.length() > 0;
 
-            default:
-                break;
+            default: break;
         }
     }
 
+    // binfo("{} episode cnt, {}", m_pod->title.toStdString(), m_pod->episodes.length());
     return m_pod->episodes.length() > 0;
 }
 
@@ -162,7 +158,6 @@ void RssParser::parseEpisode()
                         episode->url = (url);
                     }
                     episode->filesize = reader->attributes().value("length").toInt();
-                    qDebug()<<"episode filesize: "<<episode->filesize;
 
                     backToParent(reader);
                 } else if(name == "author" /*&& lower_namespace == kItunesNamespace*/) {
@@ -180,8 +175,8 @@ void RssParser::parseEpisode()
                                                 return ep->title == episode->title;
                                             });
                     if(ret == m_pod->episodes.end()){
-                        episode->location = QDir(m_pod->location).filePath(episode->url.fileName());
-                        binfo("ending of parser, duration({}), filesize({}), location({})", episode->duration, episode->filesize, episode->location.toStdString());
+                        episode->location = episode->url.fileName();
+                        // binfo("ending of parser, duration({}), filesize({}), location({})", episode->duration, episode->filesize, episode->location.toStdString());
                         m_pod->episodes.push_back(episode);
                         
                     }

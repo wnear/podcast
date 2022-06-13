@@ -8,7 +8,9 @@ class Data
         static void init();
         static QString app_datapath();
         static QString podcast_datapath();
-    private:
+        static QString podcast_datapath(const QString &title);
+
+      private:
         static class DataPrivate *d;
 
 };

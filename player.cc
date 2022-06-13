@@ -4,18 +4,9 @@
 #include <QSlider>
 #include <QLabel>
 #include "player_engine.h"
+#include "utils.h"
 
 namespace {
-QString int2hms(int secs){
-    int h,m,s;
-    h = secs/3600;
-    m = (secs%3600)/60;
-    s = (secs%60);
-    return QString("%1:%2:%3")
-        .arg(h, 2,10,QChar('0'))
-        .arg(m, 2,10,QChar('0'))
-        .arg(s, 2,10,QChar('0'));
-}
 }
 
 class PlayerPrivate {

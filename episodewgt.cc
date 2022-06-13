@@ -1,4 +1,5 @@
 #include "episodewgt.h"
+#include "log.h"
 
 #include <QLabel>
 #include <QPushButton>
@@ -18,6 +19,7 @@
 #include <QFile>
 
 #include "downloadmanager.h"
+#include "utils.h"
 
 static int a = 0;
 static QNetworkAccessManager net;
@@ -25,22 +27,16 @@ static QNetworkAccessManager net;
 struct EpisodeWidgetPrivate {
     QLabel *title;
     QLabel *progress;
-    QTextEdit *info;
+    QLabel *duration;
+    QLabel *size;
+    QLabel *info;
 };
 
 namespace {
-QString size_human(int size_byte){
-    return QString("%1 MB").arg(size_byte*1.0/1024/1024,0, 'f', 2 );
-}
-QString percent(float val){
-    return QString("[%1 %]").arg(val * 100,0, 'f', 1 );
-}
-QString percentStr(int cur, int total){
-    return percent(cur*1.0/total);
-}
 }
 
 void EpisodeWidget::setProgressText() {
+
     QString title = m_data->stateString();
     QString progress;
     int cur{m_data->currentSize()}, total{m_data->filesize};
@@ -61,32 +57,47 @@ void EpisodeWidget::setProgressText() {
             progress = percentStr(cur,total);
         }
     }while(0);
-
+    binfo("progress: {} / {}", cur, total);
     d->progress->setText(title + progress);
 }
 
 EpisodeWidget::EpisodeWidget(EpisodeData *data, QWidget *parent)
                             :QFrame(parent), id(a++),m_data(data)
 {
+    this->setFrameStyle(QFrame::Raised);
     d = new EpisodeWidgetPrivate;
     d->title = new QLabel(this);
     d->progress = new QLabel("0%", this);
+    d->duration = new QLabel(this);
+    d->size = new QLabel(this);
     setProgressText();
-    d->info = new QTextEdit(this);
+    d->info = new QLabel(this);
 
     auto *lay = new QVBoxLayout(this);
     lay->addWidget(d->title);
-    lay->addWidget(d->progress);
+
+    auto *info = new QHBoxLayout();
+    info->addWidget(d->progress);
+    info->addWidget(d->duration);
+    info->addWidget(d->size);
+    lay->addLayout(info);
+
     lay->addWidget(d->info);
     this->setLayout(lay);
 
     d->title->setText(m_data->title);
-    d->info->setText(m_data->description);
+    //TODO: show summary of first 100.
+    auto fm = d->info->fontMetrics();
+    auto description = fm.elidedText(m_data->description, Qt::ElideRight,fm.horizontalAdvance("a") * 200);
+    d->info->setText(description);
+    d->duration->setText(int2hms(m_data->duration));
+    d->size->setText(size_human(m_data->filesize));
+    
 
     this->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, &QWidget::customContextMenuRequested, this,
             &EpisodeWidget::onCustomContextMenuRequested);
-    connect(DownloadManager::instance(), &DownloadManager::progress,
+    connect(m_data, &EpisodeData::fileChanged, 
             this,  &EpisodeWidget::setProgressText);
 }
 
@@ -103,7 +114,9 @@ void EpisodeWidget::onCustomContextMenuRequested(const QPoint &pos)
     auto *player = PlayerEngine::instance();
 
     auto menu = new QMenu;
-    menu->addAction("hello");
+    menu->addAction("info", [this](){
+                        this->m_data->test();
+                    });
     menu->addAction("play on stream", [player, this](){
                         player->play(this->m_data->url);
                     });
@@ -121,6 +134,9 @@ void EpisodeWidget::onCustomContextMenuRequested(const QPoint &pos)
 
     if(m_data->canAbort())
     { menu->addAction("Abort Downloading", [this](){ m_data->abortDownload(); }); }
+
+    if(m_data->canDelete())
+    { menu->addAction("delete media file", [this](){ m_data->deleteMediafile(); }); }
 
     menu->exec(mapToGlobal(pos));
 }

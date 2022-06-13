@@ -2,6 +2,7 @@
 
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/ostr.h>
+#include <QString>
 
 class Log 
 {
@@ -13,6 +14,12 @@ class Log
         static log_t s_client;
 
 };
+
+template<typename OStream>
+inline OStream& operator<<(OStream& os, const QString& x)
+{
+    return os<< x.toStdString();
+}
 
 #define SPDLOG_STR_H(x) #x
 #define SPDLOG_STR_HELPER(x) SPDLOG_STR_H(x)

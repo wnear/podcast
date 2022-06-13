@@ -1,6 +1,7 @@
 #include "episodelistwgt.h"
 #include "poddata.h"
 #include "episodewgt.h"
+#include "log.h"
 
 #include <QVBoxLayout>
 #include <QScrollArea>
@@ -53,6 +54,7 @@ void EpisodeListWidget::setPod(PodData *pod)
     count = std::min(10, count);
     if(count == 0)return;
 
+    binfo("episodelistwget draw...");
     for(int i = 0; i < count; i++){
         scrollWidget()->layout()->addWidget(new EpisodeWidget((EpisodeData *)(pod->episodes[i]), scrollWidget()));
     }

@@ -1,4 +1,5 @@
 #include "downloadmanager.h"
+#include "log.h"
 #include <QFile>
 #include <QStringList>
 
@@ -28,15 +29,27 @@ public:
     }
     void save() {
         qDebug()<<"job save download";
-        QFile f(dest);
-        
-        //assert(f.exists() == false);
-        if(this->dest.isEmpty() || f.open(QIODevice::WriteOnly) == false){
-            qDebug()<<"error to save";
+        if(dest.isEmpty()) {
+            berror("mediafile location not specified");
             return;
         }
+        QFile f(dest);
+        QString header = f.exists()? "continue": "fresh";
+        //continue last download.
+        if(f.exists() == false) {
+            if(f.open(QIODevice::Append) == false){
+                berror("error to open file for append write.");
+                return;
+            }
+        } else {
+            if(f.open(QIODevice::WriteOnly) == false){
+                berror("error to open file for fresh write.");
+                return;
+            }
+        } 
         f.write(data);
         f.close();
+        binfo("finish {}-download, file size is : {}", header, f.size());
         qDebug()<<"job save download, after";
     }
 };
@@ -94,11 +107,14 @@ jobid_t DownloadManager::addjob(QUrl url, const QString &dest, int start)
                 emit stateChanged(job->id, job->state);
             });
 
-    connect(reply, &QNetworkReply::errorOccurred, [this, reply, job](){
-                job->state = TASK_NETERROR;
+    connect(reply, &QNetworkReply::errorOccurred, [this, reply, job](auto && errorcode){
+                if(errorcode == QNetworkReply::OperationCanceledError)
+                    job->state = TASK_USR_ABORT;
+                else 
+                    job->state = TASK_NETERROR;
                 job->end_time = QDateTime::currentDateTime();
                 job->errorStr = reply->errorString();
-                qDebug()<<"network request error: "<<job->errorStr;
+                job->save();
                 emit stateChanged(job->id, job->state);
             });
     connect(reply, &QNetworkReply::downloadProgress, [this, job](int cur, int total){

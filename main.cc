@@ -13,6 +13,7 @@ int main (int argc, char *argv[])
     app.setQuitOnLastWindowClosed(true);
 
     Log::init();
+
     Data::init();
 
     Mainwindow w;
