@@ -23,11 +23,22 @@ PlayerEngine::PlayerEngine(QObject* parent)
     player = new QMediaPlayer(this);
     connect(player, &QMediaPlayer::positionChanged,
             this, &PlayerEngine::positionChanged);
-    connect(player, &QMediaPlayer::positionChanged,
-            this, [this](int pos){
-                if(this->duration() == 0)
-                    return;
-                emit progressChanged(pos*100/this->duration());
+    connect(player, &QMediaPlayer::durationChanged, 
+            this, &PlayerEngine::setDuration);
+    connect(player, &QMediaPlayer::durationChanged, 
+            this, &PlayerEngine::durationChanged);
+    connect(player, &QMediaPlayer::mediaStatusChanged,
+            this, [](auto &&x){
+                binfo("media status changed to {} ", x);
+            });
+    connect(player, &QMediaPlayer::bufferStatusChanged,
+            this, [](auto && x){
+                binfo("buffer status changed to {} ", x);
+            });
+
+    connect(player,QOverload<QMediaPlayer::Error>::of(&QMediaPlayer::error),
+            [=](QMediaPlayer::Error error){
+                binfo("error {}", error);
             });
 }
 
@@ -43,7 +54,7 @@ void PlayerEngine::play(QUrl url){
     player->setMedia(url);
     player->setVolume(100);
     player->play();
-    binfo("duration: {} ", duration());
+    m_duration = player->duration();
 }
 
 void PlayerEngine::pause(){
@@ -54,17 +65,20 @@ void PlayerEngine::stop(){
     player->stop();
 }
 
-void PlayerEngine::setPosition(int pos)
+void PlayerEngine::setPosition(int val)
 {
-    player->setPosition(pos);
-}
-
-void PlayerEngine::setProgress(int percentage)
-{
-    player->setPosition(this->duration() * percentage / 100);
+    player->setPosition(val);
 }
 
 int PlayerEngine::duration() const
 {
+    return m_duration;
     return player->duration();
+}
+
+
+void PlayerEngine::setDuration(int val)
+{
+    binfo("duration changed to {}", val);
+    m_duration = val;
 }

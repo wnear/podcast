@@ -72,6 +72,7 @@ EpisodeWidget::EpisodeWidget(EpisodeData *data, QWidget *parent)
     d->size = new QLabel(this);
     setProgressText();
     d->info = new QLabel(this);
+    d->info->setWordWrap(true);
 
     auto *lay = new QVBoxLayout(this);
     lay->addWidget(d->title);

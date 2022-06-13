@@ -18,16 +18,17 @@ class PlayerEngine : public QObject
         void pause();
         void stop();
         int duration()const;
-        void setPosition(int);
     public slots:
-        void setProgress(int);
+        void setPosition(int);
+        void setDuration(int);
     signals:
         void positionChanged(int);
-        void progressChanged(int);
+        void durationChanged(int);
     private:
         PlayerEngine(QObject* parent = nullptr);
         QMediaPlayer *player;
         static PlayerEngine *ins;
+        int m_duration;
 };
 
 #endif

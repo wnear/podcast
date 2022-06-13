@@ -44,6 +44,10 @@ class EpisodeData : public QObject
         QString description;
         QDateTime updatetime;
         QString updatetime_str;
+
+        QDateTime releaseTime;
+        QDateTime downloadTime;
+
         int duration;
 
         QString location;
