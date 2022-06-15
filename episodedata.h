@@ -20,15 +20,21 @@ enum EpisodeState{
     MediaFileComplete,
 };
 
-
 }
+
+
 
 class EpisodeData : public QObject
 {
         Q_OBJECT
         Q_PROPERTY( int actualSize READ currentSize)
 
-        public:
+    public:
+        struct bookmark_t {
+            int position;
+            QString title;
+        };
+
         EpisodeData(QObject *parent = nullptr);
         ~EpisodeData() = default;
         int jobid{-1};  // runtime value, to access the download status.
@@ -45,8 +51,13 @@ class EpisodeData : public QObject
         QDateTime updatetime;
         QString updatetime_str;
 
+        QList<bookmark_t> bookmarks;
+        QString notes;
+
         QDateTime releaseTime;
         QDateTime downloadTime;
+
+        
 
         int duration;
 
