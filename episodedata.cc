@@ -58,6 +58,7 @@ pd::EpisodeState EpisodeData::getState() const {
 }
 
 
+
 QString EpisodeData::stateString()
 {
     switch (getState()) {
@@ -144,4 +145,7 @@ bool EpisodeData::deleteMediafile()
         emit fileChanged();
     }
     return ret;
+}
+QVariant EpisodeData::getByTreeVolume(TreeColumn) const {
+    return QVariant();
 }

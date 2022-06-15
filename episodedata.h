@@ -6,6 +6,8 @@
 #include <QUrl>
 #include <QObject>
 
+#include "episode_treemodel.h"
+
 namespace pd{
 enum EpisodeState{
     MediaFileUnknown,
@@ -81,6 +83,7 @@ class EpisodeData : public QObject
         bool canDelete() const;
         bool deleteMediafile();
 
+        QVariant getByTreeVolume(TreeColumn) const;
         void test();
 
         signals:
