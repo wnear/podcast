@@ -14,6 +14,7 @@ public:
     QWidget *label;
 };
 
+
 EpisodeTreeWidget::EpisodeTreeWidget(QWidget *parent) 
 :QFrame(parent)
 {
@@ -26,3 +27,7 @@ EpisodeTreeWidget::EpisodeTreeWidget(QWidget *parent)
     d->base->setLayout(lay);
 }
 
+void EpisodeTreeWidget::setPod(PodData *pod) 
+{
+    d->view->setPod(pod);
+}
