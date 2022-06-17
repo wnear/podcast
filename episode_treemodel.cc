@@ -10,12 +10,14 @@ class EpisodeTreeModelPrivate {
 public:
     int maxcolumn = 30;
     QList<PodData *> pods{};
+    void reset() {
+        pods.clear();
+        pod_idx.clear();
+        maxcolumn = 30;
+    }
     QMap<int, PodData*> pod_idx;
     QMap<TreeColumn, QString> availproperty;
-    void setdata() {
-        pod_idx.clear();
-        int idx = 0;
-    }
+    QMap<TreeColumn, QString> unseen;
 };
 
 EpisodeTreeModel::EpisodeTreeModel(QObject *parent) 
@@ -27,6 +29,8 @@ EpisodeTreeModel::EpisodeTreeModel(QObject *parent)
         {TreeColumn::SIZE, "file size"},
         {TreeColumn::DURATION, "duration"},
     };
+    d->unseen = {
+    };
     for(auto i: d->availproperty.keys())
     {
         binfo("d.keys: {} ", static_cast<int>(i));
@@ -35,7 +39,7 @@ EpisodeTreeModel::EpisodeTreeModel(QObject *parent)
 
 void EpisodeTreeModel::setPod(PodData *pod) {
     beginResetModel();
-    d->pods.clear();
+    d->reset();
     d->pods.push_back(pod);
     endResetModel();
 }

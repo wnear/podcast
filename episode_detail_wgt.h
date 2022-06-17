@@ -2,9 +2,16 @@
 
 #include <QWidget>
 
+
 class EpisodeDetail : public QWidget 
 {
     public:
       EpisodeDetail(QWidget *parent = nullptr);
-      ~EpisodeDetail(){}
+        static EpisodeDetail *instance (){
+            static EpisodeDetail ins;
+            return &ins;
+        }
+      ~EpisodeDetail();
+    private:
+        class EpisodeDetailPrivate *d;
 };

@@ -9,6 +9,7 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QComboBox>
+#include <QMenu>
 
 
 
@@ -35,7 +36,15 @@ EpisodeTreeWidget::EpisodeTreeWidget(QWidget *parent)
     auto head = new QHBoxLayout;
     head->addWidget(&(d->update));
     d->update.setIcon(QIcon::fromTheme("update"));
+
     head->addWidget(&(d->filter));
+    auto menu = new QMenu;
+    menu->addAction("hello");
+    d->filter.setMenu(menu);
+    d->filter.setPopupMode(QToolButton::InstantPopup);
+    d->filter.setArrowType(Qt::NoArrow);
+
+
     head->addStretch(1);
     head->addWidget(&(d->fetchmore));
 

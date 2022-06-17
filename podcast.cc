@@ -337,5 +337,4 @@ bool Podcast::parsexml(PodData &pod)
         save(pod);
     }
     return ret;
-    
 }

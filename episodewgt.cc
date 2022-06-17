@@ -57,7 +57,6 @@ void EpisodeWidget::setProgressText() {
             progress = percentStr(cur,total);
         }
     }while(0);
-    binfo("progress: {} / {}", cur, total);
     d->progress->setText(title + progress);
 }
 
