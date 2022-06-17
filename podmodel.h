@@ -17,15 +17,15 @@ class PodModel : public QAbstractListModel
         enum MORERUlE{
             UrlRole = Qt::UserRole,
         };
-        PodModel (QList<PodData> &pods, QObject *parent = nullptr);
+        PodModel (QList<PodData *> &pods, QObject *parent = nullptr);
 
         QVariant data(const QModelIndex &index, int role) const override;
         int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-        void resetData(QList<PodData> &pods){m_data = pods;}
+        void resetData(QList<PodData *> &pods){m_data = pods;}
         ~PodModel() = default;
 
     private:
-        QList<PodData> &m_data;
+        QList<PodData *> &m_data;
 };
 
 

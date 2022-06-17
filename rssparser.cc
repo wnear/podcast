@@ -8,6 +8,7 @@
 #include <QXmlStreamReader>
 #include <QDebug>
 
+#include "utils.h"
 #include <algorithm>
 
 #include <QUrl>
@@ -43,6 +44,7 @@ bool parseUntilElement(QXmlStreamReader *reader, const QString &name)
 
 RssParser::RssParser(QIODevice *f, PodData *pod): m_pod(pod), m_file(f)
 {
+    binfo("xml for parse: {} big.", size_human(f->size()));
     reader = new QXmlStreamReader{m_file};
 }
 
@@ -56,8 +58,6 @@ bool RssParser::parse()
             return false;
         }
     }
-
-    qDebug()<<"parser::parse();";
 
     ret = parseUntilElement(reader, "channel");
     if(ret == false) {

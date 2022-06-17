@@ -39,7 +39,7 @@ class Podcast : public QWidget
       private:
         class Private;
         Private *d;
-        QList<PodData> m_pods;
+        QList<PodData *> m_pods;
 
     
 };

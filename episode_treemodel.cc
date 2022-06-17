@@ -1,11 +1,14 @@
 #include "episode_treemodel.h"
 #include "episodedata.h"
 #include "poddata.h"
+#include "log.h"
+#include "utils.h"
 
 #include <algorithm>
 
 class EpisodeTreeModelPrivate {
 public:
+    int maxcolumn = 30;
     QList<PodData *> pods{};
     QMap<int, PodData*> pod_idx;
     QMap<TreeColumn, QString> availproperty;
@@ -22,12 +25,19 @@ EpisodeTreeModel::EpisodeTreeModel(QObject *parent)
     d->availproperty = {
         {TreeColumn::TITLE, "title"},
         {TreeColumn::SIZE, "file size"},
+        {TreeColumn::DURATION, "duration"},
     };
+    for(auto i: d->availproperty.keys())
+    {
+        binfo("d.keys: {} ", static_cast<int>(i));
+    }
 }
 
 void EpisodeTreeModel::setPod(PodData *pod) {
+    beginResetModel();
     d->pods.clear();
     d->pods.push_back(pod);
+    endResetModel();
 }
 
 QModelIndex EpisodeTreeModel::index(int row, int column, const QModelIndex &parent) const 
@@ -39,6 +49,7 @@ QModelIndex EpisodeTreeModel::index(int row, int column, const QModelIndex &pare
 
 QModelIndex EpisodeTreeModel::parent(const QModelIndex &child) const 
 {
+
     return QModelIndex();
 }
 
@@ -46,9 +57,9 @@ QModelIndex EpisodeTreeModel::parent(const QModelIndex &child) const
 //TODO: use std::accumulate from c++20
 int EpisodeTreeModel::rowCount(const QModelIndex &parent) const 
 {
-    return d->pods.length() == 0 
-            ? 0
-            : d->pods[0]->episodes.count();
+    if(d->pods.length() == 0) 
+        return 0;
+    return std::min(d->maxcolumn, d->pods[0]->episodes.count());
 }
 
 int EpisodeTreeModel::columnCount(const QModelIndex &parent) const 
@@ -64,20 +75,16 @@ QVariant EpisodeTreeModel::data(const QModelIndex &index, int role) const
         return QVariant();
 
     auto && ep = d->pods[0]->episodes[index.row()];
-    auto realIndex = d->availproperty.keys().at(index.row());
-
+    auto realIndex = d->availproperty.keys().at(index.column());
     switch(realIndex){
         case TreeColumn::TITLE: 
             return ep->title;
-            break;
         case TreeColumn::UPDATETIME: 
             break;
         case TreeColumn::SIZE: 
-            return ep->filesize;
-            break;
+            return size_human(ep->filesize);
         case TreeColumn::DURATION: 
-            return ep->duration;
-            break;
+            return int2hms(ep->duration);
         case TreeColumn::LASTVIEW: 
             break;
         default:
@@ -85,7 +92,17 @@ QVariant EpisodeTreeModel::data(const QModelIndex &index, int role) const
     }
     return QVariant();
 }
+
 QVariant EpisodeTreeModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
+    if(orientation == Qt::Horizontal && role == Qt::DisplayRole){
+        auto key = d->availproperty.keys().at(section);
+        return d->availproperty[key];
+    }
     return QVariant();
+}
+
+bool EpisodeTreeModel::hasChildren(const QModelIndex &parent) const 
+{
+    return !parent.isValid();
 }

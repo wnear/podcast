@@ -9,7 +9,6 @@ constexpr char c_podcast_localxml[] = "podcast.xml";
 
 struct PodData
 {
-
         PodData(const QString &x, const QString &y){
             title = x;
             url  = y;
@@ -17,6 +16,9 @@ struct PodData
         bool isValid(){
             return !(title.isEmpty() || url.isEmpty() );
         }
+        //TODO:
+        //PodData& operator=(const PodData&) = default;
+        ~PodData() = default;
         QString title;
         QString url;
         int job_id{-1};

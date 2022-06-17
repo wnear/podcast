@@ -4,4 +4,4 @@ CONFIG += link_pkgconfig
 CONFIG += qt
 
 PKGCONFIG += spdlog
-CONFIG += C++20
+CONFIG += C++17

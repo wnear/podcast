@@ -4,14 +4,24 @@
 
 #include <QVBoxLayout>
 #include <QGridLayout>
+#include <QHBoxLayout>
+#include <QToolButton>
+#include <QPushButton>
+#include <QLabel>
+#include <QComboBox>
 
 
 
 class EpisodeTreeWidgetPrivate {
 public:
-    QWidget *base;
     EpisodeTreeView *view;
-    QWidget *label;
+
+    QToolButton update;
+    QComboBox sortBy;
+    QToolButton filter;
+    QToolButton fetchmore;
+
+    QLabel status;
 };
 
 
@@ -19,12 +29,27 @@ EpisodeTreeWidget::EpisodeTreeWidget(QWidget *parent)
 :QFrame(parent)
 {
     d = new EpisodeTreeWidgetPrivate;
-    d->base = new QWidget(this);
-    auto lay = new QVBoxLayout;
-    d->view = new EpisodeTreeView(this);
-    lay->addWidget(d->view);
 
-    d->base->setLayout(lay);
+    auto lay = new QVBoxLayout;
+
+    auto head = new QHBoxLayout;
+    head->addWidget(&(d->update));
+    d->update.setIcon(QIcon::fromTheme("update"));
+    head->addWidget(&(d->filter));
+    head->addStretch(1);
+    head->addWidget(&(d->fetchmore));
+
+    d->view = new EpisodeTreeView(this);
+
+    auto bottom = new QHBoxLayout;
+    bottom->addWidget(&(d->status));
+    bottom->addStretch(1);
+
+    lay->addLayout(head);
+    lay->addWidget(d->view);
+    lay->addLayout(bottom);
+
+    this->setLayout(lay);
 }
 
 void EpisodeTreeWidget::setPod(PodData *pod) 

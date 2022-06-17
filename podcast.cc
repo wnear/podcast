@@ -7,6 +7,7 @@
 #include <QMenu>
 
 
+#include <QTabWidget>
 #include <QListView>
 #include <QVBoxLayout>
 
@@ -26,9 +27,11 @@
 #include <QScrollArea>
 
 #include "episodewgt.h"
+
 #include "podcast.h"
 #include "rssparser.h"
 #include "episodelistwgt.h"
+#include "episode_treewidget.h"
 
 #include "downloadmanager.h"
 #include "log.h"
@@ -54,7 +57,9 @@ namespace {
 class Podcast::Private{
 public:
     QListView *list;
-    EpisodeListWidget *detail;
+    QTabWidget *detail;
+    EpisodeListWidget *detaillist;
+    EpisodeTreeWidget *detailtree;
     PodModel *podsmodel;
     QString lastxml;
     QString totalxml;
@@ -68,7 +73,11 @@ Podcast::Podcast(QWidget *parent): QWidget(parent)
     d->net = new QNetworkAccessManager();
     QVBoxLayout *lay = new QVBoxLayout(this);
     d->list = new QListView(this);
-    d->detail = new EpisodeListWidget(this);
+    d->detail = new QTabWidget(this);
+    d->detaillist = new EpisodeListWidget(this);
+    d->detailtree = new EpisodeTreeWidget(this);
+    d->detail->addTab(d->detailtree, "modal list");
+    d->detail->addTab(d->detaillist, "diy list");
     d->podsmodel = new PodModel(m_pods, this);
     d->list->setModel(d->podsmodel);
 
@@ -79,8 +88,8 @@ Podcast::Podcast(QWidget *parent): QWidget(parent)
     connect(d->list, &QWidget::customContextMenuRequested, this, [this](const QPoint &pos){
                 auto idx = d->list->indexAt(pos);
                 int row = idx.row();
-                PodData &pod = m_pods[row];
-                podLoad(m_pods[row]);
+                PodData &pod = *m_pods[row];
+                podLoad(*m_pods[row]);
                 auto menu = new QMenu(this);
                 menu->addAction("reparse", this, [this, &pod](){
                                     this->parsexml(pod);
@@ -95,10 +104,11 @@ Podcast::Podcast(QWidget *parent): QWidget(parent)
                 auto model = qobject_cast<PodModel *>(d->list->model());
                 auto url = model->data(idx, PodModel::UrlRole).toString();
                 int row = idx.row();
-                podLoad(m_pods[row]);
-                int cnt = m_pods[row].episodes.count();
+                podLoad(*m_pods[row]);
+                int cnt = m_pods[row]->episodes.count();
                 qDebug()<<"by load from cache, get episodes of count: " << cnt;
-                d->detail->setPod(& m_pods[row]);
+                d->detaillist->setPod( m_pods[row]);
+                d->detailtree->setPod( m_pods[row]);
             });
 }
 
@@ -114,7 +124,7 @@ bool Podcast::save()
 
     QJsonArray whole;
     for(auto i: m_pods){
-        whole.push_back(QJsonObject{{"title", i.title}, {"url", i.url}});
+        whole.push_back(QJsonObject{{"title", i->title}, {"url", i->url}});
     }
     QJsonDocument doc;
     doc.setArray(whole);
@@ -140,8 +150,12 @@ bool Podcast::load()
     }
     for(auto i: doc.array()) {
         auto item = i.toObject();
-        m_pods.push_back(PodData(item.value("title").toString(),
-                                 item.value("url").toString()));
+        
+        auto x = new PodData(item.value("title").toString(),
+                                 item.value("url").toString());
+        m_pods.push_back(x);
+        //m_pods.push_back(std::move(PodData(item.value("title").toString(),
+                                 //item.value("url").toString())));
     }
     return true;
 }
@@ -185,7 +199,7 @@ void Podcast::read_opml(const QString &filename)
     auto alreadyHave = [this](const PodData &now){
         auto i = std::find_if(m_pods.begin(), m_pods.end(), 
                               [now](auto && p){
-                                  return p.url == now.url;
+                                  return p->url == now.url;
                               });
         return i != m_pods.end();
     };
@@ -198,14 +212,16 @@ void Podcast::read_opml(const QString &filename)
             auto elnode = node.toElement();
             if(elnode.isNull())
                 continue;
-            PodData x(elnode.attribute("text", ""), 
+            auto x = new PodData(elnode.attribute("text", ""),
                       elnode.attribute("xmlUrl", ""));
-            if(x.isValid()) {
-                if(alreadyHave(x)){
+            if(x->isValid()) {
+                if(alreadyHave(*x)){
                 }else {
                     added += 1;
                     m_pods.push_back(x);
                 }
+            } else {
+                delete x;
             }
         }
     }
@@ -217,7 +233,7 @@ void Podcast::read_opml(const QString &filename)
 }
 
 void Podcast::savepod(QString title, QString url) {
-    m_pods.push_back({title, url});
+    m_pods.push_back(new PodData{title, url});
 }
 
 bool Podcast::save(PodData &pod){
@@ -300,8 +316,10 @@ bool Podcast::updatexml(PodData &pod)
                 if(id == pod.job_id){
                     if(st == TASK_COMPLETE){
                         this->parsexml(pod);
-                        if(pod.title == this->d->detail->current())
-                            this->d->detail->refresh();
+                        if(d->detail->currentWidget() == d->detaillist){
+                            if(pod.title == this->d->detaillist->current())
+                                this->d->detaillist->refresh();
+                        }
                     }
                 }
             });

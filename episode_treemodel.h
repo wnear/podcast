@@ -3,7 +3,7 @@
 #include <QAbstractItemModel>
 
 enum TreeColumn {
-    TITLE,
+    TITLE = 0,
     UPDATETIME,
     SIZE,
     DURATION,
@@ -20,6 +20,7 @@ class EpisodeTreeModel : public QAbstractItemModel
       ~EpisodeTreeModel() {}
 
       void setPod(PodData *pod);
+      bool hasChildren(const QModelIndex &parent = QModelIndex()) const override;
       QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
       QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
       QModelIndex parent(const QModelIndex &child) const override;

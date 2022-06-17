@@ -1,5 +1,6 @@
 #include "downloadmanager.h"
 #include "log.h"
+#include "utils.h"
 #include <QFile>
 #include <QStringList>
 
@@ -28,29 +29,37 @@ public:
         data.append(d->readAll());
     }
     void save() {
-        qDebug()<<"job save download";
-        if(dest.isEmpty()) {
-            berror("mediafile location not specified");
-            return;
-        }
         QFile f(dest);
         QString header = f.exists()? "continue": "fresh";
-        //continue last download.
-        if(f.exists() == false) {
-            if(f.open(QIODevice::Append) == false){
-                berror("error to open file for append write.");
-                return;
+
+        do{
+            if(data.size() == 0) {
+                berror("download finish, size zero, early exit.");
+                break;
             }
-        } else {
-            if(f.open(QIODevice::WriteOnly) == false){
-                berror("error to open file for fresh write.");
-                return;
+
+            if(dest.isEmpty()) {
+                berror("mediafile location not specified");
+                break;
             }
-        } 
-        f.write(data);
-        f.close();
-        binfo("finish {}-download, file size is : {}", header, f.size());
-        qDebug()<<"job save download, after";
+            //continue last download.
+            if(f.exists() == false) {
+                if(f.open(QIODevice::Append) == false){
+                    berror("error to open file for append write.");
+                    break;
+                }
+            } else {
+                if(f.open(QIODevice::WriteOnly) == false){
+                    berror("error to open file for fresh write.");
+                    break;
+                }
+            } 
+            f.write(data);
+            f.close();
+            binfo("finish {}-download, file size is : {}", header, f.size());
+            return;
+        } while(0);
+        berror("error to download {}", url.toString());
     }
 };
 
@@ -115,6 +124,8 @@ jobid_t DownloadManager::addjob(QUrl url, const QString &dest, int start)
                 job->end_time = QDateTime::currentDateTime();
                 job->errorStr = reply->errorString();
                 job->save();
+                bwarn("Download have error: {}", job->errorStr);
+                bwarn("job url: {}", job->url.toString());
                 emit stateChanged(job->id, job->state);
             });
     connect(reply, &QNetworkReply::downloadProgress, [this, job](int cur, int total){

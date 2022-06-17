@@ -3,7 +3,7 @@
 
 #include <QDebug>
 
-PodModel::PodModel (QList<PodData> &pods, QObject *parent)
+PodModel::PodModel (QList<PodData *> &pods, QObject *parent)
    : QAbstractListModel(parent),m_data(pods) 
 {
 }
@@ -16,9 +16,9 @@ QVariant PodModel::data(const QModelIndex &index, int role) const
     auto && cur = m_data[x];
     switch(role){
         case Qt::DisplayRole:
-            return cur.title;
+            return cur->title;
         case UrlRole:
-            return cur.url;
+            return cur->url;
         default:
             break;
     }

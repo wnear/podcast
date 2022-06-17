@@ -65,7 +65,7 @@ bool jsonload(PodData *entity, const QString &filepath)
 
 bool jsonsave(PodData *entity, const QString &filepath)
 {
-    binfo("enter");
+    binfo("json save.");
     binfo("filepath: {}", filepath.toStdString());
     PodData &pod = *entity;
     binfo("test one, pod title: {}", pod.title);
@@ -92,7 +92,6 @@ bool jsonsave(PodData *entity, const QString &filepath)
         // obj["update"] = e.updatetime.toString();
         // obj["duration"] = e.duration;
         e->location = QDir(pod.location).absoluteFilePath(e->location);
-        binfo("episode.location: {}", e->location);
         eps.push_back(QJsonObject{{"title", e->title},
                                 {"cached", e->cached},
                                 {"updatetime", e->updatetime.toString()},
