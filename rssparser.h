@@ -17,6 +17,7 @@ public:
     ~RssParser(){}
 private:
     void parseEpisode();
+    void ParseImage();
 
 private:
     PodData *m_pod;

@@ -1,7 +1,13 @@
 #include "podmodel.h"
+#include "log.h"
 #include <QModelIndex>
 
 #include <QDebug>
+#include <QImage>
+#include <QPixmap>
+#include <QIcon>
+#include <QFile>
+
 
 PodModel::PodModel (QList<PodData *> &pods, QObject *parent)
    : QAbstractListModel(parent),m_data(pods) 
@@ -16,9 +22,16 @@ QVariant PodModel::data(const QModelIndex &index, int role) const
     auto && cur = m_data[x];
     switch(role){
         case Qt::DisplayRole:
+            return {};
             return cur->title;
         case UrlRole:
             return cur->url;
+        case Qt::DecorationRole:
+            if(QFile(cur->coverfile()).exists()){
+                return QIcon(QPixmap::fromImage(QImage(cur->coverfile())));
+            } else  {
+                return QIcon::fromTheme("mpv");
+            }
         default:
             break;
     }

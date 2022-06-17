@@ -72,7 +72,7 @@ bool RssParser::parse()
             case QXmlStreamReader::StartElement: {
                 const QString name = reader->name().toString();
                 const QString lower_namespace = reader->namespaceUri().toString().toLower();
-
+                //binfo("parse, header, get field of name: {}", name);
                 /*
                 if (name == "title") {
                 ret->set_title(reader->readElementText());
@@ -96,7 +96,16 @@ bool RssParser::parse()
                 ret->set_url(QUrl::fromEncoded(reader->readElementText().toLatin1()));
                 }
                 */
-                if(name == "item") { parseEpisode(); } else { backToParent(reader); }
+                if(name == "item") { 
+                    parseEpisode(); 
+                } 
+                else if (name == "image") {
+                    auto cover_url = reader->attributes().value("href").toString();
+                    m_pod->cover_url = cover_url;
+                    binfo("get cover:{}", cover_url);
+                    ParseImage();
+                }
+                else { backToParent(reader); }
                 break;
             }
             case QXmlStreamReader::EndElement:
@@ -112,6 +121,32 @@ bool RssParser::parse()
 }
 
 
+void RssParser::ParseImage() {
+
+  // while (!reader->atEnd()) {
+  //   QXmlStreamReader::TokenType type = reader->readNext();
+  //   switch (type) {
+  //     case QXmlStreamReader::StartElement: {
+  //       const QString name = reader->name().toString();
+  //       if (name == "url") {
+  //         ret->set_image_url_large(
+  //           QUrl::fromEncoded(reader->readElementText().toLatin1()));
+  //       }
+  //       else {
+  //         Utilities::ConsumeCurrentElement(reader);
+  //       }
+  //       break;
+  //     }
+
+  //     case QXmlStreamReader::EndElement:
+  //       return;
+
+  //     default:
+  //       break;
+  //   }
+  // }
+
+}
 
 void RssParser::parseEpisode()
 {

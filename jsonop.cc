@@ -82,7 +82,10 @@ bool jsonsave(PodData *entity, const QString &filepath)
     }
 
     QJsonObject whole;
-    whole["podinfo"] = QJsonObject{{"title", pod.title}, {"url", pod.url}};
+    whole["podinfo"] = QJsonObject{
+        {"title", pod.title}, 
+        {"url", pod.url}
+    };
     QJsonArray eps;
     for(auto e: pod.episodes) {
         // QJsonObject obj;

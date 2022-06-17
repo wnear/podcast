@@ -4,6 +4,7 @@
 #include "log.h"
 #include "utils.h"
 
+#include <QIcon>
 #include <algorithm>
 
 class EpisodeTreeModelPrivate {
@@ -75,11 +76,27 @@ QVariant EpisodeTreeModel::data(const QModelIndex &index, int role) const
 {
     if(! index.isValid())
         return QVariant();
+    auto && ep = d->pods[0]->episodes[index.row()];
+    auto realIndex = d->availproperty.keys().at(index.column());
+
+    if(role == Qt::DecorationRole){
+        switch(index.column()){
+            case 0:
+            return QIcon::fromTheme("nvim");
+            case 1:
+            return QIcon::fromTheme("mpv");
+            default:
+            break;
+        }
+    }
+
+    if(role == Qt::ToolTipRole){
+        return ep->description;
+    }
+
     if(role != Qt::DisplayRole)
         return QVariant();
 
-    auto && ep = d->pods[0]->episodes[index.row()];
-    auto realIndex = d->availproperty.keys().at(index.column());
     switch(realIndex){
         case TreeColumn::TITLE: 
             return ep->title;

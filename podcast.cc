@@ -71,20 +71,25 @@ Podcast::Podcast(QWidget *parent): QWidget(parent)
     d = new Private;
     load();
     d->net = new QNetworkAccessManager();
+
     QVBoxLayout *lay = new QVBoxLayout(this);
     d->list = new QListView(this);
+    {
+        d->list->setViewMode(QListView::IconMode);
+        d->list->setResizeMode(QListView::Adjust);
+        d->podsmodel = new PodModel(m_pods, this);
+        d->list->setModel(d->podsmodel);
+        d->list->setContextMenuPolicy(Qt::CustomContextMenu);
+    }
+    lay->addWidget(d->list);
+
+
     d->detail = new QTabWidget(this);
     d->detaillist = new EpisodeListWidget(this);
     d->detailtree = new EpisodeTreeWidget(this);
     d->detail->addTab(d->detailtree, "modal list");
     d->detail->addTab(d->detaillist, "diy list");
-    d->podsmodel = new PodModel(m_pods, this);
-    d->list->setModel(d->podsmodel);
 
-    
-    lay->addWidget(d->list);
-
-    d->list->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(d->list, &QWidget::customContextMenuRequested, this, [this](const QPoint &pos){
                 auto idx = d->list->indexAt(pos);
                 int row = idx.row();
@@ -101,6 +106,7 @@ Podcast::Podcast(QWidget *parent): QWidget(parent)
             });
     connect(d->list, &QListView::clicked, [this](auto &&idx){
                 // title/ url ==> feed ==> detailview ==> detailview update.
+
                 auto model = qobject_cast<PodModel *>(d->list->model());
                 auto url = model->data(idx, PodModel::UrlRole).toString();
                 int row = idx.row();
@@ -153,6 +159,7 @@ bool Podcast::load()
         
         auto x = new PodData(item.value("title").toString(),
                                  item.value("url").toString());
+        
         m_pods.push_back(x);
         //m_pods.push_back(std::move(PodData(item.value("title").toString(),
                                  //item.value("url").toString())));
@@ -214,6 +221,7 @@ void Podcast::read_opml(const QString &filename)
                 continue;
             auto x = new PodData(elnode.attribute("text", ""),
                       elnode.attribute("xmlUrl", ""));
+            binfo("set location {} {}", x->title, x->location);
             if(x->isValid()) {
                 if(alreadyHave(*x)){
                 }else {
@@ -332,8 +340,12 @@ bool Podcast::parsexml(PodData &pod)
     QFile xml_file(xml);
     auto parser = RssParser(&xml_file, &pod);
     bool ret = parser.parse();
+    if(! pod.cover_url.isEmpty())
+        if(!QFile(pod.coverfile()).exists()){
+            binfo("download cover");
+            DownloadManager::instance()->addjob(pod.cover_url, pod.coverfile());
+        }
     if(ret) {
-        pod.location = Data::podcast_datapath(pod.title);
         save(pod);
     }
     return ret;
