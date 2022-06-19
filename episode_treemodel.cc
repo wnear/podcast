@@ -127,3 +127,10 @@ bool EpisodeTreeModel::hasChildren(const QModelIndex &parent) const
 {
     return !parent.isValid();
 }
+Qt::ItemFlags EpisodeTreeModel::flags(const QModelIndex &index) const 
+{
+    auto old = QAbstractItemModel::flags(index);
+    if(index.isValid())
+        return old|Qt::ItemIsSelectable;
+    return old;
+}

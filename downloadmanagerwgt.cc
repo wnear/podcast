@@ -1,4 +1,3 @@
-
 #include "downloadmanagerwgt.h"
 #include "downloadmanager.h"
 #include <QTextEdit>

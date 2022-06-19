@@ -9,11 +9,11 @@ bool jsonload(PodData *entity, const QString &filepath);
 bool jsonsave(PodData *entity, const QString &filepath);
 
 
-bool loadBookmarks();
 bool saveBookmarks();
+bool loadBookmarks();
 
-bool loadNotes();
 bool saveNotes();
+bool loadNotes();
 //download:
 // xml => entity => json
 

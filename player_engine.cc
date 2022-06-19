@@ -51,6 +51,7 @@ void PlayerEngine::play(const QString &url)
 void PlayerEngine::play(QUrl url){
     qDebug()<<"trying to play: "<< url.toString();
     player->stop();
+    m_currentUrl = url;
     player->setMedia(url);
     player->setVolume(100);
     player->play();
@@ -61,9 +62,19 @@ void PlayerEngine::pause(){
     player->pause();
 }
 
+void PlayerEngine::resume() {
+    if(!m_currentUrl.isEmpty() ){
+        player->play();
+    } else {
+        binfo("resume, error, empty url");
+    }
+}
+
 void PlayerEngine::stop(){
+    m_currentUrl = QUrl{};
     player->stop();
 }
+
 
 void PlayerEngine::setPosition(int val)
 {
@@ -81,4 +92,8 @@ void PlayerEngine::setDuration(int val)
 {
     binfo("duration changed to {}", val);
     m_duration = val;
+}
+void PlayerEngine::setVolume(int val)
+{
+    player->setVolume(val);
 }

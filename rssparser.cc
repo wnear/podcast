@@ -109,14 +109,14 @@ bool RssParser::parse()
                 break;
             }
             case QXmlStreamReader::EndElement:
-                // binfo("{} episode cnt, {}", m_pod->title.toStdString(), m_pod->episodes.length());
+                binfo("{} episode cnt, {}", m_pod->title.toStdString(), m_pod->episodes.length());
                 return m_pod->episodes.length() > 0;
 
             default: break;
         }
     }
 
-    // binfo("{} episode cnt, {}", m_pod->title.toStdString(), m_pod->episodes.length());
+    binfo("{} episode cnt, {}", m_pod->title.toStdString(), m_pod->episodes.length());
     return m_pod->episodes.length() > 0;
 }
 

@@ -9,7 +9,7 @@ class EpisodeTreeView: public QTreeView
 {
     public:
       EpisodeTreeView(QWidget *parent = nullptr);
-      ~EpisodeTreeView(){}
+      ~EpisodeTreeView();
       void setPod(PodData *pod);
 
       void onCustomContextMenuRequested(const QPoint &p);
@@ -17,7 +17,9 @@ class EpisodeTreeView: public QTreeView
       void mouseDoubleClickEvent(QMouseEvent *event) override;
       // into detail wgt.
       void mousePressEvent(QMouseEvent *event) override;
+    protected:
+      bool eventFilter(QObject *obj, QEvent *evt) override;
 
     private:
-      class EpisodeTreeViewPrivate *d;
+        class EpisodeTreeViewPrivate *d;
 };

@@ -30,6 +30,7 @@
 
 #include "podcast.h"
 #include "rssparser.h"
+#include "opmlparser.h"
 #include "episodelistwgt.h"
 #include "episode_treewidget.h"
 
@@ -75,8 +76,8 @@ Podcast::Podcast(QWidget *parent): QWidget(parent)
     QVBoxLayout *lay = new QVBoxLayout(this);
     d->list = new QListView(this);
     {
-        d->list->setViewMode(QListView::IconMode);
-        d->list->setResizeMode(QListView::Adjust);
+        // d->list->setViewMode(QListView::IconMode);
+        // d->list->setResizeMode(QListView::Adjust);
         d->podsmodel = new PodModel(m_pods, this);
         d->list->setModel(d->podsmodel);
         d->list->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -195,46 +196,24 @@ void Podcast::importdlg()
 
 void Podcast::read_opml(const QString &filename)
 {
-    QDomDocument docu;
-    QFile xml(filename);
-    if(xml.exists() == false || xml.open(QIODevice::ReadOnly) == false){
-        qDebug()<<"Error to open opml file";
+    auto res = OpmlParser(filename).parse();
+    if(res.isEmpty())
         return;
-    }
-    docu.setContent(xml.readAll());
-    auto nodes = docu.elementsByTagName("outline");
-    auto alreadyHave = [this](const PodData &now){
+
+    auto alreadyHave = [this](const QString& name, const QString& title){
         auto i = std::find_if(m_pods.begin(), m_pods.end(), 
-                              [now](auto && p){
-                                  return p->url == now.url;
+                              [name, title](auto && p){
+                                  return p->url == title;
                               });
         return i != m_pods.end();
     };
-    int sum = nodes.length();
-    int added = 0;
-    for(decltype(nodes.length()) i = 0; i < nodes.length(); i++) {
-        auto node = nodes.item(i);
-        if(node.isElement()){
-            qDebug()<<"idx = "<<i;
-            auto elnode = node.toElement();
-            if(elnode.isNull())
-                continue;
-            auto x = new PodData(elnode.attribute("text", ""),
-                      elnode.attribute("xmlUrl", ""));
-            binfo("set location {} {}", x->title, x->location);
-            if(x->isValid()) {
-                if(alreadyHave(*x)){
-                }else {
-                    added += 1;
-                    m_pods.push_back(x);
-                }
-            } else {
-                delete x;
-            }
-        }
+
+    for(auto i: res){
+        if(! alreadyHave(i.first, i.second))
+            m_pods.push_back(new PodData(i.first, i.second));
     }
-    qDebug()<< QString("result: %1 of %2 is added").arg(added).arg(sum);
-    d->podsmodel->resetData(m_pods);
+
+    // d->podsmodel->resetData(m_pods);
     d->list->reset();
 
     save();

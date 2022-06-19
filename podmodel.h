@@ -26,6 +26,7 @@ class PodModel : public QAbstractListModel
 
     private:
         QList<PodData *> &m_data;
+        int m_viewMode;
 };
 
 

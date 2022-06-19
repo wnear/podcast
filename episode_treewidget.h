@@ -17,7 +17,7 @@ class EpisodeTreeWidget: public QFrame
 {
     public:
       EpisodeTreeWidget(QWidget *parent = nullptr);
-      ~EpisodeTreeWidget() {}
+      ~EpisodeTreeWidget();
       void setPod(PodData *pod);
 
       // TODO:

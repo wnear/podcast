@@ -96,6 +96,7 @@ void Mainwindow::setupToolbar()
 
     auto icon = QIcon::fromTheme("download");
     auto act = new QAction(icon, "hello");
+    act->setToolTip("world");
     auto download = new QAction(icon,"download" );
     connect(download, &QAction::triggered, [this](){
                 DownloadManagerWidget dlg(this);
@@ -104,6 +105,7 @@ void Mainwindow::setupToolbar()
                 dlg.exec();
                 qDebug()<<"after exec";
             });
+
     bar->addAction(act);
     bar->addAction(download);
 

@@ -65,3 +65,4 @@ void EpisodeTreeWidget::setPod(PodData *pod)
 {
     d->view->setPod(pod);
 }
+EpisodeTreeWidget::~EpisodeTreeWidget() { delete d;}

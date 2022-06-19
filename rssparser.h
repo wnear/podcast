@@ -1,6 +1,4 @@
-#ifndef __RSS_PARSER_H
-#define __RSS_PARSER_H
-
+#pragma once
 
 #include <QString>
 
@@ -12,7 +10,6 @@ class RssParser
 {
 public:
     RssParser(QIODevice *, PodData *);
-    RssParser(const QString &xml, const QString &json){}
     bool parse();
     ~RssParser(){}
 private:
@@ -26,4 +23,3 @@ private:
 };
 
 
-#endif

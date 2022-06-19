@@ -15,6 +15,8 @@ class PlayerEngine : public QObject
         ~PlayerEngine() = default;
         void play(const QString &url);
         void play(QUrl);
+        void setVolume(int);
+        void resume();
         void pause();
         void stop();
         int duration()const;
@@ -29,6 +31,7 @@ class PlayerEngine : public QObject
         QMediaPlayer *player;
         static PlayerEngine *ins;
         int m_duration;
+        QUrl m_currentUrl;
 };
 
 #endif

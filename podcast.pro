@@ -33,7 +33,7 @@ HEADERS += downloadmanager.h \
            mainwindow.h \
            network.h \
            notification.h \
-           opml.h \
+           opmlparser.h \
            player.h \
            player_engine.h \
            podcast.h \
@@ -64,7 +64,7 @@ SOURCES += downloadmanager.cc \
            mainwindow.cc \
            network.cc \
            notification.cc \
-           opml.cc \
+           opmlparser.cc \
            player.cc \
            player_engine.cc \
            podcast.cc \

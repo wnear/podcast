@@ -1,4 +1,3 @@
-
 #include "player.h"
 #include <QGridLayout>
 #include <QSlider>
@@ -16,6 +15,7 @@ public:
     QLabel *info;
     QLabel *pos;
     QSlider *progressbar;
+    PlayerEngine *engine;
 
 };
 Player::Player(QWidget *parent):QFrame(parent)
@@ -32,6 +32,7 @@ Player::Player(QWidget *parent):QFrame(parent)
     d->progressbar = new QSlider(Qt::Horizontal, this);
     d->progressbar->setRange(0, 100);
     d->progressbar->setTracking(false);
+    d->engine = PlayerEngine::instance();
 
     lay->addWidget(d->info);
     lay->addWidget(d->pos);
@@ -40,23 +41,23 @@ Player::Player(QWidget *parent):QFrame(parent)
     this->setLayout(lay);
     //this->setFixedHeight(100);
 
-    connect(d->progressbar, &QSlider::sliderMoved,
-            PlayerEngine::instance(),[this, player = PlayerEngine::instance()](int val){
+    connect( d->progressbar, &QSlider::sliderMoved,
+            this,[this](int val){
                 {
-                    player->setPosition(val * 1000);
+                    d->engine->setPosition(val * 1000);
                 }
             });
-    connect( PlayerEngine::instance(),&PlayerEngine::positionChanged,
+    connect( d->engine, &PlayerEngine::positionChanged,
             this, [this](int val){
                 if(!d->progressbar->isSliderDown())
                 d->progressbar->setValue(val/1000);
             });
-    connect( PlayerEngine::instance(),&PlayerEngine::durationChanged,
+    connect( d->engine, &PlayerEngine::durationChanged,
             this, [this](int val){
                 d->info->setText(QString("Duratin:(%1) %2").arg(val/1000).arg(int2hms(val/1000)));
                 d->progressbar->setMaximum(val/1000);
             });
-    connect( PlayerEngine::instance(),&PlayerEngine::positionChanged,
+    connect( d->engine, &PlayerEngine::positionChanged,
            this, [this](int pos){
                 int all = PlayerEngine::instance()->duration();
                 d->pos->setText(QString("%1     %2")
@@ -64,3 +65,23 @@ Player::Player(QWidget *parent):QFrame(parent)
                                      .arg(int2hms(all/1000)));
             } );
 }
+void Player::Pause() 
+{
+    d->engine->pause();
+}
+
+void Player::Play() 
+{
+    d->engine->resume();
+}
+
+void Player::Stop() 
+{
+    d->engine->stop();
+}
+
+void Player::setVolume(int x) 
+{
+    d->engine->setVolume(x);
+}
+
