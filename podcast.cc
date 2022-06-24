@@ -74,6 +74,7 @@ Podcast::Podcast(QWidget *parent): QWidget(parent)
     d->net = new QNetworkAccessManager();
 
     QVBoxLayout *lay = new QVBoxLayout(this);
+    lay->setContentsMargins(0, 0, 0, 0);
     d->list = new QListView(this);
     {
         // d->list->setViewMode(QListView::IconMode);

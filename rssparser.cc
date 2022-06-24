@@ -7,9 +7,13 @@
 #include "episodedata.h"
 #include <QXmlStreamReader>
 #include <QDebug>
+#include <QDomDocument>
 
 #include "utils.h"
 #include <algorithm>
+
+#include <QXmlSchemaValidator>
+#include <QXmlSchema>
 
 #include <QUrl>
 
@@ -50,6 +54,10 @@ RssParser::RssParser(QIODevice *f, PodData *pod): m_pod(pod), m_file(f)
 
 bool RssParser::parse()
 {
+    if(this->isValid() == false){
+        berror("not a valid xml file. exit...");
+        return false;
+    }
     m_pod->episodes.clear();
     bool ret = true;
     if (!m_file->isOpen()){
@@ -72,7 +80,7 @@ bool RssParser::parse()
             case QXmlStreamReader::StartElement: {
                 const QString name = reader->name().toString();
                 const QString lower_namespace = reader->namespaceUri().toString().toLower();
-                //binfo("parse, header, get field of name: {}", name);
+                binfo("parse, header, get field of name: {}", name);
                 /*
                 if (name == "title") {
                 ret->set_title(reader->readElementText());
@@ -97,6 +105,7 @@ bool RssParser::parse()
                 }
                 */
                 if(name == "item") { 
+                    binfo("get item.");
                     parseEpisode(); 
                 } 
                 else if (name == "image") {
@@ -104,8 +113,11 @@ bool RssParser::parse()
                     m_pod->cover_url = cover_url;
                     binfo("get cover:{}", cover_url);
                     ParseImage();
+                    backToParent(reader);
+                    // continue;
+                } else {
+                    backToParent(reader);
                 }
-                else { backToParent(reader); }
                 break;
             }
             case QXmlStreamReader::EndElement:
@@ -223,4 +235,9 @@ void RssParser::parseEpisode()
                 break;
         }
     }
+}
+bool RssParser::isValid()
+{ 
+    QXmlSchema schema;
+    return schema.load(m_file);
 }

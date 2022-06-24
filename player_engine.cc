@@ -75,7 +75,6 @@ void PlayerEngine::stop(){
     player->stop();
 }
 
-
 void PlayerEngine::setPosition(int val)
 {
     player->setPosition(val);
@@ -93,7 +92,44 @@ void PlayerEngine::setDuration(int val)
     binfo("duration changed to {}", val);
     m_duration = val;
 }
+
 void PlayerEngine::setVolume(int val)
 {
     player->setVolume(val);
 }
+
+void PlayerEngine::seekforward() 
+{
+    auto left = (player->duration() - player->position());
+    if(left > m_jump_duration*1000){
+        player->setPosition(player->position() + m_jump_duration*1000);
+    } else {
+    }
+}
+
+
+void PlayerEngine::seekbackward() 
+{
+    auto cur = player->position();
+    if(cur > m_jump_duration*1000)
+        cur -= m_jump_duration*1000;
+    else
+        cur = 0;
+    player->setPosition(cur);
+}
+
+
+void PlayerEngine::faster() 
+{
+    m_speed += 0.1;
+    this->player->setPlaybackRate(m_speed);
+}
+
+
+void PlayerEngine::slower() 
+{
+    m_speed -= 0.1;
+    this->player->setPlaybackRate(m_speed);
+}
+
+

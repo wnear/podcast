@@ -32,6 +32,7 @@ EpisodeTreeWidget::EpisodeTreeWidget(QWidget *parent)
     d = new EpisodeTreeWidgetPrivate;
 
     auto lay = new QVBoxLayout;
+    lay->setContentsMargins(0, 0, 0, 0);
 
     auto head = new QHBoxLayout;
     head->addWidget(&(d->update));
@@ -39,11 +40,11 @@ EpisodeTreeWidget::EpisodeTreeWidget(QWidget *parent)
 
     head->addWidget(&(d->filter));
     auto menu = new QMenu;
-    menu->addAction("hello");
+    auto act = menu->addAction("DownloadedOnly");
+    act->setCheckable(true);
     d->filter.setMenu(menu);
     d->filter.setPopupMode(QToolButton::InstantPopup);
     d->filter.setArrowType(Qt::NoArrow);
-
 
     head->addStretch(1);
     head->addWidget(&(d->fetchmore));

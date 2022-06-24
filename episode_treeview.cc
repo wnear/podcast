@@ -27,6 +27,7 @@ EpisodeTreeView::EpisodeTreeView(QWidget *parent)
     this->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, &QWidget::customContextMenuRequested, 
             this, &EpisodeTreeView::onCustomContextMenuRequested);
+        //double click.
 }
 void EpisodeTreeView::setPod(PodData *pod) 
 {
@@ -37,7 +38,15 @@ void EpisodeTreeView::setPod(PodData *pod)
 void EpisodeTreeView::onCustomContextMenuRequested(const QPoint &p) 
 {
     auto menu = new QMenu;
-    menu->addAction("Hello");
+    menu->addAction("Detail");
+    menu->addAction("Locate File");
+    menu->addAction("Toggle Play");
+    menu->addAction("Open With Default Player");
+    menu->addSeparator();
+    menu->addAction("Download or pause");
+    //menu->addAction("Pause Downloading");
+    menu->addAction("GoTo Download Management");
+    menu->addAction("Delete");
 
     menu->exec(mapToGlobal(p));
 }
@@ -54,13 +63,10 @@ bool EpisodeTreeView::eventFilter(QObject *obj, QEvent *evt) {
     if(evt->type() == QEvent::HoverEnter){
         binfo("treeview, hoverenter.");
     } else if(evt->type() == QEvent::HoverLeave){
-
         binfo("treeview, hoverLeave.");
     } else if(evt->type() == QEvent::HoverMove){
-
         binfo("treeview, hovermove.");
     } else {
-
     }
     return  QTreeView::eventFilter(obj, evt);
 }

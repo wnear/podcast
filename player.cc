@@ -5,13 +5,26 @@
 #include "player_engine.h"
 #include "utils.h"
 #include "log.h"
+#include <QOpenGLWidget>
+#include <QToolButton>
+#include <QAction>
 
 namespace {
 }
 
 class PlayerPrivate {
 public:
-    QLabel *cover;
+    
+    QOpenGLWidget *cover;
+    QToolButton play;
+    QToolButton pause;
+    QToolButton stop;
+    QToolButton jumpforward;
+    QToolButton jumpback;
+    QToolButton faster;
+    QToolButton slower;
+    QList<QToolButton*> btns;
+
     QLabel *info;
     QLabel *pos;
     QSlider *progressbar;
@@ -20,24 +33,69 @@ public:
 };
 Player::Player(QWidget *parent):QFrame(parent)
 {
-    auto *lay = new QVBoxLayout(this);
-
     d = new PlayerPrivate;
-
-    d->info = new QLabel;
-    d->info->setText(QString("Duration: "));
-    d->pos = new QLabel;
-    d->pos->setText(QString("Position: "));
-
-    d->progressbar = new QSlider(Qt::Horizontal, this);
-    d->progressbar->setRange(0, 100);
-    d->progressbar->setTracking(false);
     d->engine = PlayerEngine::instance();
 
-    lay->addWidget(d->info);
-    lay->addWidget(d->pos);
+    auto *lay = new QHBoxLayout(this);
 
-    lay->addWidget(d->progressbar);
+    d->cover = new QOpenGLWidget;
+    auto right = new QVBoxLayout;
+    lay->addWidget(d->cover);
+    lay->addLayout(right);
+
+    auto right_up = new QHBoxLayout;
+    auto right_bottom = new QHBoxLayout;
+    right->addLayout(right_up);
+    right->addLayout(right_bottom);
+
+    {
+        d->play.setIcon(QIcon::fromTheme("media-playback-start"));
+        d->pause.setIcon(QIcon::fromTheme("media-playback-paused"));
+        d->stop.setIcon(QIcon::fromTheme("media-playback-stop"));
+        d->jumpforward.setIcon(QIcon::fromTheme("media-skip-forward"));
+        d->jumpback.setIcon(QIcon::fromTheme("media-skip-backward"));
+        d->faster.setIcon(QIcon::fromTheme("media-seek-forward"));
+        d->slower.setIcon(QIcon::fromTheme("media-seek-backward"));
+        connect(&d->play, &QToolButton::clicked,
+                d->engine, &PlayerEngine::resume);
+        connect(&d->pause, &QToolButton::clicked,
+                d->engine, &PlayerEngine::pause);
+        connect(&d->stop, &QToolButton::clicked,
+                d->engine, &PlayerEngine::stop);
+        connect(&d->jumpback, &QToolButton::clicked,
+                d->engine, &PlayerEngine::seekforward);
+        connect(&d->jumpforward, &QToolButton::clicked,
+                d->engine, &PlayerEngine::seekbackward);
+        connect(&d->slower, &QToolButton::clicked,
+                d->engine, &PlayerEngine::slower);
+        connect(&d->faster, &QToolButton::clicked,
+                d->engine, &PlayerEngine::faster);
+    }
+
+    right_up->addWidget(&d->play);
+    right_up->addWidget(&d->pause);
+    right_up->addWidget(&d->stop);
+    right_up->addWidget(&d->jumpback);
+    right_up->addWidget(&d->jumpforward);
+    right_up->addWidget(&d->slower);
+    right_up->addWidget(&d->faster);
+    right_up->addStretch(1);
+
+    {
+        d->info = new QLabel;
+        d->info->setText(QString("Duration: "));
+        d->pos = new QLabel;
+        d->pos->setText(QString("Position: "));
+
+        d->progressbar = new QSlider(Qt::Horizontal, this);
+        d->progressbar->setRange(0, 100);
+        d->progressbar->setTracking(false);
+    }
+    right_bottom->addWidget(d->info);
+    right_bottom->addWidget(d->pos);
+    right_bottom->addWidget(d->pos);
+    right_bottom->addWidget(d->progressbar);
+    
     this->setLayout(lay);
     //this->setFixedHeight(100);
 

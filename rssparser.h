@@ -12,7 +12,9 @@ public:
     RssParser(QIODevice *, PodData *);
     bool parse();
     ~RssParser(){}
-private:
+    bool isValid();
+
+  private:
     void parseEpisode();
     void ParseImage();
 

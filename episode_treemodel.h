@@ -32,3 +32,5 @@ class EpisodeTreeModel : public QAbstractItemModel
     private:
         class EpisodeTreeModelPrivate *d;
 };
+
+

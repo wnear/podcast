@@ -18,6 +18,10 @@ class PlayerEngine : public QObject
         void setVolume(int);
         void resume();
         void pause();
+        void seekforward();
+        void seekbackward();
+        void faster();
+        void slower();
         void stop();
         int duration()const;
     public slots:
@@ -32,6 +36,8 @@ class PlayerEngine : public QObject
         static PlayerEngine *ins;
         int m_duration;
         QUrl m_currentUrl;
+        float m_speed = 1.0;
+        int m_jump_duration = 30; // in seconds.
 };
 
 #endif

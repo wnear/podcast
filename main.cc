@@ -17,6 +17,7 @@ int main (int argc, char *argv[])
     Data::init();
     
     binfo("icon theme: {}", QIcon::themeName());
+    QIcon::setThemeName("breeze");
     for(auto i: QIcon::themeSearchPaths())
         binfo("icon paths: {}", i);
 
