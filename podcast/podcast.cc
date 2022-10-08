@@ -33,6 +33,7 @@
 #include "opmlparser.h"
 #include "episodelistwgt.h"
 #include "episode_treewidget.h"
+#include "episode_detail_wgt.h"
 
 #include "downloadmanager.h"
 #include "log.h"
@@ -61,6 +62,7 @@ public:
     QTabWidget *detail;
     EpisodeListWidget *detaillist;
     EpisodeTreeWidget *detailtree;
+    EpisodeDetail *ep_detail;
     PodModel *podsmodel;
     QString lastxml;
     QString totalxml;
@@ -89,8 +91,10 @@ Podcast::Podcast(QWidget *parent): QWidget(parent)
     d->detail = new QTabWidget(this);
     d->detaillist = new EpisodeListWidget(this);
     d->detailtree = new EpisodeTreeWidget(this);
+    d->ep_detail = new EpisodeDetail(this);
     d->detail->addTab(d->detailtree, "modal list");
     d->detail->addTab(d->detaillist, "diy list");
+    d->detail->addTab(d->ep_detail, "ep detail");
 
     connect(d->list, &QWidget::customContextMenuRequested, this, [this](const QPoint &pos){
                 auto idx = d->list->indexAt(pos);
@@ -158,10 +162,10 @@ bool Podcast::load()
     }
     for(auto i: doc.array()) {
         auto item = i.toObject();
-        
+
         auto x = new PodData(item.value("title").toString(),
                                  item.value("url").toString());
-        
+
         m_pods.push_back(x);
         //m_pods.push_back(std::move(PodData(item.value("title").toString(),
                                  //item.value("url").toString())));
@@ -170,7 +174,7 @@ bool Podcast::load()
 }
 
 
-QWidget *Podcast::detail() const 
+QWidget *Podcast::detail() const
 { return d->detail; }
 
 
@@ -186,7 +190,7 @@ QString Podcast::datapath(PodData &pod) const
 
 void Podcast::importdlg()
 {
-    QString filename = QFileDialog::getOpenFileName(/*paent wgt*/this, 
+    QString filename = QFileDialog::getOpenFileName(/*paent wgt*/this,
                                                 /*caption*/"get opml file");
                                                 /*dir*/
                                                 /*filter*/
@@ -202,7 +206,7 @@ void Podcast::read_opml(const QString &filename)
         return;
 
     auto alreadyHave = [this](const QString& name, const QString& title){
-        auto i = std::find_if(m_pods.begin(), m_pods.end(), 
+        auto i = std::find_if(m_pods.begin(), m_pods.end(),
                               [name, title](auto && p){
                                   return p->url == title;
                               });
@@ -270,7 +274,7 @@ bool Podcast::load(PodData &pod){
 4. add data => pod -> other field.
 5. add episode => pod->episodes
 6. sync pod data => local json
- */ 
+ */
 void Podcast::podUpdate(PodData &pod){
     updatexml(pod);
 }
@@ -314,7 +318,7 @@ bool Podcast::updatexml(PodData &pod)
     return true;
 }
 
-bool Podcast::parsexml(PodData &pod) 
+bool Podcast::parsexml(PodData &pod)
 {
     QString xml = QDir(this->datapath(pod)).filePath(c_podcast_localxml);
     QFile xml_file(xml);

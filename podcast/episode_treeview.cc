@@ -1,5 +1,6 @@
 #include "episode_treeview.h"
 #include "episode_treemodel.h"
+#include <QItemSelectionModel>
 #include "log.h"
 
 #include <QMenu>
@@ -11,31 +12,49 @@ class EpisodeTreeModel;
 class EpisodeTreeViewPrivate{
 public:
     EpisodeTreeModel *data{nullptr};
+    EpisodeTreeSortFilterModel *sortmodel;
+    QItemSelectionModel *selectModel;
+
     ~EpisodeTreeViewPrivate(){
         data->deleteLater();
     }
 };
 
-EpisodeTreeView::EpisodeTreeView(QWidget *parent) 
+EpisodeTreeView::EpisodeTreeView(QWidget *parent)
     :QTreeView(parent)
 {
     d = new EpisodeTreeViewPrivate;
     d->data = new EpisodeTreeModel;
-    this->setModel(d->data);
+    d->sortmodel = new EpisodeTreeSortFilterModel;
+    d->selectModel = new QItemSelectionModel(d->data);
+
+    d->sortmodel->setSourceModel(d->data);
+
+    this->setRootIsDecorated(false);
+    this->setModel(d->sortmodel);
+    this->setSortingEnabled(true);
+    this->setSelectionModel(d->selectModel);
+    this->setSelectionMode(QAbstractItemView::SingleSelection);
+
+    this->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::SelectedClicked);
 
     this->installEventFilter(this);
     this->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(this, &QWidget::customContextMenuRequested, 
+    connect(this, &QWidget::customContextMenuRequested,
             this, &EpisodeTreeView::onCustomContextMenuRequested);
         //double click.
+    connect(this,&QAbstractItemView::doubleClicked, [this](const QModelIndex &index){
+                auto c = index.siblingAtColumn(TreeColumn::LOCATION);
+                auto location = this->model()->data(c).toString();
+            } );
 }
-void EpisodeTreeView::setPod(PodData *pod) 
+void EpisodeTreeView::setPod(PodData *pod)
 {
     d->data->setPod(pod);
     this->reset();
 }
 
-void EpisodeTreeView::onCustomContextMenuRequested(const QPoint &p) 
+void EpisodeTreeView::onCustomContextMenuRequested(const QPoint &p)
 {
     auto menu = new QMenu;
     menu->addAction("Detail");
@@ -54,12 +73,12 @@ void EpisodeTreeView::mousePressEvent(QMouseEvent *event)
 {
     auto index = this->indexAt(event->pos());
 }
-void EpisodeTreeView::mouseDoubleClickEvent(QMouseEvent *event) 
+void EpisodeTreeView::mouseDoubleClickEvent(QMouseEvent *event)
 {
     auto index = this->indexAt(event->pos());
 }
 bool EpisodeTreeView::eventFilter(QObject *obj, QEvent *evt) {
-    
+
     if(evt->type() == QEvent::HoverEnter){
         binfo("treeview, hoverenter.");
     } else if(evt->type() == QEvent::HoverLeave){

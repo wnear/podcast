@@ -55,7 +55,7 @@ RssParser::RssParser(QIODevice *f, PodData *pod): m_pod(pod), m_file(f)
 bool RssParser::parse()
 {
     if(this->isValid() == false){
-        berror("not a valid xml file. exit...");
+        berror(" before parse, xml file not valid. abort...");
         return false;
     }
     m_pod->episodes.clear();
@@ -104,10 +104,10 @@ bool RssParser::parse()
                 ret->set_url(QUrl::fromEncoded(reader->readElementText().toLatin1()));
                 }
                 */
-                if(name == "item") { 
+                if(name == "item") {
                     binfo("get item.");
-                    parseEpisode(); 
-                } 
+                    parseEpisode();
+                }
                 else if (name == "image") {
                     auto cover_url = reader->attributes().value("href").toString();
                     m_pod->cover_url = cover_url;
@@ -186,7 +186,7 @@ void RssParser::parseEpisode()
                                        return a.toInt();
                                    });
                     episode->duration = std::accumulate(std::begin(pi), std::end(pi), 0, [](auto x, auto y){ return x * 60 + y; });
-                    // #FIXME 
+                    // #FIXME
                     // why this fail...
                     //episode->duration = std::accumulate(std::begin(parts), std::end(parts), 0, [](auto x, auto y){ return x.toInt()* 60 + y.toInt(); });
 
@@ -225,7 +225,7 @@ void RssParser::parseEpisode()
                         episode->location = episode->url.fileName();
                         // binfo("ending of parser, duration({}), filesize({}), location({})", episode->duration, episode->filesize, episode->location.toStdString());
                         m_pod->episodes.push_back(episode);
-                        
+
                     }
                 }
 
@@ -237,7 +237,7 @@ void RssParser::parseEpisode()
     }
 }
 bool RssParser::isValid()
-{ 
+{
     QXmlSchema schema;
     return schema.load(m_file);
 }

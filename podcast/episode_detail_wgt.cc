@@ -17,7 +17,7 @@
 class EpisodeDetailPrivate {
 public:
     QScrollArea *base;
-    
+
     QLabel detail;
     QPushButton play;
     QPushButton star;
@@ -27,7 +27,7 @@ public:
     QTextEdit notes;
 };
 
-EpisodeDetail::EpisodeDetail(QWidget *parent) 
+EpisodeDetail::EpisodeDetail(QWidget *parent)
 :QWidget(parent)
 {
     d = new EpisodeDetailPrivate;
@@ -62,4 +62,9 @@ EpisodeDetail::EpisodeDetail(QWidget *parent)
 EpisodeDetail::~EpisodeDetail()
 {
     delete d;
+}
+void EpisodeDetail::setData(EpisodeData *data)
+{
+    m_data = data;
+    d->detail.setText(m_data->description);
 }

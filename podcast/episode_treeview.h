@@ -3,7 +3,7 @@
 #include <QTreeView>
 class QWidget;
 class PodData;
-
+class EpisodeData;
 
 class EpisodeTreeView: public QTreeView
 {
@@ -19,6 +19,8 @@ class EpisodeTreeView: public QTreeView
       void mousePressEvent(QMouseEvent *event) override;
     protected:
       bool eventFilter(QObject *obj, QEvent *evt) override;
+    signals:
+        void showEpDetail(EpisodeData *data);
 
     private:
         class EpisodeTreeViewPrivate *d;

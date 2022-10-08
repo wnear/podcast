@@ -11,9 +11,12 @@
 
 constexpr char c_podcast_localxml[] = "podcast.xml";
 
-struct PodData
+class PodData: public QObject
 {
-        PodData(const QString &x, const QString &y){
+    public:
+        PodData(const QString &x, const QString &y, QObject *parent = nullptr)
+            :QObject(parent)
+        {
             title = x;
             url  = y;
             location = Data::podcast_datapath(title);
