@@ -53,13 +53,15 @@ public:
                     berror("error to open file for fresh write.");
                     break;
                 }
-            } 
+            }
             f.write(data);
             f.close();
-            binfo("finish {}-download, file size is : {}", header, f.size());
+            //TODO:
+            //binfo("finish {}-download, file size is : {}", header, f.size());
             return;
         } while(0);
-        berror("error to download {}", url.toString());
+        // berror("error to download {}", url.toString());
+        // berror(this->url.toString());
     }
 };
 
@@ -78,7 +80,7 @@ QPair<int, int> DownloadManager::getJobProgress(jobid_t id){
 jobstatus_t DownloadManager::getJobStatus(jobid_t id){
     if(m_jobs.keys().contains(id))
         return m_jobs[id]->state;
-    else 
+    else
         return NOTFOND;
 }
 
@@ -87,7 +89,7 @@ jobid_t DownloadManager::addjob(QUrl url, const QString &dest, int start)
 {
     qDebug()<<__FILE__<<__LINE__ <<"add job for"<<url.toString();
     qDebug()<<__FILE__<<__LINE__ <<"complete will be saved to: "<<dest;
-    
+
     QNetworkRequest req(url);
     if(start != 0){
         qDebug()<<"special downloading, continue from positon of: "<<start;
@@ -119,7 +121,7 @@ jobid_t DownloadManager::addjob(QUrl url, const QString &dest, int start)
     connect(reply, &QNetworkReply::errorOccurred, [this, reply, job](auto && errorcode){
                 if(errorcode == QNetworkReply::OperationCanceledError)
                     job->state = TASK_USR_ABORT;
-                else 
+                else
                     job->state = TASK_NETERROR;
                 job->end_time = QDateTime::currentDateTime();
                 job->errorStr = reply->errorString();
@@ -169,7 +171,7 @@ QString DownloadManager::toString()
 }
 
 
-void DownloadManager::abort_job(jobid_t id) 
+void DownloadManager::abort_job(jobid_t id)
 {
     auto *job = m_jobs.value(id);
     if(job != nullptr && job->state == TASK_DOWNLOADING){
