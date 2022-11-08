@@ -51,8 +51,6 @@ Mainwindow::Mainwindow(QWidget *parent):
     lay->addWidget(d->rightPlayer, 0);
     d->right->setLayout(lay);
 
-    
-
     d->localpod = new Podcast(this);
     d->subpod = new SubPodcast(this);
     d->subsong = new SubSong(this);
@@ -72,6 +70,7 @@ Mainwindow::Mainwindow(QWidget *parent):
     this->setCentralWidget(d->base);
     setupMenu();
     setupToolbar();
+    this->resize(2000,1600);
 }
 Mainwindow::~Mainwindow()
 {

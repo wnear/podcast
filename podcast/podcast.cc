@@ -31,7 +31,7 @@
 #include "podcast.h"
 #include "rssparser.h"
 #include "opmlparser.h"
-#include "episodelistwgt.h"
+// #include "episodelistwgt.h"
 #include "episode_treewidget.h"
 #include "episode_detail_wgt.h"
 
@@ -60,7 +60,7 @@ class Podcast::Private{
 public:
     QListView *list;
     QTabWidget *detail;
-    EpisodeListWidget *detaillist;
+    // EpisodeListWidget *detaillist;
     EpisodeTreeWidget *detailtree;
     EpisodeDetail *ep_detail;
     PodModel *podsmodel;
@@ -89,11 +89,11 @@ Podcast::Podcast(QWidget *parent): QWidget(parent)
 
 
     d->detail = new QTabWidget(this);
-    d->detaillist = new EpisodeListWidget(this);
+    // d->detaillist = new EpisodeListWidget(this);
     d->detailtree = new EpisodeTreeWidget(this);
     d->ep_detail = new EpisodeDetail(this);
     d->detail->addTab(d->detailtree, "modal list");
-    d->detail->addTab(d->detaillist, "diy list");
+    // d->detail->addTab(d->detaillist, "diy list");
     d->detail->addTab(d->ep_detail, "ep detail");
 
     connect(d->list, &QWidget::customContextMenuRequested, this, [this](const QPoint &pos){
@@ -119,7 +119,7 @@ Podcast::Podcast(QWidget *parent): QWidget(parent)
                 podLoad(*m_pods[row]);
                 int cnt = m_pods[row]->episodes.count();
                 qDebug()<<"by load from cache, get episodes of count: " << cnt;
-                d->detaillist->setPod( m_pods[row]);
+                // d->detaillist->setPod( m_pods[row]);
                 d->detailtree->setPod( m_pods[row]);
             });
 }
@@ -308,10 +308,10 @@ bool Podcast::updatexml(PodData &pod)
                 if(id == pod.job_id){
                     if(st == TASK_COMPLETE){
                         this->parsexml(pod);
-                        if(d->detail->currentWidget() == d->detaillist){
-                            if(pod.title == this->d->detaillist->current())
-                                this->d->detaillist->refresh();
-                        }
+                        // if(d->detail->currentWidget() == d->detaillist){
+                        //     if(pod.title == this->d->detaillist->current())
+                        //         this->d->detaillist->refresh();
+                        // }
                     }
                 }
             });

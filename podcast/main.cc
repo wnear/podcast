@@ -7,7 +7,10 @@
 #include "downloadmanager.h"
 int main (int argc, char *argv[])
 {
+    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling, true);
+    QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps, true);
     QApplication app(argc, argv);
+
     app.setApplicationName("podcast");
     app.setApplicationDisplayName("podcast");
     app.setQuitOnLastWindowClosed(true);
@@ -15,7 +18,7 @@ int main (int argc, char *argv[])
     Log::init();
 
     Data::init();
-    
+
     binfo("icon theme: {}", QIcon::themeName());
     QIcon::setThemeName("breeze");
     for(auto i: QIcon::themeSearchPaths())

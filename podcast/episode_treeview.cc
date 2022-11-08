@@ -4,8 +4,12 @@
 #include "log.h"
 
 #include <QMenu>
+#include <QDebug>
 #include <QMouseEvent>
 #include <QHoverEvent>
+#include <QHeaderView>
+
+#include "player_engine.h"
 
 class EpisodeTreeModel;
 
@@ -14,6 +18,7 @@ public:
     EpisodeTreeModel *data{nullptr};
     EpisodeTreeSortFilterModel *sortmodel;
     QItemSelectionModel *selectModel;
+    PlayerEngine *player;
 
     ~EpisodeTreeViewPrivate(){
         data->deleteLater();
@@ -24,29 +29,33 @@ EpisodeTreeView::EpisodeTreeView(QWidget *parent)
     :QTreeView(parent)
 {
     d = new EpisodeTreeViewPrivate;
+    d->player = PlayerEngine::instance();
     d->data = new EpisodeTreeModel;
     d->sortmodel = new EpisodeTreeSortFilterModel;
-    d->selectModel = new QItemSelectionModel(d->data);
-
     d->sortmodel->setSourceModel(d->data);
+    this->setModel(d->sortmodel);
+
 
     this->setRootIsDecorated(false);
-    this->setModel(d->sortmodel);
     this->setSortingEnabled(true);
-    this->setSelectionModel(d->selectModel);
+    d->selectModel = new QItemSelectionModel(d->data);
+    // this->setSelectionModel(d->selectModel);
     this->setSelectionMode(QAbstractItemView::SingleSelection);
 
-    this->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::SelectedClicked);
+    //this->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::SelectedClicked);
 
     this->installEventFilter(this);
+    this->header()->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(this->header(), &QWidget::customContextMenuRequested,[this](const QPoint &p){
+        auto menu = new QMenu;
+        QAction *act;
+        act = menu->addAction("@TODO: setup columns...");
+        act->setCheckable(true);
+        menu->exec(mapToGlobal(p));
+    });
     this->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, &QWidget::customContextMenuRequested,
             this, &EpisodeTreeView::onCustomContextMenuRequested);
-        //double click.
-    connect(this,&QAbstractItemView::doubleClicked, [this](const QModelIndex &index){
-                auto c = index.siblingAtColumn(TreeColumn::LOCATION);
-                auto location = this->model()->data(c).toString();
-            } );
 }
 void EpisodeTreeView::setPod(PodData *pod)
 {
@@ -75,7 +84,14 @@ void EpisodeTreeView::mousePressEvent(QMouseEvent *event)
 }
 void EpisodeTreeView::mouseDoubleClickEvent(QMouseEvent *event)
 {
-    auto index = this->indexAt(event->pos());
+    auto idx = this->indexAt(event->pos());
+    qDebug()<<"treeview dbclick method cb...";
+    auto srcIdx = d->sortmodel->mapToSource(idx);
+    if(srcIdx.isValid()){
+        auto urlIdx = d->data->index(srcIdx.row(), TreeColumn::URL -1);
+        auto url = d->data->data(urlIdx).toUrl();
+        d->player->play(url);
+    }
 }
 bool EpisodeTreeView::eventFilter(QObject *obj, QEvent *evt) {
 

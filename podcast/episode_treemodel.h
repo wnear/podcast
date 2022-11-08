@@ -2,16 +2,8 @@
 
 #include <QAbstractItemModel>
 #include <QSortFilterProxyModel>
+#include "episodepropertymanager.h"
 
-enum TreeColumn {
-    TITLE = 0,
-    UPDATETIME,
-    SIZE,
-    DURATION,
-    LASTVIEW,
-    LOCATION,
-    CNT_SENTEL
-};
 
 class PodData;
 

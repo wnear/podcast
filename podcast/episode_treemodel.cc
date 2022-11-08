@@ -5,6 +5,7 @@
 #include "utils.h"
 
 #include <QIcon>
+#include <QDebug>
 #include <algorithm>
 
 class EpisodeTreeModelPrivate {
@@ -18,7 +19,7 @@ public:
     }
     QMap<int, PodData*> pod_idx;
     QMap<TreeColumn, QString> availproperty;
-    QMap<TreeColumn, QString> unseen;
+    QMap<TreeColumn, QString> allproperty;
 };
 
 EpisodeTreeModel::EpisodeTreeModel(QObject *parent)
@@ -29,8 +30,9 @@ EpisodeTreeModel::EpisodeTreeModel(QObject *parent)
         {TreeColumn::TITLE, "title"},
         {TreeColumn::SIZE, "file size"},
         {TreeColumn::DURATION, "duration"},
+        {TreeColumn::URL, "URL"},
     };
-    d->unseen = {
+    d->allproperty = {
     };
     for(auto i: d->availproperty.keys())
     {
@@ -62,13 +64,17 @@ QModelIndex EpisodeTreeModel::parent(const QModelIndex &child) const
 //TODO: use std::accumulate from c++20
 int EpisodeTreeModel::rowCount(const QModelIndex &parent) const
 {
+    int x;
     if(d->pods.length() == 0)
         return 0;
-    return std::min(d->maxcolumn, d->pods[0]->episodes.count());
+    x = std::min(d->maxcolumn, d->pods[0]->episodes.count());
+    qDebug()<<"rowcount should be"<< x;
+    return x;
 }
 
 int EpisodeTreeModel::columnCount(const QModelIndex &parent) const
 {
+
     return d->availproperty.count();
 }
 
@@ -125,6 +131,10 @@ QVariant EpisodeTreeModel::data(const QModelIndex &index, int role) const
         case TreeColumn::LOCATION:
             return ep->location;
             break;
+        case TreeColumn::URL:
+            return ep->url;
+            break;
+
         default:
             break;
     }

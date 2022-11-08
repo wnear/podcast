@@ -5,5 +5,5 @@ QT += xmlpatterns
 CONFIG += link_pkgconfig
 CONFIG += qt
 
-PKGCONFIG += spdlog
+#PKGCONFIG += spdlog
 CONFIG += C++17
