@@ -39,9 +39,20 @@ class episodepropertymanager
 {
 public:
     episodepropertymanager();
-private:
+    ~episodepropertymanager();
+    void load();
+    void save();
+    void setVisiable(int index, bool visible);
+    bool isVisible(int index) const;
+
+    void getDialog();
+    //iterator interface:
+
+
     //index,  title, visible
     std::vector<std::tuple<int, QString, bool>> m_data;
+private:
+
 };
 
 #endif // EPISODEPROPERTYMANAGER_H
