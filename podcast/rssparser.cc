@@ -12,8 +12,8 @@
 #include "utils.h"
 #include <algorithm>
 
-#include <QXmlSchemaValidator>
-#include <QXmlSchema>
+// #include <QXmlSchemaValidator>
+// #include <QXmlSchema>
 
 #include <QUrl>
 
@@ -238,6 +238,7 @@ void RssParser::parseEpisode()
 }
 bool RssParser::isValid()
 {
-    QXmlSchema schema;
-    return schema.load(m_file);
+    // QXmlSchema schema;
+    // return schema.load(m_file);
+    return true;
 }

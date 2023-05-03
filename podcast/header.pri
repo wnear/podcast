@@ -1,6 +1,6 @@
-QT += widgets network xml multimedia core
+QT += widgets network xml multimedia core opengl openglwidgets
 
-QT += xmlpatterns
+#/* QT += xmlpatterns */
 
 CONFIG += link_pkgconfig
 CONFIG += qt
