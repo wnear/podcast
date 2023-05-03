@@ -14,7 +14,7 @@ namespace {
 
 class PlayerPrivate {
 public:
-    
+
     QOpenGLWidget *cover;
     QToolButton play;
     QToolButton pause;
@@ -95,7 +95,7 @@ Player::Player(QWidget *parent):QFrame(parent)
     right_bottom->addWidget(d->pos);
     right_bottom->addWidget(d->pos);
     right_bottom->addWidget(d->progressbar);
-    
+
     this->setLayout(lay);
     //this->setFixedHeight(100);
 
@@ -123,22 +123,22 @@ Player::Player(QWidget *parent):QFrame(parent)
                                      .arg(int2hms(all/1000)));
             } );
 }
-void Player::Pause() 
+void Player::Pause()
 {
     d->engine->pause();
 }
 
-void Player::Play() 
+void Player::Play()
 {
     d->engine->resume();
 }
 
-void Player::Stop() 
+void Player::Stop()
 {
     d->engine->stop();
 }
 
-void Player::setVolume(int x) 
+void Player::setVolume(int x)
 {
     d->engine->setVolume(x);
 }

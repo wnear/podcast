@@ -67,8 +67,8 @@ int EpisodeTreeModel::rowCount(const QModelIndex &parent) const
     int x;
     if(d->pods.length() == 0)
         return 0;
-    x = std::min(d->maxcolumn, d->pods[0]->episodes.count());
-    qDebug()<<"rowcount should be"<< x;
+    x = std::min<int>(d->maxcolumn, d->pods[0]->episodes.count());
+    // qDebug()<<"rowcount should be"<< x;
     return x;
 }
 
