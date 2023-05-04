@@ -29,11 +29,8 @@ HEADERS += downloadmanager.h \
            episodewgt.h \
            global.h \
            jsonop.h \
-           localsave.h \
            log.h \
            mainwindow.h \
-           network.h \
-           notification.h \
            opmlparser.h \
            player.h \
            player_engine.h \
@@ -42,11 +39,8 @@ HEADERS += downloadmanager.h \
            podmodel.h \
            rssparser.h \
            setting.h \
-           subnetwork.h \
-           subpodcast.h \
-           subsong.h \
-           subsonic.h \
            utils.h
+
 SOURCES += downloadmanager.cc \
            downloadmanagerwgt.cc \
            episode_detail_wgt.cc \
@@ -60,12 +54,9 @@ SOURCES += downloadmanager.cc \
            episodewgt.cc \
            global.cc \
            jsonop.cc \
-           localsave.cc \
            log.cc \
            main.cc \
            mainwindow.cc \
-           network.cc \
-           notification.cc \
            opmlparser.cc \
            player.cc \
            player_engine.cc \
@@ -74,8 +65,4 @@ SOURCES += downloadmanager.cc \
            podmodel.cc \
            rssparser.cc \
            setting.cc \
-           subnetwork.cc \
-           subpodcast.cc \
-           subsong.cc \
-           subsonic.cc \
            utils.cc

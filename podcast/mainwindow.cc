@@ -1,8 +1,6 @@
 #include "mainwindow.h"
 
 #include "podcast.h"
-#include "subpodcast.h"
-#include "subsong.h"
 
 #include <QSplitter>
 #include <QTabWidget>
@@ -21,19 +19,16 @@
 
 #include "downloadmanagerwgt.h"
 
-class Mainwindow::Private
-    {
-    public:
+class Mainwindow::Private {
+public:
     QSplitter *base;
-    QTabWidget *left; 
+    QTabWidget *left;
     QFrame     *right;
-    QStackedWidget * rightdetail; 
+    QStackedWidget * rightdetail;
     Player *rightPlayer;
 
-        Podcast *localpod;
-        SubPodcast *subpod;
-        SubSong *subsong;
-    };
+    Podcast *localpod;
+};
 
 Mainwindow::Mainwindow(QWidget *parent):
     QMainWindow(parent)
@@ -52,8 +47,6 @@ Mainwindow::Mainwindow(QWidget *parent):
     d->right->setLayout(lay);
 
     d->localpod = new Podcast(this);
-    d->subpod = new SubPodcast(this);
-    d->subsong = new SubSong(this);
 
     d->left->addTab(d->localpod, "Podcasts");
     d->rightdetail->addWidget(d->localpod->detail());
