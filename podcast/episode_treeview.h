@@ -2,7 +2,7 @@
 
 #include <QTreeView>
 class QWidget;
-class PodcastChannel;
+// class PodcastChannel;
 class EpisodeData;
 
 class EpisodeTreeView: public QTreeView
