@@ -3,7 +3,7 @@
 #include <QFrame>
 
 class QWidget;
-class PodData;
+class PodcastChannel;
 class EpisodeData;
 
 // Qt model view:
@@ -21,7 +21,7 @@ class EpisodeTreeWidget: public QFrame
     public:
         EpisodeTreeWidget(QWidget *parent = nullptr);
         ~EpisodeTreeWidget();
-        void setPod(PodData *pod);
+        void setPod(PodcastChannel *pod);
 
         // TODO:
         // chain: click on pod

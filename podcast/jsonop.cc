@@ -9,11 +9,11 @@
 #include <QFile>
 #include <QDir>
 
-bool jsonload(PodData *entity, const QString &filepath)
+bool jsonload(PodcastChannel *entity, const QString &filepath)
 {
     binfo("{} enter", __func__);
     binfo("filepath: {}", filepath.toStdString());
-    PodData &pod = *entity;
+    PodcastChannel &pod = *entity;
     QFile json_file(filepath);
 
     if(json_file.exists() == false){
@@ -63,11 +63,11 @@ bool jsonload(PodData *entity, const QString &filepath)
     return true;
 }
 
-bool jsonsave(PodData *entity, const QString &filepath)
+bool jsonsave(PodcastChannel *entity, const QString &filepath)
 {
     binfo("json save.");
     binfo("filepath: {}", filepath.toStdString());
-    PodData &pod = *entity;
+    PodcastChannel &pod = *entity;
     binfo("test one, pod title: {}", pod.title);
     binfo("test one, pod location: {}", pod.location);
     binfo("test one, filesize: {}", pod.episodes[0]->filesize);

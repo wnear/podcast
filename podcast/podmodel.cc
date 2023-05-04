@@ -9,8 +9,8 @@
 #include <QFile>
 
 
-PodModel::PodModel (QList<PodData *> &pods, QObject *parent)
-   : QAbstractListModel(parent),m_data(pods) 
+PodModel::PodModel (QList<PodcastChannel *> &pods, QObject *parent)
+   : QAbstractListModel(parent),m_data(pods)
 {
 }
 

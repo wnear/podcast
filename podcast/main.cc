@@ -7,8 +7,9 @@
 #include "downloadmanager.h"
 int main (int argc, char *argv[])
 {
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling, true);
-    QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps, true);
+    // TODO: Qt version check, if <6, then set this.
+    // QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling, true);
+    // QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps, true);
     QApplication app(argc, argv);
 
     app.setApplicationName("podcast");

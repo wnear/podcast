@@ -37,11 +37,11 @@ inline OStream& operator<<(OStream& os, const QString& x)
 #define berror(...)  Log::instance()->error("[" __FILE__ "(" SPDLOG_STR_HELPER(__LINE__) ") ] " __VA_ARGS__)
 #define bcritical(...)  Log::instance()->critical("[" __FILE__ "(" SPDLOG_STR_HELPER(__LINE__) ") ] " __VA_ARGS__)
 #else
-#define blog(...) 0
-#define binfo(...) 0
-#define bwarn(...) 0
-#define berror(...) 0
-#define bcritical(...) 0
+#define blog(...)
+#define binfo(...)
+#define bwarn(...)
+#define berror(...)
+#define bcritical(...)
 #endif
 
 

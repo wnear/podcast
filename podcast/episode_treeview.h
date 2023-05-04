@@ -2,7 +2,7 @@
 
 #include <QTreeView>
 class QWidget;
-class PodData;
+class PodcastChannel;
 class EpisodeData;
 
 class EpisodeTreeView: public QTreeView
@@ -10,7 +10,7 @@ class EpisodeTreeView: public QTreeView
     public:
       EpisodeTreeView(QWidget *parent = nullptr);
       ~EpisodeTreeView();
-      void setPod(PodData *pod);
+      void setPod(PodcastChannel *pod);
 
       void onCustomContextMenuRequested(const QPoint &p);
         // play

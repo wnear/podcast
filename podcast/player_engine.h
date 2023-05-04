@@ -5,6 +5,7 @@
 #include <QUrl>
 
 class QMediaPlayer;
+class QAudioOutput;
 
 class PlayerEngine : public QObject
 {
@@ -32,7 +33,8 @@ class PlayerEngine : public QObject
         void durationChanged(int);
     private:
         PlayerEngine(QObject* parent = nullptr);
-        QMediaPlayer *player;
+        QMediaPlayer *m_player;
+        QAudioOutput *m_player_audio_ctrl;
         static PlayerEngine *ins;
         int m_duration;
         QUrl m_currentUrl;

@@ -46,7 +46,7 @@ bool parseUntilElement(QXmlStreamReader *reader, const QString &name)
 }
 
 
-RssParser::RssParser(QIODevice *f, PodData *pod): m_pod(pod), m_file(f)
+RssParser::RssParser(QIODevice *f, PodcastChannel *pod): m_pod(pod), m_file(f)
 {
     binfo("xml for parse: {} big.", size_human(f->size()));
     reader = new QXmlStreamReader{m_file};

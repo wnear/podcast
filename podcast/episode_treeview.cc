@@ -16,9 +16,9 @@ class EpisodeTreeModel;
 class EpisodeTreeViewPrivate{
 public:
     EpisodeTreeModel *data{nullptr};
-    EpisodeTreeSortFilterModel *sortmodel;
-    QItemSelectionModel *selectModel;
-    PlayerEngine *player;
+    EpisodeTreeSortFilterModel *sortmodel{nullptr};
+    QItemSelectionModel *selectModel{nullptr};
+    PlayerEngine *player{nullptr};
 
     ~EpisodeTreeViewPrivate(){
         data->deleteLater();
@@ -36,16 +36,24 @@ EpisodeTreeView::EpisodeTreeView(QWidget *parent)
     this->setModel(d->sortmodel);
 
 
-    this->setRootIsDecorated(false);
+    // this->setRootIsDecorated(false);
     this->setSortingEnabled(true);
-    d->selectModel = new QItemSelectionModel(d->data);
+
+    // TODO: define a selectionModel when you have multi-view for one model,
+    // to share the selection state.
+    //
+    // d->selectModel = new QItemSelectionModel(d->data);
     // this->setSelectionModel(d->selectModel);
-    this->setSelectionMode(QAbstractItemView::SingleSelection);
 
-    //this->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::SelectedClicked);
+    //TODO: default to SingleSelection??
+    this->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
-    this->installEventFilter(this);
+    // this->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::SelectedClicked);
+
+    // this->installEventFilter(this);
+    this->setContextMenuPolicy(Qt::CustomContextMenu);
     this->header()->setContextMenuPolicy(Qt::CustomContextMenu);
+
     connect(this->header(), &QWidget::customContextMenuRequested,[this](const QPoint &p){
         auto menu = new QMenu;
         QAction *act;
@@ -53,11 +61,10 @@ EpisodeTreeView::EpisodeTreeView(QWidget *parent)
         act->setCheckable(true);
         menu->exec(mapToGlobal(p));
     });
-    this->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, &QWidget::customContextMenuRequested,
             this, &EpisodeTreeView::onCustomContextMenuRequested);
 }
-void EpisodeTreeView::setPod(PodData *pod)
+void EpisodeTreeView::setPod(PodcastChannel *pod)
 {
     d->data->setPod(pod);
     this->reset();
@@ -90,7 +97,9 @@ void EpisodeTreeView::mouseDoubleClickEvent(QMouseEvent *event)
     if(srcIdx.isValid()){
         auto urlIdx = d->data->index(srcIdx.row(), TreeColumn::URL -1);
         auto url = d->data->data(urlIdx).toUrl();
+        qDebug()<<__PRETTY_FUNCTION__ << " start.";
         d->player->play(url);
+        qDebug()<<__PRETTY_FUNCTION__ << " end.";
     }
 }
 bool EpisodeTreeView::eventFilter(QObject *obj, QEvent *evt) {

@@ -3,13 +3,13 @@
 #include <QString>
 
 class QIODevice;
-class PodData;
+class PodcastChannel;
 class QXmlStreamReader;
 
 class RssParser
 {
 public:
-    RssParser(QIODevice *, PodData *);
+    RssParser(QIODevice *, PodcastChannel *);
     bool parse();
     ~RssParser(){}
     bool isValid();
@@ -19,7 +19,7 @@ public:
     void ParseImage();
 
 private:
-    PodData *m_pod;
+    PodcastChannel *m_pod;
     QIODevice *m_file;
     QXmlStreamReader *reader;
 };

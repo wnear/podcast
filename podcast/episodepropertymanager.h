@@ -6,6 +6,20 @@
 
 
 
+enum TreeColumn {
+    TITLE = 0,
+    UPDATETIME,
+    SIZE,
+    DURATION,
+    URL,
+    DATETIME_LASTVIEW,
+    DATETIME_UPDATED,
+    LOCATION,
+    PLAYTIME,
+    CNT_SENTEL
+};
+
+
 /*
  * all properties.
  * visible properties.
@@ -22,19 +36,6 @@
  * - The visible choices should be stored.
  *
  */
-enum TreeColumn {
-    TITLE = 0,
-    UPDATETIME,
-    SIZE,
-    DURATION,
-    URL,
-    LASTVIEW,
-    LOCATION,
-    PLAYTIME,
-    CNT_SENTEL
-};
-
-
 class episodepropertymanager
 {
 public:

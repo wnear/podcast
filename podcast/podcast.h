@@ -28,20 +28,20 @@ class Podcast : public QWidget
         bool load();
         bool save();
 
-        QString datapath( PodData &name) const;
-        bool load(PodData &name);
-        bool save(PodData &name);
-        void podLoad(PodData &pod);
-        void podUpdate(PodData &pod);
-        bool parsexml(PodData &pod);
-        bool updatexml(PodData &pod);
+        QString datapath( PodcastChannel &name) const;
+        bool load(PodcastChannel &name);
+        bool save(PodcastChannel &name);
+        void podLoad(PodcastChannel &pod);
+        void podUpdate(PodcastChannel &pod);
+        bool parsexml(PodcastChannel &pod);
+        bool updatexml(PodcastChannel &pod);
 
       private:
         class Private;
         Private *d;
-        QList<PodData *> m_pods;
+        QList<PodcastChannel *> m_pods;
 
-    
+
 };
 
 

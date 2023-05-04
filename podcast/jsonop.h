@@ -2,11 +2,11 @@
 
 #include <QString>
 
-class PodData;
+class PodcastChannel;
 class EpisodeData;
 
-bool jsonload(PodData *entity, const QString &filepath);
-bool jsonsave(PodData *entity, const QString &filepath);
+bool jsonload(PodcastChannel *entity, const QString &filepath);
+bool jsonsave(PodcastChannel *entity, const QString &filepath);
 
 
 bool saveBookmarks();

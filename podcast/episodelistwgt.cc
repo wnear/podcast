@@ -43,7 +43,7 @@ void EpisodeListWidget::refresh()
 QString EpisodeListWidget::current() const 
 { return cur == nullptr ? "" : cur->title; }
 
-void EpisodeListWidget::setPod(PodData *pod)
+void EpisodeListWidget::setPod(PodcastChannel *pod)
 {
     cur = pod;
     auto childs = this->findChildren<EpisodeWidget*>();

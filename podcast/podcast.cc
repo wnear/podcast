@@ -99,7 +99,7 @@ Podcast::Podcast(QWidget *parent): QWidget(parent)
     connect(d->list, &QWidget::customContextMenuRequested, this, [this](const QPoint &pos){
                 auto idx = d->list->indexAt(pos);
                 int row = idx.row();
-                PodData &pod = *m_pods[row];
+                PodcastChannel &pod = *m_pods[row];
                 podLoad(*m_pods[row]);
                 auto menu = new QMenu(this);
                 menu->addAction("reparse", this, [this, &pod](){
@@ -163,11 +163,11 @@ bool Podcast::load()
     for(auto i: doc.array()) {
         auto item = i.toObject();
 
-        auto x = new PodData(item.value("title").toString(),
+        auto x = new PodcastChannel(item.value("title").toString(),
                                  item.value("url").toString());
 
         m_pods.push_back(x);
-        //m_pods.push_back(std::move(PodData(item.value("title").toString(),
+        //m_pods.push_back(std::move(PodcastChannel(item.value("title").toString(),
                                  //item.value("url").toString())));
     }
     return true;
@@ -185,7 +185,7 @@ QString Podcast::datapath() const
     return ensureDirExist(app_datapath, "podcast");
 }
 
-QString Podcast::datapath(PodData &pod) const
+QString Podcast::datapath(PodcastChannel &pod) const
 { return ensureDirExist(datapath(), pod.title); }
 
 void Podcast::importdlg()
@@ -215,7 +215,7 @@ void Podcast::read_opml(const QString &filename)
 
     for(auto i: res){
         if(! alreadyHave(i.first, i.second))
-            m_pods.push_back(new PodData(i.first, i.second));
+            m_pods.push_back(new PodcastChannel(i.first, i.second));
     }
 
     // d->podsmodel->resetData(m_pods);
@@ -225,15 +225,15 @@ void Podcast::read_opml(const QString &filename)
 }
 
 void Podcast::savepod(QString title, QString url) {
-    m_pods.push_back(new PodData{title, url});
+    m_pods.push_back(new PodcastChannel{title, url});
 }
 
-bool Podcast::save(PodData &pod){
+bool Podcast::save(PodcastChannel &pod){
     auto file = QDir(datapath(pod)).filePath("pods_detail.json");
     return jsonsave(&pod, file);
 }
 
-bool Podcast::load(PodData &pod){
+bool Podcast::load(PodcastChannel &pod){
     auto isNewer = [](const QFile &lhs, const QFile &rhs){
         bool ret = QFileInfo(lhs).lastModified() > QFileInfo(rhs).lastModified();
         qDebug()<<"xml is "<<(ret?"newer":"older");
@@ -275,12 +275,12 @@ bool Podcast::load(PodData &pod){
 5. add episode => pod->episodes
 6. sync pod data => local json
  */
-void Podcast::podUpdate(PodData &pod){
+void Podcast::podUpdate(PodcastChannel &pod){
     updatexml(pod);
 }
 
 //load from local storage.
-void Podcast::podLoad(PodData &pod){
+void Podcast::podLoad(PodcastChannel &pod){
     auto ret = load(pod);
     if(ret == false) return;
 }
@@ -288,7 +288,7 @@ void Podcast::podLoad(PodData &pod){
 void Podcast::exportdlg() {}
 void Podcast::write_opml(const QString &filename) {}
 
-bool Podcast::updatexml(PodData &pod)
+bool Podcast::updatexml(PodcastChannel &pod)
 {
     if(pod.job_id != -1){
         auto status = DownloadManager::instance()->getJobStatus(pod.job_id);
@@ -318,7 +318,7 @@ bool Podcast::updatexml(PodData &pod)
     return true;
 }
 
-bool Podcast::parsexml(PodData &pod)
+bool Podcast::parsexml(PodcastChannel &pod)
 {
     QString xml = QDir(this->datapath(pod)).filePath(c_podcast_localxml);
     QFile xml_file(xml);

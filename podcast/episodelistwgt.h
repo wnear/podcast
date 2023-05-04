@@ -3,7 +3,7 @@
 
 #include <QWidget>
 
-class PodData;
+class PodcastChannel;
 
 class EpisodeListWidget : public QWidget 
 {
@@ -11,14 +11,14 @@ class EpisodeListWidget : public QWidget
 
     public:
         EpisodeListWidget(QWidget *parent = nullptr);
-        void setPod(PodData* pod);
+        void setPod(PodcastChannel* pod);
         QString current() const;
         void refresh();
         void loadmore(){
             m_count += 5;
         }
     private:
-        PodData *cur{nullptr};
+        PodcastChannel *cur{nullptr};
         QWidget *scrollWidget(); 
         struct EpisodeListWidgetPrivate *d;
         int m_count = 10;

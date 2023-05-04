@@ -2,6 +2,7 @@
 #include "log.h"
 
 #include <QMediaPlayer>
+#include <QAudioOutput>
 #include <QDebug>
 #include <QMutex>
 #include <QMutexLocker>
@@ -20,25 +21,26 @@ PlayerEngine *PlayerEngine::instance(QObject *parent) {
 PlayerEngine::PlayerEngine(QObject* parent)
     :QObject(parent)
 {
-    player = new QMediaPlayer(this);
-    connect(player, &QMediaPlayer::positionChanged,
+    m_player = new QMediaPlayer(this);
+    m_player_audio_ctrl = new QAudioOutput(this);
+    m_player->setAudioOutput(m_player_audio_ctrl);
+    connect(m_player, &QMediaPlayer::positionChanged,
             this, &PlayerEngine::positionChanged);
-    connect(player, &QMediaPlayer::durationChanged,
+    connect(m_player, &QMediaPlayer::durationChanged,
             this, &PlayerEngine::setDuration);
-    connect(player, &QMediaPlayer::durationChanged,
+    connect(m_player, &QMediaPlayer::durationChanged,
             this, &PlayerEngine::durationChanged);
-    connect(player, &QMediaPlayer::mediaStatusChanged,
+    connect(m_player, &QMediaPlayer::mediaStatusChanged,
             this, [](auto &&x){
                 binfo("media status changed to {} ", x);
             });
-    // TODO: cc for qt6 building.
-    connect(player, &QMediaPlayer::mediaStatusChanged,
+    connect(m_player, &QMediaPlayer::mediaStatusChanged,
             this, [](auto && x){
                 binfo("buffer status changed to {} ", x);
             });
 
 
-    connect(player,QOverload<QMediaPlayer::Error, const QString &>::of(&QMediaPlayer::errorOccurred),
+    connect(m_player,QOverload<QMediaPlayer::Error, const QString &>::of(&QMediaPlayer::errorOccurred),
             [=](QMediaPlayer::Error error, const QString& msg){
                 binfo("error {}", error);
             });
@@ -52,22 +54,24 @@ void PlayerEngine::play(const QString &url)
 
 void PlayerEngine::play(QUrl url){
     qDebug()<<"trying to play: "<< url.toString();
-    player->stop();
+    m_player->stop();
     m_currentUrl = url;
-    //TODO: qt6 building
-    // player->setMedia(url);
-    // player->setVolume(100);
-    player->play();
-    m_duration = player->duration();
+    m_player->setSource(url);
+    m_player_audio_ctrl->setVolume(100);
+    //TODO: wait in local Eventloop, to get GUI smooth.
+    m_player->play();
+    m_duration = m_player->duration();
+
+    qDebug()<<__PRETTY_FUNCTION__<< " call end.";
 }
 
 void PlayerEngine::pause(){
-    player->pause();
+    m_player->pause();
 }
 
 void PlayerEngine::resume() {
     if(!m_currentUrl.isEmpty() ){
-        player->play();
+        m_player->play();
     } else {
         binfo("resume, error, empty url");
     }
@@ -75,18 +79,18 @@ void PlayerEngine::resume() {
 
 void PlayerEngine::stop(){
     m_currentUrl = QUrl{};
-    player->stop();
+    m_player->stop();
 }
 
 void PlayerEngine::setPosition(int val)
 {
-    player->setPosition(val);
+    m_player->setPosition(val);
 }
 
 int PlayerEngine::duration() const
 {
     return m_duration;
-    return player->duration();
+    return m_player->duration();
 }
 
 
@@ -98,16 +102,15 @@ void PlayerEngine::setDuration(int val)
 
 void PlayerEngine::setVolume(int val)
 {
-    //TODO: qt6 building.
-    // player->setVolume(val);
+    m_player_audio_ctrl->setVolume(val);
 
 }
 
 void PlayerEngine::seekforward()
 {
-    auto left = (player->duration() - player->position());
+    auto left = (m_player->duration() - m_player->position());
     if(left > m_jump_duration*1000){
-        player->setPosition(player->position() + m_jump_duration*1000);
+        m_player->setPosition(m_player->position() + m_jump_duration*1000);
     } else {
     }
 }
@@ -115,26 +118,26 @@ void PlayerEngine::seekforward()
 
 void PlayerEngine::seekbackward()
 {
-    auto cur = player->position();
+    auto cur = m_player->position();
     if(cur > m_jump_duration*1000)
         cur -= m_jump_duration*1000;
     else
         cur = 0;
-    player->setPosition(cur);
+    m_player->setPosition(cur);
 }
 
 
 void PlayerEngine::faster()
 {
     m_speed += 0.1;
-    this->player->setPlaybackRate(m_speed);
+    this->m_player->setPlaybackRate(m_speed);
 }
 
 
 void PlayerEngine::slower()
 {
     m_speed -= 0.1;
-    this->player->setPlaybackRate(m_speed);
+    this->m_player->setPlaybackRate(m_speed);
 }
 
 

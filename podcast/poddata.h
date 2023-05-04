@@ -11,10 +11,10 @@
 
 constexpr char c_podcast_localxml[] = "podcast.xml";
 
-class PodData: public QObject
+class PodcastChannel: public QObject
 {
     public:
-        PodData(const QString &x, const QString &y, QObject *parent = nullptr)
+        PodcastChannel(const QString &x, const QString &y, QObject *parent = nullptr)
             :QObject(parent)
         {
             title = x;
@@ -25,8 +25,8 @@ class PodData: public QObject
             return !(title.isEmpty() || url.isEmpty() );
         }
         //TODO:
-        //PodData& operator=(const PodData&) = default;
-        ~PodData() = default;
+        //PodcastChannel& operator=(const PodData&) = default;
+        ~PodcastChannel() = default;
         QString title;
         QString url;
         QString cover_url{};

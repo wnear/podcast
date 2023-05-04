@@ -62,7 +62,7 @@ EpisodeTreeWidget::EpisodeTreeWidget(QWidget *parent)
     this->setLayout(lay);
 }
 
-void EpisodeTreeWidget::setPod(PodData *pod) 
+void EpisodeTreeWidget::setPod(PodcastChannel *pod) 
 {
     d->view->setPod(pod);
 }
