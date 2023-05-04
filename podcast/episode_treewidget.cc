@@ -1,6 +1,7 @@
 #include "episode_treewidget.h"
 #include "episode_treeview.h"
 #include "episode_treemodel.h"
+#include "poddata.h"
 
 #include <QVBoxLayout>
 #include <QGridLayout>
@@ -15,18 +16,20 @@
 
 class EpisodeTreeWidgetPrivate {
 public:
-    EpisodeTreeView *view;
+    EpisodeTreeView  *view;
+    EpisodeTreeModel *model;
 
     QToolButton update;
     QComboBox sortBy;
     QToolButton filter;
     QToolButton fetchmore;
+    PodcastChannel *data;
 
     QLabel status;
 };
 
 
-EpisodeTreeWidget::EpisodeTreeWidget(QWidget *parent) 
+EpisodeTreeWidget::EpisodeTreeWidget(QWidget *parent)
 :QFrame(parent)
 {
     d = new EpisodeTreeWidgetPrivate;
@@ -49,7 +52,8 @@ EpisodeTreeWidget::EpisodeTreeWidget(QWidget *parent)
     head->addStretch(1);
     head->addWidget(&(d->fetchmore));
 
-    d->view = new EpisodeTreeView(this);
+    d->model = new EpisodeTreeModel;
+    d->view = new EpisodeTreeView(d->model, this);
 
     auto bottom = new QHBoxLayout;
     bottom->addWidget(&(d->status));
@@ -62,8 +66,9 @@ EpisodeTreeWidget::EpisodeTreeWidget(QWidget *parent)
     this->setLayout(lay);
 }
 
-void EpisodeTreeWidget::setPod(PodcastChannel *pod) 
+void EpisodeTreeWidget::setPod(PodcastChannel *pod)
 {
-    d->view->setPod(pod);
+    d->model->setPod(pod);
+    d->view->reset();
 }
 EpisodeTreeWidget::~EpisodeTreeWidget() { delete d;}

@@ -305,14 +305,8 @@ bool Podcast::updatexml(PodcastChannel &pod)
     pod.job_id = DownloadManager::instance()->addjob(pod.url, res);
     connect(DownloadManager::instance(), &DownloadManager::stateChanged, this,
             [&pod, this](int id, auto st){
-                if(id == pod.job_id){
-                    if(st == TASK_COMPLETE){
-                        this->parsexml(pod);
-                        // if(d->detail->currentWidget() == d->detaillist){
-                        //     if(pod.title == this->d->detaillist->current())
-                        //         this->d->detaillist->refresh();
-                        // }
-                    }
+                if(id == pod.job_id && st == TASK_COMPLETE){
+                    this->parsexml(pod);
                 }
             });
     return true;

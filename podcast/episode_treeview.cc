@@ -15,7 +15,7 @@ class EpisodeTreeModel;
 
 class EpisodeTreeViewPrivate{
 public:
-    EpisodeTreeModel *data{nullptr};
+    QAbstractItemModel *data{nullptr};
     EpisodeTreeSortFilterModel *sortmodel{nullptr};
     QItemSelectionModel *selectModel{nullptr};
     PlayerEngine *player{nullptr};
@@ -25,15 +25,21 @@ public:
     }
 };
 
-EpisodeTreeView::EpisodeTreeView(QWidget *parent)
+EpisodeTreeView::EpisodeTreeView(QAbstractItemModel *model, QWidget *parent)
     :QTreeView(parent)
 {
     d = new EpisodeTreeViewPrivate;
     d->player = PlayerEngine::instance();
-    d->data = new EpisodeTreeModel;
+    d->data = model;
     d->sortmodel = new EpisodeTreeSortFilterModel;
-    d->sortmodel->setSourceModel(d->data);
-    this->setModel(d->sortmodel);
+    if(false){ // use sort
+        d->sortmodel->setSourceModel(d->data);
+        this->setModel(d->sortmodel);
+        QTreeView::setModel(d->sortmodel);
+    } else {
+        this->setModel(d->data);
+        QTreeView::setModel(d->data);
+    }
 
 
     // this->setRootIsDecorated(false);
@@ -50,7 +56,7 @@ EpisodeTreeView::EpisodeTreeView(QWidget *parent)
 
     // this->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::SelectedClicked);
 
-    // this->installEventFilter(this);
+    this->installEventFilter(this);
     this->setContextMenuPolicy(Qt::CustomContextMenu);
     this->header()->setContextMenuPolicy(Qt::CustomContextMenu);
 
@@ -63,11 +69,6 @@ EpisodeTreeView::EpisodeTreeView(QWidget *parent)
     });
     connect(this, &QWidget::customContextMenuRequested,
             this, &EpisodeTreeView::onCustomContextMenuRequested);
-}
-void EpisodeTreeView::setPod(PodcastChannel *pod)
-{
-    d->data->setPod(pod);
-    this->reset();
 }
 
 void EpisodeTreeView::onCustomContextMenuRequested(const QPoint &p)

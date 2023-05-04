@@ -8,9 +8,8 @@ class EpisodeData;
 class EpisodeTreeView: public QTreeView
 {
     public:
-      EpisodeTreeView(QWidget *parent = nullptr);
+      EpisodeTreeView(QAbstractItemModel *model, QWidget *parent = nullptr);
       ~EpisodeTreeView();
-      void setPod(PodcastChannel *pod);
 
       void onCustomContextMenuRequested(const QPoint &p);
         // play
