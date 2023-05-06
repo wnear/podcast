@@ -1,6 +1,6 @@
 #include "episode_treemodel.h"
 #include "episodedata.h"
-#include "poddata.h"
+#include "podcastchannel.h"
 #include "log.h"
 #include "utils.h"
 
@@ -8,6 +8,7 @@
 #include <QDebug>
 #include <algorithm>
 
+using namespace util;
 class EpisodeTreeModelPrivate {
   public:
     int maxRow = 30;

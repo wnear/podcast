@@ -38,6 +38,8 @@ class PodcastChannel : public QObject {
 
     const QString c_podcast_default_filename = "podcast.xml";
     QString coverfile() const { return QDir(location).absoluteFilePath(cover); }
+
+
 };
 
 #endif

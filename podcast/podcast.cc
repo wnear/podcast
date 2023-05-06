@@ -52,6 +52,8 @@ QString ensureDirExist(const QString &parent, const QString &dirname) {
 }
 }  // namespace
 
+using namespace std;
+using namespace util;
 class Podcast::Private {
   public:
     QListView *list;
@@ -214,16 +216,10 @@ bool Podcast::save(PodcastChannel &pod) {
 }
 
 bool Podcast::load(PodcastChannel &pod) {
-    auto isNewer = [](const QFile &lhs, const QFile &rhs) {
-        bool ret = QFileInfo(lhs).lastModified() > QFileInfo(rhs).lastModified();
-        qDebug() << "xml is " << (ret ? "newer" : "older");
-        return ret;
-    };
-
-    QString xml = QDir(this->datapath(pod)).filePath(c_podcast_localxml);
-    QFile xml_file(xml);
-    QString json_str = QDir(datapath(pod)).filePath("pods_detail.json");
-    QFile json_file(json_str);
+    QString xml_fn = QDir(this->datapath(pod)).filePath(c_podcast_localxml);
+    QFile xml_file(xml_fn);
+    QString json_fn = QDir(datapath(pod)).filePath("pods_detail.json");
+    QFile json_file(json_fn);
 
     // if both data is not existed, download.
     if (json_file.exists() == false && xml_file.exists() == false) {
@@ -233,14 +229,14 @@ bool Podcast::load(PodcastChannel &pod) {
 
     if (xml_file.exists()) {
         // if json not existed, or not update.
-        if (json_file.exists() == false || isNewer(xml_file, json_file)) {
+        if (json_file.exists() == false || file_is_newer(xml_fn, json_fn)) {
             bool ret = this->parsexml(pod);
             if (ret == false) return ret;
         }
     }
 
     // json should exist by now.
-    return jsonload(&pod, json_str);
+    return jsonload(&pod, json_fn);
 }
 
 // update with network.

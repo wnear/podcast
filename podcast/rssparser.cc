@@ -2,7 +2,7 @@
 
 #include <QIODevice>
 #include <QDir>
-#include "poddata.h"
+#include "podcastchannel.h"
 #include "log.h"
 #include "episodedata.h"
 #include <QXmlStreamReader>

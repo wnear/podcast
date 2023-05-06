@@ -1,5 +1,5 @@
 #include "episodelistwgt.h"
-#include "poddata.h"
+#include "podcastchannel.h"
 #include "episodewgt.h"
 #include "log.h"
 

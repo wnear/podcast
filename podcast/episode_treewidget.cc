@@ -1,7 +1,7 @@
 #include "episode_treewidget.h"
 #include "episode_treeview.h"
 #include "episode_treemodel.h"
-#include "poddata.h"
+#include "podcastchannel.h"
 
 #include <QVBoxLayout>
 #include <QGridLayout>

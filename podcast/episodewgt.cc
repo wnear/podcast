@@ -21,6 +21,8 @@
 #include "downloadmanager.h"
 #include "utils.h"
 
+using namespace util;
+
 static int a = 0;
 static QNetworkAccessManager net;
 

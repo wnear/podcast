@@ -35,7 +35,7 @@ HEADERS += downloadmanager.h \
            player.h \
            player_engine.h \
            podcast.h \
-           poddata.h \
+           podcastchannel.h \
            podmodel.h \
            rssparser.h \
            setting.h \
@@ -61,7 +61,7 @@ SOURCES += downloadmanager.cc \
            player.cc \
            player_engine.cc \
            podcast.cc \
-           poddata.cc \
+           podcastchannel.cc \
            podmodel.cc \
            rssparser.cc \
            setting.cc \

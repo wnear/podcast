@@ -11,6 +11,9 @@
 
 namespace {}
 
+
+using namespace util;
+
 class PlayerPrivate {
   public:
     QOpenGLWidget *cover;

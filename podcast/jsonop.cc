@@ -1,5 +1,5 @@
 #include "jsonop.h"
-#include "poddata.h"
+#include "podcastchannel.h"
 #include "episodedata.h"
 #include "log.h"
 

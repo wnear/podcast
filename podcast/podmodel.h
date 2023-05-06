@@ -2,7 +2,7 @@
 #define _POD_MODEL_H
 
 #include "episodedata.h"
-#include "poddata.h"
+#include "podcastchannel.h"
 
 #include <QString>
 #include <QDateTime>

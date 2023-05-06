@@ -1,6 +1,8 @@
-
 #include "utils.h"
 #include <QStringList>
+#include <QFileInfo>
+
+namespace util {
 
 QString int2hms(int secs) {
     int h, m, s;
@@ -24,3 +26,11 @@ QString size_human(int size_byte) {
 }
 QString percent(float val) { return QString("[%1 %]").arg(val * 100, 0, 'f', 1); }
 QString percentStr(int cur, int total) { return percent(cur * 1.0 / total); }
+
+bool file_is_newer(const QString &a, const QString &b) {
+        bool ret = QFileInfo(a).lastModified() > QFileInfo(b).lastModified();
+        qDebug() << "xml is " << (ret ? "newer" : "older");
+        return ret;
+    return true;
+}
+}  // namespace util
