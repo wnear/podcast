@@ -6,14 +6,15 @@
 #include <QDebug>
 #include <QMutex>
 #include <QMutexLocker>
+#include <memory>
 
 static QMutex creatMutex;
 
-PlayerEngine *PlayerEngine::ins = nullptr;
-PlayerEngine *PlayerEngine::instance(QObject *parent) {
+std::shared_ptr<PlayerEngine > PlayerEngine::ins = nullptr;
+std::shared_ptr<PlayerEngine> PlayerEngine::instance() {
     if (ins == nullptr) {
         QMutexLocker lock(&creatMutex);
-        ins = new PlayerEngine(parent);
+        ins = std::make_shared<PlayerEngine>(nullptr);
     }
     return ins;
 }
@@ -22,6 +23,7 @@ PlayerEngine::PlayerEngine(QObject *parent) : QObject(parent) {
     m_player = new QMediaPlayer(this);
     m_player_audio_ctrl = new QAudioOutput(this);
     m_player->setAudioOutput(m_player_audio_ctrl);
+    assert(m_player != nullptr);
     connect(m_player, &QMediaPlayer::positionChanged, this,
             &PlayerEngine::positionChanged);
     connect(m_player, &QMediaPlayer::durationChanged, this, &PlayerEngine::setDuration);

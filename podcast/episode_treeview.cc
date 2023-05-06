@@ -18,7 +18,7 @@ class EpisodeTreeViewPrivate {
     QAbstractItemModel *data{nullptr};
     EpisodeTreeSortFilterModel *sortmodel{nullptr};
     QItemSelectionModel *selectModel{nullptr};
-    PlayerEngine *player{nullptr};
+    std::shared_ptr<PlayerEngine> player{nullptr};
 
     ~EpisodeTreeViewPrivate() { data->deleteLater(); }
 };

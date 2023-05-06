@@ -1,12 +1,12 @@
-#ifndef __PLAYER_H
-#define __PLAYER_H
+#ifndef __PLAYERCONTROLWIDGET_H
+#define __PLAYERCONTROLWIDGET_H
 
 #include <QString>
 #include <QFrame>
 
-class Player : public QFrame {
+class PlayerControlWidget : public QFrame {
   public:
-    Player(QWidget *parent);
+    PlayerControlWidget(QWidget *parent);
     void Pause();
     void Play();
     void Stop();
@@ -22,7 +22,7 @@ class Player : public QFrame {
 
     void setVolume(int x);
 
-    ~Player(){};
+    ~PlayerControlWidget();
 
   private:
     class PlayerPrivate *d;

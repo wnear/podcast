@@ -105,12 +105,15 @@ QString EpisodeWidget::msg() const { return QString("%1").arg(id); }
 void EpisodeWidget::onCustomContextMenuRequested(const QPoint &pos) {
     QString fileOndisk = m_data->location;
     auto dw = DownloadManager::instance();
-    auto *player = PlayerEngine::instance();
+    auto player = PlayerEngine::instance();
 
     auto menu = new QMenu;
     menu->addAction("info", [this]() { this->m_data->test(); });
     menu->addAction("play on stream",
-                    [player, this]() { player->play(this->m_data->url); });
+                    [player, this]() {
+
+                    player->play(this->m_data->url);
+                    });
 
     if (m_data->canPlay()) {
         menu->addAction("Play On disk", [player, this]() {

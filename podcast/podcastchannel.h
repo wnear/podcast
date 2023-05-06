@@ -11,6 +11,10 @@
 
 constexpr char c_podcast_localxml[] = "podcast.xml";
 
+
+// xml, json, xml is from rss, json is for local.
+// TODO: use json to save deleted item at original rss.xml
+//
 class PodcastChannel : public QObject {
   public:
     PodcastChannel(const QString &x, const QString &y, QObject *parent = nullptr)
@@ -26,7 +30,6 @@ class PodcastChannel : public QObject {
     QString title;
     QString url;
     QString cover_url{};
-    const QString cover{"cover.jpg"};
     int job_id{-1};
     QString location;
     QString xmllocation;
@@ -36,10 +39,30 @@ class PodcastChannel : public QObject {
     int episodeDuratinSum;
     QList<EpisodeData *> episodes;
 
+    const QString xmlfmt = "podcast.xml";
+    const QString jsonfmt = "pods_detail.json";
+    const QString coverfmt{"cover.jpg"};
+
     const QString c_podcast_default_filename = "podcast.xml";
-    QString coverfile() const { return QDir(location).absoluteFilePath(cover); }
 
+    QString datapath() const;
 
+    QString coverfile() const;
+    QString xmlfile() const;
+    QString jsonfile() const;
+
+    // will check both json and xml, check for existance and modification time.
+    bool load();
+    bool load_json();
+
+    // download xml file from rss url.
+    bool updatexml();
+
+    // parse downloaded xml to episocdlist.
+    bool parserxml();
+
+    // save from xml to json.
+    bool save();
 };
 
 #endif

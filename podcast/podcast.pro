@@ -32,8 +32,8 @@ HEADERS += downloadmanager.h \
            log.h \
            mainwindow.h \
            opmlparser.h \
-           player.h \
            player_engine.h \
+           playercontrolwidget.h \
            podcast.h \
            podcastchannel.h \
            podmodel.h \
@@ -58,8 +58,8 @@ SOURCES += downloadmanager.cc \
            main.cc \
            mainwindow.cc \
            opmlparser.cc \
-           player.cc \
            player_engine.cc \
+           playercontrolwidget.cc \
            podcast.cc \
            podcastchannel.cc \
            podmodel.cc \

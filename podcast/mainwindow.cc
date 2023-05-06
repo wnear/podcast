@@ -14,7 +14,7 @@
 #include <QStackedWidget>
 #include <QDebug>
 #include <QFrame>
-#include "player.h"
+#include "playercontrolwidget.h"
 #include <QVBoxLayout>
 
 #include "downloadmanagerwgt.h"
@@ -25,7 +25,7 @@ class Mainwindow::Private {
     QTabWidget *left;
     QFrame *right;
     QStackedWidget *rightdetail;
-    Player *rightPlayer;
+    PlayerControlWidget *rightPlayer;
 
     Podcast *localpod;
 };
@@ -34,19 +34,19 @@ Mainwindow::Mainwindow(QWidget *parent) : QMainWindow(parent) {
     d = new Private;
 
     d->base = new QSplitter(this);
+    d->rightPlayer = new PlayerControlWidget(this);
+
     d->left = new QTabWidget(this);
+    d->localpod = new Podcast(this);
+    d->left->addTab(d->localpod, "Podcasts");
 
     d->right = new QFrame(this);
     d->rightdetail = new QStackedWidget(this);
-    d->rightPlayer = new Player(this);
     auto *lay = new QVBoxLayout(d->right);
     lay->addWidget(d->rightdetail, 1);
     lay->addWidget(d->rightPlayer, 0);
     d->right->setLayout(lay);
 
-    d->localpod = new Podcast(this);
-
-    d->left->addTab(d->localpod, "Podcasts");
     d->rightdetail->addWidget(d->localpod->detail());
 
     // d->left->addTab(d->subpod, "Subsonic Podcasts");
@@ -54,8 +54,6 @@ Mainwindow::Mainwindow(QWidget *parent) : QMainWindow(parent) {
     // d->left->addTab(d->subsong, "Subsonic songs");
     // d->right->addWidget(d->subsong->detail());
 
-    connect(d->left, &QTabWidget::currentChanged, d->rightdetail,
-            &QStackedWidget::setCurrentIndex);
     d->base->addWidget(d->left);
     d->base->addWidget(d->right);
 
@@ -63,6 +61,9 @@ Mainwindow::Mainwindow(QWidget *parent) : QMainWindow(parent) {
     setupMenu();
     setupToolbar();
     this->resize(2000, 1600);
+
+    connect(d->left, &QTabWidget::currentChanged, d->rightdetail,
+            &QStackedWidget::setCurrentIndex);
 }
 Mainwindow::~Mainwindow() { delete d; }
 

@@ -7,11 +7,13 @@
 class QMediaPlayer;
 class QAudioOutput;
 
-class PlayerEngine : public QObject {
+class PlayerEngine : public QObject , public std::enable_shared_from_this<PlayerEngine>{
     Q_OBJECT
 
   public:
-    static PlayerEngine *instance(QObject *parent = nullptr);
+    static std::shared_ptr<PlayerEngine> instance();
+    static bool is_inited() { return ins != nullptr; }
+    PlayerEngine(QObject *parent = nullptr);
     ~PlayerEngine() = default;
     void play(const QString &url);
     void play(QUrl);
@@ -32,10 +34,9 @@ class PlayerEngine : public QObject {
     void durationChanged(int);
 
   private:
-    PlayerEngine(QObject *parent = nullptr);
     QMediaPlayer *m_player;
     QAudioOutput *m_player_audio_ctrl;
-    static PlayerEngine *ins;
+    static std::shared_ptr<PlayerEngine> ins;
     int m_duration;
     QUrl m_currentUrl;
     float m_speed = 1.0;

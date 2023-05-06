@@ -1,4 +1,4 @@
-#include "player.h"
+#include "playercontrolwidget.h"
 #include <QGridLayout>
 #include <QSlider>
 #include <QLabel>
@@ -8,11 +8,14 @@
 #include <QOpenGLWidget>
 #include <QToolButton>
 #include <QAction>
+#include <memory>
+#include <iostream>
 
 namespace {}
 
 
 using namespace util;
+using namespace std;
 
 class PlayerPrivate {
   public:
@@ -29,15 +32,23 @@ class PlayerPrivate {
     QLabel *info;
     QLabel *pos;
     QSlider *progressbar;
-    PlayerEngine *engine;
+    std::shared_ptr<PlayerEngine> engine;
+    ~PlayerPrivate(){
+        cout << "~PlayerPrivate() called."<<endl;
+    }
 };
-Player::Player(QWidget *parent) : QFrame(parent) {
+PlayerControlWidget::~PlayerControlWidget(){
+    cout << "~PlayerControlWidget() called."<<endl;
+};
+PlayerControlWidget::PlayerControlWidget(QWidget *parent) : QFrame(parent) {
     d = new PlayerPrivate;
+    assert(PlayerEngine::is_inited() == false);
     d->engine = PlayerEngine::instance();
+    assert(PlayerEngine::is_inited() == true);
 
     auto *lay = new QHBoxLayout(this);
 
-    d->cover = new QOpenGLWidget;
+    d->cover = new QOpenGLWidget(this);
     auto right = new QVBoxLayout;
     lay->addWidget(d->cover);
     lay->addLayout(right);
@@ -55,15 +66,15 @@ Player::Player(QWidget *parent) : QFrame(parent) {
         d->jumpback.setIcon(QIcon::fromTheme("media-skip-backward"));
         d->faster.setIcon(QIcon::fromTheme("media-seek-forward"));
         d->slower.setIcon(QIcon::fromTheme("media-seek-backward"));
-        connect(&d->play, &QToolButton::clicked, d->engine, &PlayerEngine::resume);
-        connect(&d->pause, &QToolButton::clicked, d->engine, &PlayerEngine::pause);
-        connect(&d->stop, &QToolButton::clicked, d->engine, &PlayerEngine::stop);
-        connect(&d->jumpback, &QToolButton::clicked, d->engine,
+        connect(&d->play, &QToolButton::clicked, d->engine.get(), &PlayerEngine::resume);
+        connect(&d->pause, &QToolButton::clicked, d->engine.get(), &PlayerEngine::pause);
+        connect(&d->stop, &QToolButton::clicked, d->engine.get(), &PlayerEngine::stop);
+        connect(&d->jumpback, &QToolButton::clicked, d->engine.get(),
                 &PlayerEngine::seekforward);
-        connect(&d->jumpforward, &QToolButton::clicked, d->engine,
+        connect(&d->jumpforward, &QToolButton::clicked, d->engine.get(),
                 &PlayerEngine::seekbackward);
-        connect(&d->slower, &QToolButton::clicked, d->engine, &PlayerEngine::slower);
-        connect(&d->faster, &QToolButton::clicked, d->engine, &PlayerEngine::faster);
+        connect(&d->slower, &QToolButton::clicked, d->engine.get(), &PlayerEngine::slower);
+        connect(&d->faster, &QToolButton::clicked, d->engine.get(), &PlayerEngine::faster);
     }
 
     right_up->addWidget(&d->play);
@@ -96,24 +107,24 @@ Player::Player(QWidget *parent) : QFrame(parent) {
     connect(d->progressbar, &QSlider::sliderMoved, this, [this](int val) {
         { d->engine->setPosition(val * 1000); }
     });
-    connect(d->engine, &PlayerEngine::positionChanged, this, [this](int val) {
+    connect(d->engine.get(), &PlayerEngine::positionChanged, this, [this](int val) {
         if (!d->progressbar->isSliderDown()) d->progressbar->setValue(val / 1000);
     });
-    connect(d->engine, &PlayerEngine::durationChanged, this, [this](int val) {
+    connect(d->engine.get(), &PlayerEngine::durationChanged, this, [this](int val) {
         d->info->setText(
             QString("Duratin:(%1) %2").arg(val / 1000).arg(int2hms(val / 1000)));
         d->progressbar->setMaximum(val / 1000);
     });
-    connect(d->engine, &PlayerEngine::positionChanged, this, [this](int pos) {
+    connect(d->engine.get(), &PlayerEngine::positionChanged, this, [this](int pos) {
         int all = PlayerEngine::instance()->duration();
         d->pos->setText(
             QString("%1     %2").arg(int2hms(pos / 1000)).arg(int2hms(all / 1000)));
     });
 }
-void Player::Pause() { d->engine->pause(); }
+void PlayerControlWidget::Pause() { d->engine->pause(); }
 
-void Player::Play() { d->engine->resume(); }
+void PlayerControlWidget::Play() { d->engine->resume(); }
 
-void Player::Stop() { d->engine->stop(); }
+void PlayerControlWidget::Stop() { d->engine->stop(); }
 
-void Player::setVolume(int x) { d->engine->setVolume(x); }
+void PlayerControlWidget::setVolume(int x) { d->engine->setVolume(x); }

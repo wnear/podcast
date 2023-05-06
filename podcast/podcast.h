@@ -17,22 +17,14 @@ class Podcast : public QWidget {
     QWidget *detail() const;
 
   private:
-    QString datapath() const;
     void read_opml(const QString &filename);
     void write_opml(const QString &filename);
 
-    void savepod(QString title, QString url);
 
     bool load();
     bool save();
 
-    QString datapath(PodcastChannel &name) const;
-    bool load(PodcastChannel &name);
-    bool save(PodcastChannel &name);
-    void podLoad(PodcastChannel &pod);
-    void podUpdate(PodcastChannel &pod);
-    bool parsexml(PodcastChannel &pod);
-    bool updatexml(PodcastChannel &pod);
+    void pod_load_episodes(PodcastChannel &pod);
 
   private:
     class Private;
