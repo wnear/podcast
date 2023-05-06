@@ -10,12 +10,11 @@
 
 class EpisodeTreeModelPrivate {
   public:
-    int maxcolumn = 30;
+    int maxRow = 30;
     QList<PodcastChannel *> pods{};
     void reset() {
         pods.clear();
         pod_idx.clear();
-        maxcolumn = 30;
     }
     QMap<int, PodcastChannel *> pod_idx;
     QMap<TreeColumn, QString> availproperty;
@@ -135,6 +134,7 @@ QVariant EpisodeTreeModel::data(const QModelIndex &index, int role) const {
         default:
             break;
     }
+
     return QVariant();
 }
 

@@ -32,14 +32,9 @@ EpisodeTreeView::EpisodeTreeView(QAbstractItemModel *model, QWidget *parent)
     d->player = PlayerEngine::instance();
     d->data = model;
     d->sortmodel = new EpisodeTreeSortFilterModel;
-    if(false){ // use sort
-        d->sortmodel->setSourceModel(d->data);
-        this->setModel(d->sortmodel);
-        QTreeView::setModel(d->sortmodel);
-    } else {
-        this->setModel(d->data);
-        QTreeView::setModel(d->data);
-    }
+    d->sortmodel->setSourceModel(d->data);
+    this->setModel(d->sortmodel);
+    QTreeView::setModel(d->sortmodel);
 
 
     // this->setRootIsDecorated(false);
