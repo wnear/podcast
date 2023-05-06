@@ -13,50 +13,43 @@ struct EpisodeListWidgetPrivate {
     QVBoxLayout *listLay;
 
     QVBoxLayout *lay;
-
 };
 
-EpisodeListWidget::EpisodeListWidget(QWidget *parent): QWidget(parent)
-{
+EpisodeListWidget::EpisodeListWidget(QWidget *parent) : QWidget(parent) {
     d = new EpisodeListWidgetPrivate;
     d->scrollArea = new QScrollArea(this);
     d->scrollArea->setWidget(new QWidget(this));
-    //d->scrollArea->setFrameShape(QFrame::NoFrame);  //枠線をなくす
-    // d->list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);//表示しない
-    d->scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);  //常に表示
-    d->scrollArea->setWidgetResizable(true);                           //先にこれを設定する。
+    // d->scrollArea->setFrameShape(QFrame::NoFrame);  //枠線をなくす
+    //  d->list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);//表示しない
+    d->scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);  // 常に表示
+    d->scrollArea->setWidgetResizable(true);  // 先にこれを設定する。
 
     scrollWidget()->setLayout(new QVBoxLayout);
 
-    
     d->lay = new QVBoxLayout(this);
     d->lay->addWidget(d->scrollArea, 1);
     this->setLayout(d->lay);
 }
 
-QWidget *EpisodeListWidget::scrollWidget()
-{ return (d->scrollArea->widget()); }
+QWidget *EpisodeListWidget::scrollWidget() { return (d->scrollArea->widget()); }
 
-void EpisodeListWidget::refresh() 
-{ this->setPod(cur); }
+void EpisodeListWidget::refresh() { this->setPod(cur); }
 
-QString EpisodeListWidget::current() const 
-{ return cur == nullptr ? "" : cur->title; }
+QString EpisodeListWidget::current() const { return cur == nullptr ? "" : cur->title; }
 
-void EpisodeListWidget::setPod(PodcastChannel *pod)
-{
+void EpisodeListWidget::setPod(PodcastChannel *pod) {
     cur = pod;
-    auto childs = this->findChildren<EpisodeWidget*>();
-    scrollWidget()->findChild<QWidget*>();
-    for(auto i : childs)i->deleteLater();
-    
+    auto childs = this->findChildren<EpisodeWidget *>();
+    scrollWidget()->findChild<QWidget *>();
+    for (auto i : childs) i->deleteLater();
+
     int count = pod->episodes.count();
     count = std::min(10, count);
-    if(count == 0)return;
+    if (count == 0) return;
 
     binfo("episodelistwget draw...");
-    for(int i = 0; i < count; i++){
-        scrollWidget()->layout()->addWidget(new EpisodeWidget((EpisodeData *)(pod->episodes[i]), scrollWidget()));
+    for (int i = 0; i < count; i++) {
+        scrollWidget()->layout()->addWidget(
+            new EpisodeWidget((EpisodeData *)(pod->episodes[i]), scrollWidget()));
     }
 }
-

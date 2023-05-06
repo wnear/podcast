@@ -3,10 +3,7 @@
 #include <QTextEdit>
 #include <QVBoxLayout>
 
-
-DownloadManagerWidget:: DownloadManagerWidget(QWidget *parent )
-:QDialog(parent)
-{
+DownloadManagerWidget::DownloadManagerWidget(QWidget *parent) : QDialog(parent) {
     this->setMinimumHeight(800);
     this->setMinimumHeight(800);
     auto lay = new QVBoxLayout(this);

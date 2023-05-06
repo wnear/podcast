@@ -4,8 +4,6 @@
 #include <tuple>
 #include <QString>
 
-
-
 enum TreeColumn {
     TITLE = 0,
     UPDATETIME,
@@ -18,7 +16,6 @@ enum TreeColumn {
     PLAYTIME,
     CNT_SENTEL
 };
-
 
 /*
  * all properties.
@@ -36,9 +33,8 @@ enum TreeColumn {
  * - The visible choices should be stored.
  *
  */
-class episodepropertymanager
-{
-public:
+class episodepropertymanager {
+  public:
     episodepropertymanager();
     ~episodepropertymanager();
     void load();
@@ -47,13 +43,12 @@ public:
     bool isVisible(int index) const;
 
     void getDialog();
-    //iterator interface:
+    // iterator interface:
 
-
-    //index,  title, visible
+    // index,  title, visible
     std::vector<std::tuple<int, QString, bool>> m_data;
-private:
 
+  private:
 };
 
-#endif // EPISODEPROPERTYMANAGER_H
+#endif  // EPISODEPROPERTYMANAGER_H

@@ -3,19 +3,16 @@
 
 #include <QMainWindow>
 
-class Mainwindow : public QMainWindow
-{
-    public:
-        Mainwindow (QWidget *parent = nullptr);
-        ~Mainwindow () ;
+class Mainwindow : public QMainWindow {
+  public:
+    Mainwindow(QWidget *parent = nullptr);
+    ~Mainwindow();
 
-    private:
-        void setupMenu();
-        void setupToolbar();
-        class Private;
-        Private *d;
-    
+  private:
+    void setupMenu();
+    void setupToolbar();
+    class Private;
+    Private *d;
 };
 
-
-#endif // !__MAIN_WINDOW_H
+#endif  // !__MAIN_WINDOW_H

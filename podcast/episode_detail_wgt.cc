@@ -15,7 +15,7 @@
 #include <QStringListModel>
 
 class EpisodeDetailPrivate {
-public:
+  public:
     QScrollArea *base;
 
     QLabel detail;
@@ -27,9 +27,7 @@ public:
     QTextEdit notes;
 };
 
-EpisodeDetail::EpisodeDetail(QWidget *parent)
-:QWidget(parent)
-{
+EpisodeDetail::EpisodeDetail(QWidget *parent) : QWidget(parent) {
     d = new EpisodeDetailPrivate;
 
     d->base = new QScrollArea;
@@ -38,16 +36,16 @@ EpisodeDetail::EpisodeDetail(QWidget *parent)
     this->setLayout(lay);
 
     auto lay2 = new QVBoxLayout;
-    lay2->addWidget(& d->detail);
+    lay2->addWidget(&d->detail);
     auto lay_btn = new QHBoxLayout;
-    lay_btn ->addWidget(& d->play);
-    lay_btn ->addWidget(& d->star);
-    lay_btn ->addWidget(& d->ignore);
+    lay_btn->addWidget(&d->play);
+    lay_btn->addWidget(&d->star);
+    lay_btn->addWidget(&d->ignore);
     lay2->addLayout(lay_btn);
 
     auto sp = new QSplitter;
-    sp->addWidget(& d->bookmark);
-    sp->addWidget(& d->notes);
+    sp->addWidget(&d->bookmark);
+    sp->addWidget(&d->notes);
     lay2->addWidget(sp);
 
     auto model = new QStringListModel;
@@ -58,13 +56,8 @@ EpisodeDetail::EpisodeDetail(QWidget *parent)
     d->base->setLayout(lay2);
 }
 
-
-EpisodeDetail::~EpisodeDetail()
-{
-    delete d;
-}
-void EpisodeDetail::setData(EpisodeData *data)
-{
+EpisodeDetail::~EpisodeDetail() { delete d; }
+void EpisodeDetail::setData(EpisodeData *data) {
     m_data = data;
     d->detail.setText(m_data->description);
 }

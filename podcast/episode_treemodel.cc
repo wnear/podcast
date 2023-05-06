@@ -29,19 +29,17 @@ EpisodeTreeModel::EpisodeTreeModel(QObject *parent) : QAbstractItemModel(parent)
                         {TreeColumn::URL, tr("URL")},
                         {TreeColumn::DATETIME_UPDATED, tr("update")},
                         {TreeColumn::DATETIME_LASTVIEW, tr("last view")}};
-    d->allproperty =
-{{TreeColumn::TITLE, tr("title")},
-                        {TreeColumn::SIZE, tr("file size")},
-                        {TreeColumn::DURATION, tr("duration")},
-                        {TreeColumn::URL, tr("URL")},
-                        {TreeColumn::DATETIME_UPDATED, tr("update")},
-                        {TreeColumn::DATETIME_LASTVIEW, tr("last view")}} ;
+    d->allproperty = {{TreeColumn::TITLE, tr("title")},
+                      {TreeColumn::SIZE, tr("file size")},
+                      {TreeColumn::DURATION, tr("duration")},
+                      {TreeColumn::URL, tr("URL")},
+                      {TreeColumn::DATETIME_UPDATED, tr("update")},
+                      {TreeColumn::DATETIME_LASTVIEW, tr("last view")}};
 
     for (auto i : d->availproperty.keys()) {
         binfo("d.keys: {} ", static_cast<int>(i));
     }
 }
-
 
 void EpisodeTreeModel::setPod(PodcastChannel *pod) {
     beginResetModel();
@@ -53,7 +51,7 @@ void EpisodeTreeModel::setPod(PodcastChannel *pod) {
 QModelIndex EpisodeTreeModel::index(int row, int column,
                                     const QModelIndex &parent) const {
     return (row >= 0 && row < this->rowCount()) ? createIndex(row, column, nullptr)
-                                               : QModelIndex();
+                                                : QModelIndex();
 }
 
 QModelIndex EpisodeTreeModel::parent(const QModelIndex &child) const {
@@ -65,7 +63,7 @@ QModelIndex EpisodeTreeModel::parent(const QModelIndex &child) const {
 int EpisodeTreeModel::rowCount(const QModelIndex &parent) const {
     int x;
     if (d->pods.length() == 0) return 0;
-    x = std::min<int>(d->maxcolumn, d->pods[0]->episodes.count());
+    x = std::min<int>(d->maxRow, d->pods[0]->episodes.count());
     // qDebug()<<"rowcount should be"<< x;
     return x;
 }

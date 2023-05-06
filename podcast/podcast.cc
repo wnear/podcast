@@ -6,7 +6,6 @@
 #include <QStandardPaths>
 #include <QMenu>
 
-
 #include <QTabWidget>
 #include <QListView>
 #include <QVBoxLayout>
@@ -19,7 +18,6 @@
 #include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QEventLoop>
-
 
 #include <QListWidget>
 #include <QListWidgetItem>
@@ -42,22 +40,20 @@
 
 namespace {
 
-    QString ensureDirExist(const QString &parent, const QString &dirname)
-    {
-        auto path = QDir(parent).filePath(dirname);
-        if(QFileInfo::exists(path) == false) {
-            QDir(parent).mkdir(dirname);
-        } else {
+QString ensureDirExist(const QString &parent, const QString &dirname) {
+    auto path = QDir(parent).filePath(dirname);
+    if (QFileInfo::exists(path) == false) {
+        QDir(parent).mkdir(dirname);
+    } else {
         // use empty string to as error.
-            if(QFileInfo(path).isDir() == false)
-                return "";
-        }
-        return path;
+        if (QFileInfo(path).isDir() == false) return "";
     }
+    return path;
 }
+}  // namespace
 
-class Podcast::Private{
-public:
+class Podcast::Private {
+  public:
     QListView *list;
     QTabWidget *detail;
     // EpisodeListWidget *detaillist;
@@ -69,8 +65,7 @@ public:
     QNetworkAccessManager *net;
 };
 
-Podcast::Podcast(QWidget *parent): QWidget(parent)
-{
+Podcast::Podcast(QWidget *parent) : QWidget(parent) {
     d = new Private;
     load();
     d->net = new QNetworkAccessManager();
@@ -87,7 +82,6 @@ Podcast::Podcast(QWidget *parent): QWidget(parent)
     }
     lay->addWidget(d->list);
 
-
     d->detail = new QTabWidget(this);
     // d->detaillist = new EpisodeListWidget(this);
     d->detailtree = new EpisodeTreeWidget(this);
@@ -96,46 +90,42 @@ Podcast::Podcast(QWidget *parent): QWidget(parent)
     // d->detail->addTab(d->detaillist, "diy list");
     d->detail->addTab(d->ep_detail, "ep detail");
 
-    connect(d->list, &QWidget::customContextMenuRequested, this, [this](const QPoint &pos){
+    connect(d->list, &QWidget::customContextMenuRequested, this,
+            [this](const QPoint &pos) {
                 auto idx = d->list->indexAt(pos);
                 int row = idx.row();
                 PodcastChannel &pod = *m_pods[row];
                 podLoad(*m_pods[row]);
                 auto menu = new QMenu(this);
-                menu->addAction("reparse", this, [this, &pod](){
-                                    this->parsexml(pod);
-                                });
-                menu->addAction("update", this, [this, &pod](){
-                                    this->updatexml(pod);
-                                });
+                menu->addAction("reparse", this, [this, &pod]() { this->parsexml(pod); });
+                menu->addAction("update", this, [this, &pod]() { this->updatexml(pod); });
                 menu->exec(mapToGlobal(pos));
             });
-    connect(d->list, &QListView::clicked, [this](auto &&idx){
-                // title/ url ==> feed ==> detailview ==> detailview update.
+    connect(d->list, &QListView::clicked, [this](auto &&idx) {
+        // title/ url ==> feed ==> detailview ==> detailview update.
 
-                auto model = qobject_cast<PodModel *>(d->list->model());
-                auto url = model->data(idx, PodModel::UrlRole).toString();
-                int row = idx.row();
-                podLoad(*m_pods[row]);
-                int cnt = m_pods[row]->episodes.count();
-                qDebug()<<"by load from cache, get episodes of count: " << cnt;
-                // d->detaillist->setPod( m_pods[row]);
-                d->detailtree->setPod( m_pods[row]);
-            });
+        auto model = qobject_cast<PodModel *>(d->list->model());
+        auto url = model->data(idx, PodModel::UrlRole).toString();
+        int row = idx.row();
+        podLoad(*m_pods[row]);
+        int cnt = m_pods[row]->episodes.count();
+        qDebug() << "by load from cache, get episodes of count: " << cnt;
+        // d->detaillist->setPod( m_pods[row]);
+        d->detailtree->setPod(m_pods[row]);
+    });
 }
 
-bool Podcast::save()
-{
+bool Podcast::save() {
     auto path = this->datapath();
     auto podsfile = QDir(path).filePath("subscription.json");
     QFile f(podsfile);
-    if(f.open(QIODevice::WriteOnly) == false){
-        qDebug()<<"Err to open for write";
+    if (f.open(QIODevice::WriteOnly) == false) {
+        qDebug() << "Err to open for write";
         return false;
     }
 
     QJsonArray whole;
-    for(auto i: m_pods){
+    for (auto i : m_pods) {
         whole.push_back(QJsonObject{{"title", i->title}, {"url", i->url}});
     }
     QJsonDocument doc;
@@ -144,77 +134,67 @@ bool Podcast::save()
     return true;
 }
 
-bool Podcast::load()
-{
+bool Podcast::load() {
     auto path = this->datapath();
     auto podsfile = QDir(path).filePath("subscription.json");
     QFile pods(podsfile);
-    if(pods.exists() == false || pods.open(QIODevice::ReadOnly) == false){
-        qDebug()<<"fail to open";
+    if (pods.exists() == false || pods.open(QIODevice::ReadOnly) == false) {
+        qDebug() << "fail to open";
         return false;
     }
 
     QJsonParseError err;
     auto doc = QJsonDocument::fromJson(pods.readAll(), &err);
-    if(err.error != QJsonParseError::NoError) {
-        qDebug()<<"Json parse error: "<<err.errorString();
+    if (err.error != QJsonParseError::NoError) {
+        qDebug() << "Json parse error: " << err.errorString();
         return false;
     }
-    for(auto i: doc.array()) {
+    for (auto i : doc.array()) {
         auto item = i.toObject();
 
         auto x = new PodcastChannel(item.value("title").toString(),
-                                 item.value("url").toString());
+                                    item.value("url").toString());
 
         m_pods.push_back(x);
-        //m_pods.push_back(std::move(PodcastChannel(item.value("title").toString(),
-                                 //item.value("url").toString())));
+        // m_pods.push_back(std::move(PodcastChannel(item.value("title").toString(),
+        // item.value("url").toString())));
     }
     return true;
 }
 
+QWidget *Podcast::detail() const { return d->detail; }
 
-QWidget *Podcast::detail() const
-{ return d->detail; }
-
-
-QString Podcast::datapath() const
-{
-    QString app_datapath = QStandardPaths::writableLocation(
-                                QStandardPaths::AppLocalDataLocation);
+QString Podcast::datapath() const {
+    QString app_datapath =
+        QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
     return ensureDirExist(app_datapath, "podcast");
 }
 
-QString Podcast::datapath(PodcastChannel &pod) const
-{ return ensureDirExist(datapath(), pod.title); }
+QString Podcast::datapath(PodcastChannel &pod) const {
+    return ensureDirExist(datapath(), pod.title);
+}
 
-void Podcast::importdlg()
-{
-    QString filename = QFileDialog::getOpenFileName(/*paent wgt*/this,
-                                                /*caption*/"get opml file");
-                                                /*dir*/
-                                                /*filter*/
-    if(filename.isEmpty())
-        return;
+void Podcast::importdlg() {
+    QString filename = QFileDialog::getOpenFileName(/*paent wgt*/ this,
+                                                    /*caption*/ "get opml file");
+    /*dir*/
+    /*filter*/
+    if (filename.isEmpty()) return;
     read_opml(filename);
 }
 
-void Podcast::read_opml(const QString &filename)
-{
+void Podcast::read_opml(const QString &filename) {
     auto res = OpmlParser(filename).parse();
-    if(res.isEmpty())
-        return;
+    if (res.isEmpty()) return;
 
-    auto alreadyHave = [this](const QString& name, const QString& title){
+    auto alreadyHave = [this](const QString &name, const QString &title) {
         auto i = std::find_if(m_pods.begin(), m_pods.end(),
-                              [name, title](auto && p){
-                                  return p->url == title;
-                              });
+                              [name, title](auto &&p) { return p->url == title; });
         return i != m_pods.end();
     };
 
-    for(auto i: res){
-        if(! alreadyHave(i.first, i.second))
+    for (auto i : res) {
+        if (!alreadyHave(i.first, i.second))
             m_pods.push_back(new PodcastChannel(i.first, i.second));
     }
 
@@ -228,15 +208,15 @@ void Podcast::savepod(QString title, QString url) {
     m_pods.push_back(new PodcastChannel{title, url});
 }
 
-bool Podcast::save(PodcastChannel &pod){
+bool Podcast::save(PodcastChannel &pod) {
     auto file = QDir(datapath(pod)).filePath("pods_detail.json");
     return jsonsave(&pod, file);
 }
 
-bool Podcast::load(PodcastChannel &pod){
-    auto isNewer = [](const QFile &lhs, const QFile &rhs){
+bool Podcast::load(PodcastChannel &pod) {
+    auto isNewer = [](const QFile &lhs, const QFile &rhs) {
         bool ret = QFileInfo(lhs).lastModified() > QFileInfo(rhs).lastModified();
-        qDebug()<<"xml is "<<(ret?"newer":"older");
+        qDebug() << "xml is " << (ret ? "newer" : "older");
         return ret;
     };
 
@@ -246,18 +226,16 @@ bool Podcast::load(PodcastChannel &pod){
     QFile json_file(json_str);
 
     // if both data is not existed, download.
-    if(json_file.exists() == false && xml_file.exists() == false) {
+    if (json_file.exists() == false && xml_file.exists() == false) {
         this->podUpdate(pod);
         return false;
     }
 
-    if(xml_file.exists()){
+    if (xml_file.exists()) {
         // if json not existed, or not update.
-        if(json_file.exists() == false || isNewer(xml_file, json_file))
-        {
+        if (json_file.exists() == false || isNewer(xml_file, json_file)) {
             bool ret = this->parsexml(pod);
-            if(ret == false)
-                return ret;
+            if (ret == false) return ret;
         }
     }
 
@@ -275,55 +253,51 @@ bool Podcast::load(PodcastChannel &pod){
 5. add episode => pod->episodes
 6. sync pod data => local json
  */
-void Podcast::podUpdate(PodcastChannel &pod){
-    updatexml(pod);
-}
+void Podcast::podUpdate(PodcastChannel &pod) { updatexml(pod); }
 
-//load from local storage.
-void Podcast::podLoad(PodcastChannel &pod){
+// load from local storage.
+void Podcast::podLoad(PodcastChannel &pod) {
     auto ret = load(pod);
-    if(ret == false) return;
+    if (ret == false) return;
 }
 
 void Podcast::exportdlg() {}
 void Podcast::write_opml(const QString &filename) {}
 
-bool Podcast::updatexml(PodcastChannel &pod)
-{
-    if(pod.job_id != -1){
+bool Podcast::updatexml(PodcastChannel &pod) {
+    if (pod.job_id != -1) {
         auto status = DownloadManager::instance()->getJobStatus(pod.job_id);
-        if(status == TASK_DOWNLOADING){
+        if (status == TASK_DOWNLOADING) {
             binfo("some one want's to try download  a pod twice?");
             return false;
         } else {
             binfo("retry a failed xml download({})", pod.url.toStdString());
             binfo("last time the job ret is {}.", status);
-            qDebug()<<status;
+            qDebug() << status;
         }
     }
     auto res = QDir(this->datapath(pod)).filePath(c_podcast_localxml);
     pod.job_id = DownloadManager::instance()->addjob(pod.url, res);
     connect(DownloadManager::instance(), &DownloadManager::stateChanged, this,
-            [&pod, this](int id, auto st){
-                if(id == pod.job_id && st == TASK_COMPLETE){
+            [&pod, this](int id, auto st) {
+                if (id == pod.job_id && st == TASK_COMPLETE) {
                     this->parsexml(pod);
                 }
             });
     return true;
 }
 
-bool Podcast::parsexml(PodcastChannel &pod)
-{
+bool Podcast::parsexml(PodcastChannel &pod) {
     QString xml = QDir(this->datapath(pod)).filePath(c_podcast_localxml);
     QFile xml_file(xml);
     auto parser = RssParser(&xml_file, &pod);
     bool ret = parser.parse();
-    if(! pod.cover_url.isEmpty())
-        if(!QFile(pod.coverfile()).exists()){
+    if (!pod.cover_url.isEmpty())
+        if (!QFile(pod.coverfile()).exists()) {
             binfo("download cover");
             DownloadManager::instance()->addjob(pod.cover_url, pod.coverfile());
         }
-    if(ret) {
+    if (ret) {
         save(pod);
     }
     return ret;

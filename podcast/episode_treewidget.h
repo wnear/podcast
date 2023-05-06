@@ -14,27 +14,25 @@ class EpisodeData;
 // - model, the place to parse index, get data, also deal with
 //   sort/filter and selection.
 
-class EpisodeTreeWidget: public QFrame
-{
-        Q_OBJECT
+class EpisodeTreeWidget : public QFrame {
+    Q_OBJECT
 
-    public:
-        EpisodeTreeWidget(QWidget *parent = nullptr);
-        ~EpisodeTreeWidget();
-        void setPod(PodcastChannel *pod);
+  public:
+    EpisodeTreeWidget(QWidget *parent = nullptr);
+    ~EpisodeTreeWidget();
+    void setPod(PodcastChannel *pod);
 
-        // TODO:
-        // chain: click on pod
-        // ==> TreeWidget get data
-        // ==> TreeView get data
-        // ==> TreeModel reset data.
-        // How did others deal with similar scenerios.
-        // how to be more elegant?
-        void setData();
-    signals:
-        void showEpDetail(EpisodeData *data);
+    // TODO:
+    // chain: click on pod
+    // ==> TreeWidget get data
+    // ==> TreeView get data
+    // ==> TreeModel reset data.
+    // How did others deal with similar scenerios.
+    // how to be more elegant?
+    void setData();
+  signals:
+    void showEpDetail(EpisodeData *data);
 
-    private:
-        class EpisodeTreeWidgetPrivate *d;
-
+  private:
+    class EpisodeTreeWidgetPrivate *d;
 };

@@ -1,9 +1,6 @@
 #include "stackcontainer.h"
 
-StackContainer::StackContainer(QWidget *parent)
-                            :QStackedWidget(parent)
-{
-}
+StackContainer::StackContainer(QWidget *parent) : QStackedWidget(parent) {}
 
 StackContainer *StackContainer::instance(QWidget *parent) {
     static StackContainer *ins{nullptr};
@@ -15,19 +12,13 @@ StackContainer *StackContainer::instance(QWidget *parent) {
 
     return ins;
 }
-void StackContainer::register_element(StackWidget *wgt, StackData *data)
-{
+void StackContainer::register_element(StackWidget *wgt, StackData *data) {
     this->addWidget(wgt);
     m_registerd.insert(data->metaObject()->className(), wgt);
 }
-void StackContainer::push(StackData *data)
-{
+void StackContainer::push(StackData *data) {
     m_history.push_back(data);
     this->setCurrentWidget(m_registerd[data->metaObject()->className()]);
 }
 
-
-void StackContainer::back()
-{
-
-}
+void StackContainer::back() {}

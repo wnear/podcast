@@ -12,11 +12,9 @@
 #include <QComboBox>
 #include <QMenu>
 
-
-
 class EpisodeTreeWidgetPrivate {
-public:
-    EpisodeTreeView  *view;
+  public:
+    EpisodeTreeView *view;
     EpisodeTreeModel *model;
 
     QToolButton update;
@@ -28,10 +26,7 @@ public:
     QLabel status;
 };
 
-
-EpisodeTreeWidget::EpisodeTreeWidget(QWidget *parent)
-:QFrame(parent)
-{
+EpisodeTreeWidget::EpisodeTreeWidget(QWidget *parent) : QFrame(parent) {
     d = new EpisodeTreeWidgetPrivate;
 
     auto lay = new QVBoxLayout;
@@ -66,9 +61,8 @@ EpisodeTreeWidget::EpisodeTreeWidget(QWidget *parent)
     this->setLayout(lay);
 }
 
-void EpisodeTreeWidget::setPod(PodcastChannel *pod)
-{
+void EpisodeTreeWidget::setPod(PodcastChannel *pod) {
     d->model->setPod(pod);
     d->view->reset();
 }
-EpisodeTreeWidget::~EpisodeTreeWidget() { delete d;}
+EpisodeTreeWidget::~EpisodeTreeWidget() { delete d; }

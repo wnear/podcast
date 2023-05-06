@@ -4,10 +4,9 @@
 #include <QDialog>
 #include <QMessageBox>
 
-class DownloadManagerWidget: public QDialog
-    {
-    public:
-        DownloadManagerWidget(QWidget *parent = nullptr);
-    };
+class DownloadManagerWidget : public QDialog {
+  public:
+    DownloadManagerWidget(QWidget *parent = nullptr);
+};
 
 #endif

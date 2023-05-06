@@ -20,19 +20,17 @@
 #include "downloadmanagerwgt.h"
 
 class Mainwindow::Private {
-public:
+  public:
     QSplitter *base;
     QTabWidget *left;
-    QFrame     *right;
-    QStackedWidget * rightdetail;
+    QFrame *right;
+    QStackedWidget *rightdetail;
     Player *rightPlayer;
 
     Podcast *localpod;
 };
 
-Mainwindow::Mainwindow(QWidget *parent):
-    QMainWindow(parent)
-{
+Mainwindow::Mainwindow(QWidget *parent) : QMainWindow(parent) {
     d = new Private;
 
     d->base = new QSplitter(this);
@@ -56,47 +54,41 @@ Mainwindow::Mainwindow(QWidget *parent):
     // d->left->addTab(d->subsong, "Subsonic songs");
     // d->right->addWidget(d->subsong->detail());
 
-    connect(d->left, &QTabWidget::currentChanged, d->rightdetail, &QStackedWidget::setCurrentIndex);
+    connect(d->left, &QTabWidget::currentChanged, d->rightdetail,
+            &QStackedWidget::setCurrentIndex);
     d->base->addWidget(d->left);
     d->base->addWidget(d->right);
 
     this->setCentralWidget(d->base);
     setupMenu();
     setupToolbar();
-    this->resize(2000,1600);
+    this->resize(2000, 1600);
 }
-Mainwindow::~Mainwindow()
-{
-    delete d;
-}
+Mainwindow::~Mainwindow() { delete d; }
 
-void Mainwindow::setupMenu()
-{
+void Mainwindow::setupMenu() {
     auto *bar = this->menuBar();
     auto *_file = bar->addMenu("File");
-    _file->addAction("import local podcast", [this](){
-                         d->localpod->importdlg();
-                     });
+    _file->addAction("import local podcast", [this]() { d->localpod->importdlg(); });
     bar->addMenu("Play");
     bar->addMenu("Help");
     bar->addMenu("About");
     bar->addMenu("...");
 }
-void Mainwindow::setupToolbar()
-{
+void Mainwindow::setupToolbar() {
     auto *bar = this->addToolBar("file");
 
     auto icon = QIcon::fromTheme("download");
     auto act = new QAction(icon, "hello");
     act->setToolTip("world");
-    auto download = new QAction(icon,"download" );
-    connect(download, &QAction::triggered, [this](){
-                DownloadManagerWidget dlg(this);
-                dlg.setModal(true);
-                qDebug()<<"before exec";
-                dlg.exec();
-                qDebug()<<"after exec";
-            });
+    auto download = new QAction(icon, "download");
+    connect(download, &QAction::triggered, [this]() {
+        DownloadManagerWidget dlg(this);
+        dlg.setModal(true);
+        qDebug() << "before exec";
+        dlg.exec();
+        qDebug() << "after exec";
+    });
 
     bar->addAction(act);
     bar->addAction(download);

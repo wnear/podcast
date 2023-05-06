@@ -24,9 +24,8 @@ class EpisodeTreeModel : public QAbstractItemModel {
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     TreeColumn columnType(int column) const;
 
-    void setAvailableProperties(std::vector<int> avail){ }
-    void getAvailableProperties() const { }
-
+    void setAvailableProperties(std::vector<int> avail) {}
+    void getAvailableProperties() const {}
 
   private:
     class EpisodeTreeModelPrivate *d;
