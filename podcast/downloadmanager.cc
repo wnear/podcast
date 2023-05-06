@@ -106,10 +106,10 @@ jobid_t DownloadManager::addjob(QUrl url, const QString &dest, int start) {
     connect(reply, &QNetworkReply::finished, [this, job]() {
         job->state = TASK_COMPLETE;
         job->end_time = QDateTime::currentDateTime();
-        int elpase = job->end_time.secsTo(job->start_time);
+        int elpase = job->start_time.secsTo(job->end_time);
         if (elpase != 0) job->speed = QString("%1 kBps").arg(job->total / elpase / 1000);
         job->save();
-        qDebug() << "network, download complete";
+        qDebug() << "network, download complete, download speed:"<<job->speed;
         emit stateChanged(job->id, job->state);
     });
 
