@@ -279,7 +279,8 @@ bool Podcast::updatexml(PodcastChannel &pod) {
                 if (id == pod.job_id && st == TASK_COMPLETE) {
                     this->parsexml(pod);
                 }
-            });
+            }, Qt::SingleShotConnection
+            );
     return true;
 }
 
