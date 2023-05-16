@@ -42,6 +42,7 @@ bool jsonload(PodcastChannel *entity, const QString &filepath) {
         //     pod.location = datapath(pod);
     }
     auto eps = obj["episodes"].toArray();
+    pod.episodes.clear();
     for (auto i : eps) {
         EpisodeData *x = new EpisodeData;
         auto &&obj = i.toObject();
