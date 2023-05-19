@@ -30,6 +30,8 @@
 // #include "episodelistwgt.h"
 #include "episode_treewidget.h"
 #include "episode_detail_wgt.h"
+#include "podcastchannel.h"
+#include "podmodel.h"
 
 
 
@@ -70,10 +72,11 @@ Podcast::Podcast(QWidget *parent) : QWidget(parent) {
     d->detailtree = new EpisodeTreeWidget(this);
     d->ep_detail = new EpisodeDetail(this);
     d->detail->addTab(d->detailtree, "modal list");
-    // d->detail->addTab(d->detaillist, "diy list");
     d->detail->addTab(d->ep_detail, "ep detail");
 
     assert(d->list != nullptr);
+
+    connect(d->detailtree, &EpisodeTreeWidget::requestPlay, this, &Podcast::requestPlay);
     connect(d->list, &QWidget::customContextMenuRequested, this,
             [this](const QPoint &pos) {
                 auto idx = d->list->indexAt(pos);

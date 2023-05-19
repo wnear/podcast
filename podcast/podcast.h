@@ -3,11 +3,15 @@
 
 #include <QWidget>
 #include <QDateTime>
+#include <QUrl>
 
-#include "podmodel.h"
-#include "episodedata.h"
+// #include "podcastchannel.h"
+
+class PodcastChannel;
 
 class Podcast : public QWidget {
+    Q_OBJECT
+
   public:
     Podcast(QWidget *parent = nullptr);
     ~Podcast() = default;
@@ -15,6 +19,9 @@ class Podcast : public QWidget {
     void importdlg();
     void exportdlg();
     QWidget *detail() const;
+
+  signals:
+    void requestPlay(QUrl media);
 
   private:
     void read_opml(const QString &filename);

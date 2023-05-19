@@ -9,8 +9,6 @@
 #include <QHoverEvent>
 #include <QHeaderView>
 
-#include "player_engine.h"
-
 class EpisodeTreeModel;
 
 class EpisodeTreeViewPrivate {
@@ -18,7 +16,6 @@ class EpisodeTreeViewPrivate {
     QAbstractItemModel *data{nullptr};
     EpisodeTreeSortFilterModel *sortmodel{nullptr};
     QItemSelectionModel *selectModel{nullptr};
-    std::shared_ptr<PlayerEngine> player{nullptr};
 
     ~EpisodeTreeViewPrivate() { data->deleteLater(); }
 };
@@ -26,7 +23,6 @@ class EpisodeTreeViewPrivate {
 EpisodeTreeView::EpisodeTreeView(QAbstractItemModel *model, QWidget *parent)
     : QTreeView(parent) {
     d = new EpisodeTreeViewPrivate;
-    d->player = PlayerEngine::instance();
     d->data = model;
     d->sortmodel = new EpisodeTreeSortFilterModel;
     d->sortmodel->setSourceModel(d->data);
@@ -89,7 +85,7 @@ void EpisodeTreeView::mouseDoubleClickEvent(QMouseEvent *event) {
         auto urlIdx = d->data->index(srcIdx.row(), TreeColumn::URL - 1);
         auto url = d->data->data(urlIdx).toUrl();
         qDebug() << __PRETTY_FUNCTION__ << " start.";
-        d->player->play(url);
+        emit requestPlay(url);
         qDebug() << __PRETTY_FUNCTION__ << " end.";
     }
 }

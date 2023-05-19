@@ -1,11 +1,14 @@
 #pragma once
 
 #include <QTreeView>
+#include <QUrl>
 class QWidget;
 // class PodcastChannel;
 class EpisodeData;
 
 class EpisodeTreeView : public QTreeView {
+    Q_OBJECT
+
   public:
     EpisodeTreeView(QAbstractItemModel *model, QWidget *parent = nullptr);
     ~EpisodeTreeView();
@@ -20,6 +23,7 @@ class EpisodeTreeView : public QTreeView {
     bool eventFilter(QObject *obj, QEvent *evt) override;
   signals:
     void showEpDetail(EpisodeData *data);
+    void requestPlay(QUrl media);
 
   private:
     class EpisodeTreeViewPrivate *d;

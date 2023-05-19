@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <QFrame>
+#include "qurl.h"
 
 class PlayerControlWidget : public QFrame {
   public:
@@ -15,6 +16,7 @@ class PlayerControlWidget : public QFrame {
     void slower();
     void resetSpeed();
     void setspeed();
+    void addMedia(QUrl media);
 
     void jumpforward();
     void jumpbackward();

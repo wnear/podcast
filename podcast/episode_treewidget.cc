@@ -59,6 +59,8 @@ EpisodeTreeWidget::EpisodeTreeWidget(QWidget *parent) : QFrame(parent) {
     lay->addLayout(bottom);
 
     this->setLayout(lay);
+
+    connect(d->view, &EpisodeTreeView::requestPlay, this, &EpisodeTreeWidget::requestPlay);
 }
 
 void EpisodeTreeWidget::setPod(PodcastChannel *pod) {

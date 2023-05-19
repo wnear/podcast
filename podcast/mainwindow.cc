@@ -48,6 +48,7 @@ Mainwindow::Mainwindow(QWidget *parent) : QMainWindow(parent) {
     d->right->setLayout(lay);
 
     d->rightdetail->addWidget(d->localpod->detail());
+    connect(d->localpod, &Podcast::requestPlay, d->rightPlayer, &PlayerControlWidget::addMedia);
 
     // d->left->addTab(d->subpod, "Subsonic Podcasts");
     // d->right->addWidget(d->subpod->detail());

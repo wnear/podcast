@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QFrame>
+#include <QUrl>
 
 class QWidget;
 class PodcastChannel;
@@ -32,6 +33,7 @@ class EpisodeTreeWidget : public QFrame {
     void setData();
   signals:
     void showEpDetail(EpisodeData *data);
+    void requestPlay(QUrl media);
 
   private:
     class EpisodeTreeWidgetPrivate *d;

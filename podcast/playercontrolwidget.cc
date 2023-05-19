@@ -3,6 +3,7 @@
 #include <QSlider>
 #include <QLabel>
 #include "player_engine.h"
+#include "podcastchannel.h"
 #include "utils.h"
 #include "log.h"
 #include <QOpenGLWidget>
@@ -128,3 +129,7 @@ void PlayerControlWidget::Play() { d->engine->resume(); }
 void PlayerControlWidget::Stop() { d->engine->stop(); }
 
 void PlayerControlWidget::setVolume(int x) { d->engine->setVolume(x); }
+void PlayerControlWidget::addMedia(QUrl media) {
+    d->engine->play(media);
+}
+
