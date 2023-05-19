@@ -1,8 +1,42 @@
-** save and load local file
-- [ ] have to change all? maybe partially change? to save the disk usage.
-- [ ] 
+** common, fix, bug, optimization. (TODO)
+- [X] player_engine should only be accessed from player_widget.
+  20230519
+- [ ] save and restore widget size.
+- [ ] save and restore current choosed.
+- [ ] playlist.
+- [ ] playcontrolwidget
+  - [ ] show artist/title
+  - [ ] show cover, with OpenGL.
 
-** subsonic podcast
+
+
+** import and export, data layer. :basic:
+podcast episodes list append to json.episodes.list.
+
+** episode list and detail.
+- [ ] batch edit.
+- [ ] select.
+
+** playlist :feature:
+three type of list, they are coexisted, but the next-prev button behavior differ.
+- preview list. like a editor preview. current podcast, current list.
+  auto create, auto clean. reset on a detail click to play.
+- playlist
+  current playlist,mannual created, auto clean on app close.
+- stored playlist.
+  wont clean or build automatically, have manually created, mannual deleted.
+
+** download :feature:
+- [ ] download widget to show current downloading.
+- [ ] set download speed limit.
+** play time :featue:
+
+** save and load local file
+- [ ] save the disk usage.
+  podgrab, subsonic. episode matching.
+
+
+** subsonic podcast :feature:
 - [ ] sync with subsonic
 - [ ] get podcasts
 - [ ] get podcast info
@@ -23,5 +57,5 @@
   - [ ] bookmarks
   - [ ] play speed
   - [ ] stop timer.
-  
+
 - [ ] stackwidget should put widgets by name, to clarify thing.
