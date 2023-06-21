@@ -33,8 +33,6 @@
 #include "podcastchannel.h"
 #include "podmodel.h"
 
-
-
 using namespace std;
 using namespace util;
 class Podcast::Private {
@@ -159,10 +157,10 @@ void Podcast::importdlg() {
     /*dir*/
     /*filter*/
     if (filename.isEmpty()) return;
-    read_opml(filename);
+    import_opml(filename);
 }
 
-void Podcast::read_opml(const QString &filename) {
+void Podcast::import_opml(const QString &filename) {
     auto res = OpmlParser(filename).parse();
     if (res.isEmpty()) return;
 
@@ -203,4 +201,4 @@ void Podcast::pod_load_episodes(PodcastChannel &pod) {
 
 void Podcast::exportdlg() {}
 // TODO: export.
-void Podcast::write_opml(const QString &filename) {}
+void Podcast::export_opml(const QString &filename) {}

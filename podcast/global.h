@@ -7,7 +7,7 @@ class Data {
     static void init();
     static QString app_datapath();
     static QString podcast_datapath();
-    static QString podcast_datapath(const QString &title);
+    static QString podcastChannelDataPath(const QString &title);
 
   private:
     static class DataPrivate *d;

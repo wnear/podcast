@@ -24,8 +24,8 @@ class Podcast : public QWidget {
     void requestPlay(QUrl media);
 
   private:
-    void read_opml(const QString &filename);
-    void write_opml(const QString &filename);
+    void import_opml(const QString &filename);
+    void export_opml(const QString &filename);
 
     bool load();
     bool save();

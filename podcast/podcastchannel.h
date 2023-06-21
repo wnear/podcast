@@ -21,7 +21,7 @@ class PodcastChannel : public QObject {
         : QObject(parent) {
         title = x;
         url = y;
-        location = Data::podcast_datapath(title);
+        location = Data::podcastChannelDataPath(title);
     }
     bool isValid() { return !(title.isEmpty() || url.isEmpty()); }
     // TODO:
