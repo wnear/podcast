@@ -11,7 +11,7 @@ class EpisodeTreeModel : public QAbstractItemModel {
     EpisodeTreeModel(QObject *parent = nullptr);
     ~EpisodeTreeModel() {}
 
-    void setPod(PodcastChannel *pod);
+    void setupModelData(PodcastChannel *pod);
     Qt::ItemFlags flags(const QModelIndex &index) const override;
     bool hasChildren(const QModelIndex &parent = QModelIndex()) const override;
     QVariant headerData(int section, Qt::Orientation orientation,

@@ -42,7 +42,7 @@ EpisodeTreeModel::EpisodeTreeModel(QObject *parent) : QAbstractItemModel(parent)
     }
 }
 
-void EpisodeTreeModel::setPod(PodcastChannel *pod) {
+void EpisodeTreeModel::setupModelData(PodcastChannel *pod) {
     beginResetModel();
     d->reset();
     d->pods.push_back(pod);

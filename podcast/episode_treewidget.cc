@@ -64,7 +64,7 @@ EpisodeTreeWidget::EpisodeTreeWidget(QWidget *parent) : QFrame(parent) {
 }
 
 void EpisodeTreeWidget::setPod(PodcastChannel *pod) {
-    d->model->setPod(pod);
+    d->model->setupModelData(pod);
     d->view->reset();
 }
 EpisodeTreeWidget::~EpisodeTreeWidget() { delete d; }
