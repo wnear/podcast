@@ -16,11 +16,12 @@ class EpisodeTreeView : public QTreeView {
     void onCustomContextMenuRequested(const QPoint &p);
     // play
     void mouseDoubleClickEvent(QMouseEvent *event) override;
-    // into detail wgt.
-    void mousePressEvent(QMouseEvent *event) override;
+
+    // // into detail wgt.
+    // void mousePressEvent(QMouseEvent *event) override;
 
   protected:
-    bool eventFilter(QObject *obj, QEvent *evt) override;
+    // bool eventFilter(QObject *obj, QEvent *evt) override;
   signals:
     void showEpDetail(EpisodeData *data);
     void requestPlay(QUrl media);

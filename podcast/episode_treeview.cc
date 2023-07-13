@@ -27,7 +27,11 @@ EpisodeTreeView::EpisodeTreeView(QAbstractItemModel *model, QWidget *parent)
     d->sortmodel = new EpisodeTreeSortFilterModel;
     d->sortmodel->setSourceModel(d->data);
     this->setModel(d->sortmodel);
-    QTreeView::setModel(d->sortmodel);
+    // TODO: default to SingleSelection??
+    // d->selectModel = new QItemSelectionModel(d->data);
+    // this->setSelectionModel(d->selectModel);
+    this->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    // QTreeView::setModel(d->sortmodel);
 
     // this->setRootIsDecorated(false);
     this->setSortingEnabled(true);
@@ -35,33 +39,42 @@ EpisodeTreeView::EpisodeTreeView(QAbstractItemModel *model, QWidget *parent)
     // TODO: define a selectionModel when you have multi-view for one model,
     // to share the selection state.
     //
-    // d->selectModel = new QItemSelectionModel(d->data);
-    // this->setSelectionModel(d->selectModel);
-
-    // TODO: default to SingleSelection??
-    this->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
     // this->setEditTriggers(QAbstractItemView::DoubleClicked |
     // QAbstractItemView::SelectedClicked);
 
-    this->installEventFilter(this);
-    this->setContextMenuPolicy(Qt::CustomContextMenu);
-    this->header()->setContextMenuPolicy(Qt::CustomContextMenu);
+    // TODO: hover event,
+    // this->installEventFilter(this);
 
-    connect(this->header(), &QWidget::customContextMenuRequested,
-            [this](const QPoint &p) {
-                auto menu = new QMenu;
-                QAction *act;
-                act = menu->addAction("@TODO: setup columns...");
-                act->setCheckable(true);
-                menu->exec(mapToGlobal(p));
-            });
+    this->setContextMenuPolicy(Qt::CustomContextMenu);
+
+    // TODO: mannual set visible columns.
+    // this->header()->setContextMenuPolicy(Qt::CustomContextMenu);
+    // connect(this->header(), &QWidget::customContextMenuRequested,
+    //         [this](const QPoint &p) {
+    //             auto menu = new QMenu;
+    //             QAction *act;
+    //             act = menu->addAction("@TODO: setup columns...");
+    //             act->setCheckable(true);
+    //             menu->exec(mapToGlobal(p));
+    //         });
+
     connect(this, &QWidget::customContextMenuRequested, this,
             &EpisodeTreeView::onCustomContextMenuRequested);
 }
 
 void EpisodeTreeView::onCustomContextMenuRequested(const QPoint &p) {
     auto menu = new QMenu;
+    auto idx = this->indexAt(p);
+    auto srcIdx = d->sortmodel->mapToSource(idx);
+
+    if(!srcIdx.isValid())
+        return;
+
+    // auto urlIdx = d->data->index(srcIdx.row(), TreeColumn::URL - 1);
+    // auto url = d->data->data(urlIdx).toUrl();
+    // emit requestPlay(url);
+
     menu->addAction("Detail");
     menu->addAction("Locate File");
     menu->addAction("Toggle Play");
@@ -74,30 +87,29 @@ void EpisodeTreeView::onCustomContextMenuRequested(const QPoint &p) {
 
     menu->exec(mapToGlobal(p));
 }
-void EpisodeTreeView::mousePressEvent(QMouseEvent *event) {
-    auto index = this->indexAt(event->pos());
-}
+// void EpisodeTreeView::mousePressEvent(QMouseEvent *event) {
+//     auto index = this->indexAt(event->pos());
+// }
 void EpisodeTreeView::mouseDoubleClickEvent(QMouseEvent *event) {
     auto idx = this->indexAt(event->pos());
-    qDebug() << "treeview dbclick method cb...";
     auto srcIdx = d->sortmodel->mapToSource(idx);
     if (srcIdx.isValid()) {
         auto urlIdx = d->data->index(srcIdx.row(), TreeColumn::URL - 1);
         auto url = d->data->data(urlIdx).toUrl();
-        qDebug() << __PRETTY_FUNCTION__ << " start.";
         emit requestPlay(url);
-        qDebug() << __PRETTY_FUNCTION__ << " end.";
     }
 }
-bool EpisodeTreeView::eventFilter(QObject *obj, QEvent *evt) {
-    if (evt->type() == QEvent::HoverEnter) {
-        binfo("treeview, hoverenter.");
-    } else if (evt->type() == QEvent::HoverLeave) {
-        binfo("treeview, hoverLeave.");
-    } else if (evt->type() == QEvent::HoverMove) {
-        binfo("treeview, hovermove.");
-    } else {
-    }
-    return QTreeView::eventFilter(obj, evt);
-}
+// bool EpisodeTreeView::eventFilter(QObject *obj, QEvent *evt) {
+//     qDebug() << "eventfilter.";
+//     if (evt->type() == QEvent::HoverEnter) {
+//         binfo("treeview, hoverenter.");
+//     } else if (evt->type() == QEvent::HoverLeave) {
+//         binfo("treeview, hoverLeave.");
+//     } else if (evt->type() == QEvent::HoverMove) {
+//         binfo("treeview, hovermove.");
+//     } else {
+//     }
+//     return QTreeView::eventFilter(obj, evt);
+// }
+
 EpisodeTreeView::~EpisodeTreeView() { delete d; }
