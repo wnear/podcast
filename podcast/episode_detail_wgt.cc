@@ -1,4 +1,5 @@
 #include "episode_detail_wgt.h"
+#include "utils.h"
 
 #include <QSplitter>
 #include <QVBoxLayout>
@@ -11,14 +12,17 @@
 #include <QTextEdit>
 #include <QListWidget>
 #include <QListView>
+#include <QTextBrowser>
 
 #include <QStringListModel>
+
+using namespace util;
 
 class EpisodeDetailPrivate {
   public:
     QScrollArea *base;
 
-    QLabel detail;
+    QTextBrowser detail;
     QPushButton play;
     QPushButton star;
     QPushButton ignore;
@@ -27,7 +31,7 @@ class EpisodeDetailPrivate {
     QTextEdit notes;
 };
 
-EpisodeDetail::EpisodeDetail(QWidget *parent) : QWidget(parent) {
+EpisodeDetailWidget::EpisodeDetailWidget(QWidget *parent) : QWidget(parent) {
     d = new EpisodeDetailPrivate;
 
     d->base = new QScrollArea;
@@ -54,10 +58,44 @@ EpisodeDetail::EpisodeDetail(QWidget *parent) : QWidget(parent) {
     d->bookmark.setModel(model);
 
     d->base->setLayout(lay2);
+
+    // TODO: replace timestamp to url that can be used to jump play.
+    connect(&d->detail, &QTextBrowser::anchorClicked, this, [this](const QUrl &url) {
+        if (url.scheme() == "positions") {
+            emit requestEpisodePosition(m_cur_episode, url.fragment());
+        } else {
+            emit requestOpenLink(url);
+        }
+    });
 }
 
-EpisodeDetail::~EpisodeDetail() { delete d; }
-void EpisodeDetail::setData(EpisodeData *data) {
-    m_data = data;
-    d->detail.setText(m_data->description);
+EpisodeDetailWidget::~EpisodeDetailWidget() { delete d; }
+void EpisodeDetailWidget::setData(EpisodeData *ep) {
+    m_cur_episode = ep;
+    d->detail.setText(m_cur_episode->description);
+    d->detail.textCursor();
+
+    auto cursor = d->detail.textCursor();
+    cursor.beginEditBlock();
+
+    QTextCharFormat normalFormat = cursor.charFormat();
+    normalFormat.setFontPointSize(10);
+
+    QTextCharFormat titleFormat = normalFormat;
+    titleFormat.setFontPointSize(normalFormat.fontPointSize() + 2);
+    qDebug() << normalFormat.fontPointSize();
+    titleFormat.setFontWeight(QFont::Bold);
+    // highlightedFormat.setBackground(Qt::yellow);
+
+    cursor.insertText(m_cur_episode->title, titleFormat);
+    cursor.insertText("\n");
+    cursor.insertText(QString("duration: %1| size: %2")
+                          .arg(int2hms(m_cur_episode->duration))
+                          .arg(size_human(m_cur_episode->filesize)),
+                      normalFormat);
+    cursor.insertText("\n");
+    auto info = m_cur_episode->description;
+    make_clickable_timestamp(info);
+    cursor.insertHtml(info);
+    cursor.endEditBlock();
 }

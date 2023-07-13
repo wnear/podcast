@@ -3,17 +3,23 @@
 #include <QWidget>
 #include "episodedata.h"
 
-class EpisodeDetail : public QWidget {
+class EpisodeDetailWidget : public QWidget {
+    Q_OBJECT
+
   public:
-    EpisodeDetail(QWidget *parent = nullptr);
-    static EpisodeDetail *instance() {
-        static EpisodeDetail ins;
+    EpisodeDetailWidget(QWidget *parent = nullptr);
+    static EpisodeDetailWidget *instance() {
+        static EpisodeDetailWidget ins;
         return &ins;
     }
     void setData(EpisodeData *data);
-    ~EpisodeDetail();
+    ~EpisodeDetailWidget();
+signals:
+    void requestEpisodePosition(EpisodeData *ep, QString pos);
+    void requestOpenLink(const QUrl &url);
+
 
   private:
     class EpisodeDetailPrivate *d;
-    EpisodeData *m_data{nullptr};
+    EpisodeData *m_cur_episode{nullptr};
 };

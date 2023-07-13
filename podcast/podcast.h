@@ -9,6 +9,7 @@
 
 class PodcastChannel;
 class EpisodeData;
+class EpisodeDetailWidget;
 
 class Podcast : public QWidget {
     Q_OBJECT
@@ -20,6 +21,7 @@ class Podcast : public QWidget {
     void importdlg();
     void exportdlg();
     QWidget *detail() const;
+    EpisodeDetailWidget *ep_detail() const;
 
   signals:
     void requestPlay(EpisodeData* ep);

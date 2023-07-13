@@ -51,6 +51,7 @@ bool jsonload(PodcastChannel *entity, const QString &filepath) {
         x->url = QUrl::fromEncoded(obj["url"].toString().toLatin1());
         x->cached = obj["cached"].toBool();
         x->location = obj["location"].toString();
+        x->description = obj["description"].toString();
         if (QFile(x->location).exists())
             binfo("downloaded episode, media file location: {}", x->location);
         x->filesize = obj["filesize"].toInt();
@@ -93,6 +94,7 @@ bool jsonsave(PodcastChannel *entity, const QString &filepath) {
         e->location = QDir(pod.location).absoluteFilePath(e->location);
         eps.push_back(QJsonObject{
             {"title", e->title},
+            {"description", e->description},
             {"cached", e->cached},
             {"updatetime", e->updatetime.toString()},
             {"duration", e->duration},

@@ -2,6 +2,7 @@
 #include <QStringList>
 #include <QFileInfo>
 #include <QDir>
+#include <QRegularExpression>
 #include "qstandardpaths.h"
 
 namespace util {
@@ -62,4 +63,17 @@ QString datapath() {
     return ensureDirExist(app_datapath, "podcast");
 }
 
+//NOTE:
+// for e.g. "this is 00:01:03" ==>  "this is <a href='positions://to?#00:01:03'>00:01:03</a>"
+//
+//     connect(browser, &QTextBrowser::anchorClicked, this, [](const QUrl &url) {
+//         qDebug() << "scheme:" << url.scheme();
+//         qDebug() << "host:" << url.host();
+//         qDebug() << "fragment:" << url.fragment();
+//      });
+void make_clickable_timestamp(QString &orig, const QString &scheme ) {
+    QRegularExpression time_pattern("(\\d{2}:\\d{2}:\\d{2})");
+    const QString replacement = QString("<a href='%1://to?#\\1'>\\1</a>").arg(scheme);
+    orig.replace(time_pattern, replacement);
+}
 }  // namespace util

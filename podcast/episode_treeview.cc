@@ -76,7 +76,10 @@ void EpisodeTreeView::onCustomContextMenuRequested(const QPoint &p) {
     // auto url = d->data->data(urlIdx).toUrl();
     // emit requestPlay(url);
 
-    menu->addAction("Detail");
+    auto *ep = static_cast<EpisodeData*>(srcIdx.internalPointer());
+    menu->addAction("Detail", this, [this, ep](){
+        emit requestDetail(ep);
+    });
     menu->addAction("Locate File");
     menu->addAction("Toggle Play");
     menu->addAction("Open With Default Player");

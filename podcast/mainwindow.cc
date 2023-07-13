@@ -1,7 +1,9 @@
 #include "mainwindow.h"
 
+#include "episodedata.h"
 #include "podcast.h"
 
+#include "episode_detail_wgt.h"
 #include <QSplitter>
 #include <QTabWidget>
 
@@ -49,7 +51,10 @@ Mainwindow::Mainwindow(QWidget *parent) : QMainWindow(parent) {
 
     d->rightdetail->addWidget(d->localpod->detail());
     connect(d->localpod, &Podcast::requestPlay, d->rightPlayer, &PlayerControlWidget::addMedia);
-    // connect(d->localpod, &Podcast::requestDetail, d->rightPlayer, &PlayerControlWidget::addMedia);
+    connect(d->localpod, &Podcast::requestDetail,this, [this](EpisodeData *ep){
+        qDebug()<<"episode should show description:"<<ep->description;
+        d->localpod->ep_detail()->setData(ep);
+    });
 
     // d->left->addTab(d->subpod, "Subsonic Podcasts");
     // d->right->addWidget(d->subpod->detail());

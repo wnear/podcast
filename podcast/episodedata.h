@@ -94,4 +94,6 @@ class EpisodeData : public QObject {
     pd::EpisodeState state{pd::MediaFileUnknown};
 };
 
+// qRegisterMetaType<EpisodeData>("EpisodeData");
+
 #endif

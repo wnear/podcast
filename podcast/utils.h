@@ -5,6 +5,7 @@
 namespace util {
 
 QString int2hms(int secs);
+void make_clickable_timestamp(QString &orig, const QString &scheme = "positions");
 
 QString size_human(int size_byte);
 QString percent(float val);

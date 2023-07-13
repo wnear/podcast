@@ -171,10 +171,12 @@ void RssParser::parseEpisode() {
                 const QString lower_namespace =
                     reader->namespaceUri().toString().toLower();
 
+                qDebug()<<__PRETTY_FUNCTION__ << ": "<< name;
                 if (name == "title") {
                     episode->title = (reader->readElementText());
                 } else if (name == "description") {
                     episode->description = (reader->readElementText());
+                    qDebug()<<episode->description;
                 } else if (name == "pubDate") {
                     QString date = reader->readElementText();
                     episode->updatetime_str = date;

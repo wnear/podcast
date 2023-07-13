@@ -24,7 +24,6 @@
 
 #include <QScrollArea>
 
-
 #include "podcast.h"
 #include "opmlparser.h"
 // #include "episodelistwgt.h"
@@ -41,7 +40,7 @@ class Podcast::Private {
     QTabWidget *detail;
     // EpisodeListWidget *detaillist;
     EpisodeTreeWidget *detailtree;
-    EpisodeDetail *ep_detail;
+    EpisodeDetailWidget *ep_detail;
     PodModel *podsmodel;
     QString lastxml;
     QString totalxml;
@@ -68,14 +67,16 @@ Podcast::Podcast(QWidget *parent) : QWidget(parent) {
     d->detail = new QTabWidget(this);
     // d->detaillist = new EpisodeListWidget(this);
     d->detailtree = new EpisodeTreeWidget(this);
-    d->ep_detail = new EpisodeDetail(this);
+    d->ep_detail = new EpisodeDetailWidget(this);
     d->detail->addTab(d->detailtree, "modal list");
     d->detail->addTab(d->ep_detail, "ep detail");
 
     assert(d->list != nullptr);
 
     connect(d->detailtree, &EpisodeTreeWidget::requestPlay, this, &Podcast::requestPlay);
-    connect(d->detailtree, &EpisodeTreeWidget::requestDetail, this, &Podcast::requestPlay);
+    connect(d->detailtree, &EpisodeTreeWidget::requestDetail, this,
+            &Podcast::requestDetail);
+
     connect(d->list, &QWidget::customContextMenuRequested, this,
             [this](const QPoint &pos) {
                 auto idx = d->list->indexAt(pos);
@@ -151,6 +152,7 @@ bool Podcast::load() {
 
 QWidget *Podcast::detail() const { return d->detail; }
 
+EpisodeDetailWidget *Podcast::ep_detail() const { return d->ep_detail; }
 
 void Podcast::importdlg() {
     QString filename = QFileDialog::getOpenFileName(/*paent wgt*/ this,
