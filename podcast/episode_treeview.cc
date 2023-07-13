@@ -1,6 +1,7 @@
 #include "episode_treeview.h"
 #include "episode_treemodel.h"
 #include <QItemSelectionModel>
+#include "episodedata.h"
 #include "log.h"
 
 #include <QMenu>
@@ -95,8 +96,11 @@ void EpisodeTreeView::mouseDoubleClickEvent(QMouseEvent *event) {
     auto srcIdx = d->sortmodel->mapToSource(idx);
     if (srcIdx.isValid()) {
         auto urlIdx = d->data->index(srcIdx.row(), TreeColumn::URL - 1);
-        auto url = d->data->data(urlIdx).toUrl();
-        emit requestPlay(url);
+        auto *ep = static_cast<EpisodeData*>(urlIdx.internalPointer());
+        qDebug()<< ep->title;
+        qDebug() << ep->description;
+        // auto url = d->data->data(urlIdx).toUrl();
+        emit requestPlay(ep);
     }
 }
 // bool EpisodeTreeView::eventFilter(QObject *obj, QEvent *evt) {

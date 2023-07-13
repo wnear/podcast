@@ -5,6 +5,8 @@
 #include <QFrame>
 #include "qurl.h"
 
+class EpisodeData;
+
 class PlayerControlWidget : public QFrame {
   public:
     PlayerControlWidget(QWidget *parent);
@@ -16,7 +18,7 @@ class PlayerControlWidget : public QFrame {
     void slower();
     void resetSpeed();
     void setspeed();
-    void addMedia(QUrl media);
+    void addMedia(EpisodeData *ep);
 
     void jumpforward();
     void jumpbackward();

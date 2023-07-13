@@ -23,8 +23,10 @@ class EpisodeTreeView : public QTreeView {
   protected:
     // bool eventFilter(QObject *obj, QEvent *evt) override;
   signals:
-    void showEpDetail(EpisodeData *data);
-    void requestPlay(QUrl media);
+    // void requestPlay(QUrl media);
+    void requestPlay(EpisodeData *ep);
+    void requestDetail(EpisodeData *ep);
+
 
   private:
     class EpisodeTreeViewPrivate *d;

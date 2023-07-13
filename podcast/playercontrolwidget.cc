@@ -4,6 +4,7 @@
 #include <QLabel>
 #include "player_engine.h"
 #include "podcastchannel.h"
+#include "episodedata.h"
 #include "utils.h"
 #include "log.h"
 #include <QOpenGLWidget>
@@ -33,6 +34,8 @@ class PlayerPrivate {
     QLabel *pos;
     QSlider *progressbar;
     std::shared_ptr<PlayerEngine> engine;
+
+    EpisodeData *cur_episode{nullptr};
     ~PlayerPrivate(){
         cout << "~PlayerPrivate() called."<<endl;
     }
@@ -123,7 +126,8 @@ void PlayerControlWidget::Play() { d->engine->resume(); }
 void PlayerControlWidget::Stop() { d->engine->stop(); }
 
 void PlayerControlWidget::setVolume(int x) { d->engine->setVolume(x); }
-void PlayerControlWidget::addMedia(QUrl media) {
-    d->engine->play(media);
+void PlayerControlWidget::addMedia(EpisodeData *ep) {
+    d->cur_episode = ep;
+    d->engine->play(ep->url);
 }
 

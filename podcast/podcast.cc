@@ -75,6 +75,7 @@ Podcast::Podcast(QWidget *parent) : QWidget(parent) {
     assert(d->list != nullptr);
 
     connect(d->detailtree, &EpisodeTreeWidget::requestPlay, this, &Podcast::requestPlay);
+    connect(d->detailtree, &EpisodeTreeWidget::requestDetail, this, &Podcast::requestPlay);
     connect(d->list, &QWidget::customContextMenuRequested, this,
             [this](const QPoint &pos) {
                 auto idx = d->list->indexAt(pos);

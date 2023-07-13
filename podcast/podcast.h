@@ -8,6 +8,7 @@
 // #include "podcastchannel.h"
 
 class PodcastChannel;
+class EpisodeData;
 
 class Podcast : public QWidget {
     Q_OBJECT
@@ -21,7 +22,8 @@ class Podcast : public QWidget {
     QWidget *detail() const;
 
   signals:
-    void requestPlay(QUrl media);
+    void requestPlay(EpisodeData* ep);
+    void requestDetail(EpisodeData* ep);
 
   private:
     void import_opml(const QString &filename);

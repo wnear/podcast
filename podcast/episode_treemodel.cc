@@ -49,7 +49,7 @@ void EpisodeTreeModel::setupModelData(PodcastChannel *pod) {
 
 QModelIndex EpisodeTreeModel::index(int row, int column,
                                     const QModelIndex &parent) const {
-    return (row >= 0 && row < this->rowCount()) ? createIndex(row, column, nullptr)
+    return (row >= 0 && row < this->rowCount()) ? createIndex(row, column, d->pod->episodes[row])
                                                 : QModelIndex();
 }
 

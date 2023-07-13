@@ -32,8 +32,8 @@ class EpisodeTreeWidget : public QFrame {
     // how to be more elegant?
     void setData();
   signals:
-    void showEpDetail(EpisodeData *data);
-    void requestPlay(QUrl media);
+    void requestPlay(EpisodeData *ep);
+    void requestDetail(EpisodeData *ep);
 
   private:
     class EpisodeTreeWidgetPrivate *d;
