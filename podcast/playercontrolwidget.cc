@@ -30,7 +30,6 @@ class PlayerPrivate {
     QToolButton slower;
     QList<QToolButton *> btns;
 
-    QLabel *info;
     QLabel *pos;
     QSlider *progressbar;
     std::shared_ptr<PlayerEngine> engine;
@@ -88,17 +87,14 @@ PlayerControlWidget::PlayerControlWidget(QWidget *parent) : QFrame(parent) {
     right_up->addStretch(1);
 
     {
-        d->info = new QLabel;
-        d->info->setText(QString("Duration: "));
         d->pos = new QLabel;
-        d->pos->setText(QString("Position: "));
+        // d->pos->setText(QString("Position: "));
+        d->pos->setText( QString("%1     %2").arg(int2hms(0)).arg(int2hms(0)));
 
         d->progressbar = new QSlider(Qt::Horizontal, this);
         d->progressbar->setRange(0, 100);
         d->progressbar->setTracking(false);
     }
-    right_bottom->addWidget(d->info);
-    right_bottom->addWidget(d->pos);
     right_bottom->addWidget(d->pos);
     right_bottom->addWidget(d->progressbar);
 
@@ -112,8 +108,6 @@ PlayerControlWidget::PlayerControlWidget(QWidget *parent) : QFrame(parent) {
         if (!d->progressbar->isSliderDown()) d->progressbar->setValue(val / 1000);
     });
     connect(d->engine.get(), &PlayerEngine::durationChanged, this, [this](int val) {
-        d->info->setText(
-            QString("Duratin:(%1) %2").arg(val / 1000).arg(int2hms(val / 1000)));
         d->progressbar->setMaximum(val / 1000);
     });
     connect(d->engine.get(), &PlayerEngine::positionChanged, this, [this](int pos) {
