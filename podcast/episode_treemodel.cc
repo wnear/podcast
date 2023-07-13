@@ -12,12 +12,10 @@ using namespace util;
 class EpisodeTreeModelPrivate {
   public:
     int maxRow = 30;
-    QList<PodcastChannel *> pods{};
+    PodcastChannel * pod{nullptr};
     void reset() {
-        pods.clear();
-        pod_idx.clear();
+        pod = nullptr;
     }
-    QMap<int, PodcastChannel *> pod_idx;
     QMap<TreeColumn, QString> availproperty;
     QMap<TreeColumn, QString> allproperty;
 };
@@ -45,7 +43,7 @@ EpisodeTreeModel::EpisodeTreeModel(QObject *parent) : QAbstractItemModel(parent)
 void EpisodeTreeModel::setupModelData(PodcastChannel *pod) {
     beginResetModel();
     d->reset();
-    d->pods.push_back(pod);
+    d->pod = pod;
     endResetModel();
 }
 
@@ -63,8 +61,8 @@ QModelIndex EpisodeTreeModel::parent(const QModelIndex &child) const {
 // TODO: use std::accumulate from c++20
 int EpisodeTreeModel::rowCount(const QModelIndex &parent) const {
     int x;
-    if (d->pods.length() == 0) return 0;
-    x = std::min<int>(d->maxRow, d->pods[0]->episodes.count());
+    if (d->pod == nullptr) return 0;
+    x = std::min<int>(d->maxRow, d->pod->episodes.count());
     // qDebug()<<"rowcount should be"<< x;
     return x;
 }
@@ -79,7 +77,7 @@ TreeColumn EpisodeTreeModel::columnType(int column) const {
 
 QVariant EpisodeTreeModel::data(const QModelIndex &index, int role) const {
     if (!index.isValid()) return QVariant();
-    auto &&ep = d->pods[0]->episodes[index.row()];
+    auto &&ep = d->pod->episodes[index.row()];
     // auto realIndex = d->availproperty.keys().at(index.column());
     auto realIndex = columnType(index.column());
 
