@@ -17,8 +17,14 @@ QVariant PodModel::data(const QModelIndex &index, int role) const {
 
     auto &&cur = m_data[x];
     switch (role) {
-        case Qt::DisplayRole:
-            return cur->title;
+        case Qt::DisplayRole:{
+            QString res;
+            res = cur->title;
+            if(cur->size()){
+                res += QString("(%1)").arg(cur->episodes.size());
+            }
+            return res;
+        }
         case UrlRole:
             return cur->url;
         case Qt::DecorationRole:

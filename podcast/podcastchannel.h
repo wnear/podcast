@@ -24,9 +24,14 @@ class PodcastChannel : public QObject {
         location = Data::podcastChannelDataPath(title);
     }
     bool isValid() { return !(title.isEmpty() || url.isEmpty()); }
+    size_t size(){
+        return episodes.size();
+    }
+
     // TODO:
     // PodcastChannel& operator=(const PodData&) = default;
     ~PodcastChannel() = default;
+
     QString title;
     QString url;
     QString cover_url{};
@@ -46,7 +51,6 @@ class PodcastChannel : public QObject {
     const QString c_podcast_default_filename = "podcast.xml";
 
     QString datapath() const;
-
     QString coverfile() const;
     QString xmlfile() const;
     QString jsonfile() const;
@@ -57,8 +61,6 @@ class PodcastChannel : public QObject {
 
     // download xml file from rss url.
     bool updatexml();
-
-    // parse downloaded xml to episocdlist.
     bool parserxml();
 
     // save from xml to json.
