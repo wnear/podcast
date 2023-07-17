@@ -12,10 +12,8 @@ using namespace util;
 class EpisodeTreeModelPrivate {
   public:
     int maxRow = 30;
-    PodcastChannel * pod{nullptr};
-    void reset() {
-        pod = nullptr;
-    }
+    PodcastChannel *pod{nullptr};
+    void reset() { pod = nullptr; }
     QMap<TreeColumn, QString> availproperty;
     QMap<TreeColumn, QString> allproperty;
 };
@@ -49,25 +47,26 @@ void EpisodeTreeModel::setupModelData(PodcastChannel *pod) {
 
 QModelIndex EpisodeTreeModel::index(int row, int column,
                                     const QModelIndex &parent) const {
-    return (row >= 0 && row < this->rowCount()) ? createIndex(row, column, d->pod->episodes[row])
-                                                : QModelIndex();
+    Q_UNUSED(parent);
+    return (row >= 0 && row < this->rowCount())
+               ? createIndex(row, column, d->pod->episodes[row])
+               : QModelIndex();
 }
 
 QModelIndex EpisodeTreeModel::parent(const QModelIndex &child) const {
+    Q_UNUSED(child);
     return QModelIndex();
 }
 
 // TODO: fetchMore api.
 // TODO: use std::accumulate from c++20
 int EpisodeTreeModel::rowCount(const QModelIndex &parent) const {
-    int x;
-    if (d->pod == nullptr) return 0;
-    x = std::min<int>(d->maxRow, d->pod->episodes.count());
-    // qDebug()<<"rowcount should be"<< x;
-    return x;
+    if (d->pod == nullptr || parent.isValid()) return 0;
+    return std::min<int>(d->maxRow, d->pod->episodes.count());
 }
 
 int EpisodeTreeModel::columnCount(const QModelIndex &parent) const {
+    Q_UNUSED(parent);
     return d->availproperty.count();
 }
 
@@ -144,15 +143,6 @@ QVariant EpisodeTreeModel::headerData(int section, Qt::Orientation orientation,
         }
     }
     return QVariant();
-}
-
-bool EpisodeTreeModel::hasChildren(const QModelIndex &parent) const {
-    return !parent.isValid();
-}
-
-Qt::ItemFlags EpisodeTreeModel::flags(const QModelIndex &index) const {
-    if (!index.isValid()) return {};
-    return QAbstractItemModel::flags(index);
 }
 
 bool EpisodeTreeSortFilterModel::lessThan(const QModelIndex &left,

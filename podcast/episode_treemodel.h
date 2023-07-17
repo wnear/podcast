@@ -12,8 +12,7 @@ class EpisodeTreeModel : public QAbstractItemModel {
     ~EpisodeTreeModel() {}
 
     void setupModelData(PodcastChannel *pod);
-    Qt::ItemFlags flags(const QModelIndex &index) const override;
-    bool hasChildren(const QModelIndex &parent = QModelIndex()) const override;
+
     QVariant headerData(int section, Qt::Orientation orientation,
                         int role = Qt::DisplayRole) const override;
     QModelIndex index(int row, int column,
@@ -23,9 +22,6 @@ class EpisodeTreeModel : public QAbstractItemModel {
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     TreeColumn columnType(int column) const;
-
-    void setAvailableProperties(std::vector<int> avail) {}
-    void getAvailableProperties() const {}
 
   private:
     class EpisodeTreeModelPrivate *d;
