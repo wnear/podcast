@@ -59,9 +59,12 @@ EpisodeDetailWidget::EpisodeDetailWidget(QWidget *parent) : QWidget(parent) {
 
     d->base->setLayout(lay2);
 
-    // TODO: replace timestamp to url that can be used to jump play.
+    d->detail.setOpenLinks(false);
+    d->detail.setOpenExternalLinks(false);
     connect(&d->detail, &QTextBrowser::anchorClicked, this, [this](const QUrl &url) {
         if (url.scheme() == "positions") {
+            //TODO:
+            qDebug()<<"need to jump to "<<url.fragment();
             emit requestEpisodePosition(m_cur_episode, url.fragment());
         } else {
             emit requestOpenLink(url);
@@ -72,8 +75,10 @@ EpisodeDetailWidget::EpisodeDetailWidget(QWidget *parent) : QWidget(parent) {
 EpisodeDetailWidget::~EpisodeDetailWidget() { delete d; }
 void EpisodeDetailWidget::setData(EpisodeData *ep) {
     m_cur_episode = ep;
-    d->detail.setText(m_cur_episode->description);
-    d->detail.textCursor();
+
+    // d->detail.setText(m_cur_episode->description);
+    // d->detail.textCursor();
+
 
     auto cursor = d->detail.textCursor();
     cursor.beginEditBlock();
