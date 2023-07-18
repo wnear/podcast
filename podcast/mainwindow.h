@@ -9,6 +9,7 @@ class Mainwindow : public QMainWindow {
   public:
     Mainwindow(QWidget *parent = nullptr);
     ~Mainwindow();
+    void closeEvent(QCloseEvent *event) override;
 
   private:
     void setupMenu();

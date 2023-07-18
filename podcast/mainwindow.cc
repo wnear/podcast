@@ -11,6 +11,8 @@
 #include <QMenu>
 #include <QToolBar>
 #include <QAction>
+#include <QSettings>
+#include <QCoreApplication>
 
 #include <QTextEdit>
 #include <QStackedWidget>
@@ -65,9 +67,12 @@ Mainwindow::Mainwindow(QWidget *parent) : QMainWindow(parent) {
     d->base->addWidget(d->right);
 
     this->setCentralWidget(d->base);
+
+    QSettings settings(qApp->organizationName(), qApp->applicationName());
+    d->base->restoreGeometry(settings.value("geometry/splitter").toByteArray());
+
     setupMenu();
     setupToolbar();
-    this->resize(2000, 1600);
 
     connect(d->left, &QTabWidget::currentChanged, d->rightdetail,
             &QStackedWidget::setCurrentIndex);
@@ -103,3 +108,13 @@ void Mainwindow::setupToolbar() {
 
     bar->setToolButtonStyle(Qt::ToolButtonIconOnly);
 }
+
+//FIXME: geometry save/restore didnt work as expected.
+void Mainwindow::closeEvent(QCloseEvent *event) {
+    QSettings settings(qApp->organizationName(), qApp->applicationName());
+    settings.setValue("geometry/splitter", d->base->saveGeometry());
+    qDebug()<<"close event before";
+    QMainWindow::closeEvent(event);
+    qDebug()<<"close event after";
+}
+

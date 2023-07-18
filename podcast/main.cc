@@ -11,6 +11,7 @@ int main(int argc, char *argv[]) {
     // QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps, true);
     QApplication app(argc, argv);
 
+    // app.setOrganizationName("nobody");
     app.setApplicationName("podcast");
     app.setApplicationDisplayName("podcast");
     app.setQuitOnLastWindowClosed(true);
