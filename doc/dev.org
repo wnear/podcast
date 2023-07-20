@@ -1,0 +1,47 @@
+
+* database design
+
+table localPodChannel
+- id
+- channelName
+- channelWebsite
+- channelIcon
+- channelFeedurl
+- channelDescription
+
+talbe localPodEp
+- id
+- channelName
+- episodeName
+- lastStopAt
+  to resume play.
+- updatetime
+- finished time
+  have played multi time
+- downloaded
+- localFile
+- mediaUrl
+- hasbookmark/notes.
+- playstatus:
+    - new
+    - inprogress
+    - completed
+
+table playHistory
+- id
+- EpisodeName
+- timeStart
+- timeEnd
+- timePaused
+
+table bookmarks
+- id
+- episodeName
+- timestamp
+- notes
+
+
+table playlist
+- id
+- playlistName
+- episodeName
