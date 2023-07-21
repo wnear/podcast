@@ -66,3 +66,7 @@ SOURCES += downloadmanager.cc \
            rssparser.cc \
            setting.cc \
            utils.cc
+
+RESOURCES += \
+    $$PWD/resources/sqlfiles.qrc \
+

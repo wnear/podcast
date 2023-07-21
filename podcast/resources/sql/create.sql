@@ -1,26 +1,26 @@
 CREATE TABLE IF NOT EXISTS notes (
-  sync_hash STRING UNIQUE,
+  id STRING UNIQUE,
   title TEXT,
   text TEXT,
   date_created DATETIME,
   date_modified DATETIME,
-  notebook STRING REFERENCES notebooks(sync_hash),
+  notebook STRING REFERENCES notebooks(id),
   favorited BOOLEAN,
   encrypted BOOLEAN,
   trashed BOOLEAN
 );
 
 CREATE TABLE if NOT EXISTS notebooks (
-  sync_hash INTEGER unique,
+  id INTEGER unique,
   title TEXT,
   date_modified DATETIME,
-  parent STRING REFERENCES notebooks(sync_hash),
+  parent STRING REFERENCES notebooks(id),
   row INTEGER,
   encrypted BOOLEAN
 );
 
 CREATE TABLE IF NOT EXISTS tags (
-  sync_hash INTEGER UNIQUE,
+  id INTEGER UNIQUE,
   title TEXT,
   date_modified DATETIME,
   row INTEGER,
@@ -29,6 +29,10 @@ CREATE TABLE IF NOT EXISTS tags (
 
 -- Many-to-many relationship between notes and tags
 CREATE TABLE IF NOT EXISTS notes_tags (
-  note STRING REFERENCES notes(sync_hash),
-  tag INTEGER REFERENCES tags(sync_hash)
+  note STRING REFERENCES notes(id),
+  tag INTEGER REFERENCES tags(id)
 );
+
+CREATE TABLE IF NOT EXISTS localchannel ();
+CREATE TABLE IF NOT EXISTS episode ();
+
