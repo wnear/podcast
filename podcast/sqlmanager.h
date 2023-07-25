@@ -23,7 +23,7 @@ class SQLManager {
     // find channel in db, prompt dialog asking abort or edit existing.
     FindChannelResult findChannel(const QString &title, const QString &url);
 
-    void addEpisode(const EpisodeData &ep);
+    void addEpisode(int channelid, EpisodeData *ep);
 
     //TODO: history, notes, play-position, etc.
     //if have ever been played, will have one , else , no need.

@@ -33,6 +33,7 @@ class PodcastChannel : public QObject {
     // PodcastChannel& operator=(const PodData&) = default;
     ~PodcastChannel() = default;
 
+    int channelID{-1};
     QString m_feedTitle;
     QString m_feedUrl;
 
@@ -56,6 +57,8 @@ class PodcastChannel : public QObject {
     QString coverfile() const;
     QString xmlfile() const;
     QString jsonfile() const;
+
+    void addEpisode(EpisodeData *ep);
 
     // will check both json and xml, check for existance and modification time.
     bool load();

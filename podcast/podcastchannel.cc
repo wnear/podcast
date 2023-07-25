@@ -6,6 +6,8 @@
 #include "log.h"
 #include "rssparser.h"
 
+#include "sqlmanager.h"
+
 QString PodcastChannel::datapath() const {
     return util::ensureDirExist(util::datapath(), this->m_feedTitle);
 }
@@ -92,3 +94,8 @@ bool PodcastChannel::parserxml() {
 bool PodcastChannel::save() {
     return jsonsave(this, jsonfile());
 }
+void PodcastChannel::addEpisode(EpisodeData *ep) {
+    episodes.push_back(ep);
+    SQLManager::instance()->addEpisode(this->channelID, ep);
+}
+

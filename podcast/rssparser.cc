@@ -234,7 +234,8 @@ void RssParser::parseEpisode() {
                         // binfo("ending of parser, duration({}), filesize({}),
                         // location({})", episode->duration, episode->filesize,
                         // episode->location.toStdString());
-                        m_pod->episodes.push_back(episode);
+                        // m_pod->episodes.push_back(episode);
+                        m_pod->addEpisode(episode);
                     }
                 }
 

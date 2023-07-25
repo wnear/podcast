@@ -169,8 +169,9 @@ FindChannelResult SQLManager::findChannel(const QString &title, const QString &u
     return IN_VALID;
 }
 
-void SQLManager::addEpisode(const QString &feedurl) {
-    assert(0);
+//TODO: check.
+void SQLManager::addEpisode(int channelid, EpisodeData *ep) {
+    assert(channelid != -1);
     QSqlQuery q;
     QString cmdstr = QString(
                          "insert into episodes (id, title, mediafileUrl, channelid, "
@@ -184,6 +185,10 @@ void SQLManager::addEpisode(const QString &feedurl) {
 
     m_epID++;
     q.bindValue(":id", m_epID);
+    q.bindValue(":title", ep->title);
+    q.bindValue(":url", ep->url);
+    q.bindValue(":channel", channelid);
+    q.bindValue(":description", ep->description);
     // q.bindValue(":title", title);
     // q.bindValue(":url", url);
 
