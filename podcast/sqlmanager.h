@@ -1,7 +1,12 @@
 #pragma once
 
 #include <QSqlDatabase>
+#include <QSqlQuery>
 #include <QFile>
+
+#include "episodedata.h"
+
+enum FindChannelResult { FIND, NOTFIND, FIND_PARTLY, IN_VALID, SQLError };
 
 class SQLManager {
   public:
@@ -13,18 +18,23 @@ class SQLManager {
     }
 
     void init();
+    void init_id();
     void addChannel(const QString &title, const QString &url);
     // find channel in db, prompt dialog asking abort or edit existing.
-    bool findChannel(const QString &title, const QString &url);
-    void updateChannel(const QString &feedurl){}
+    FindChannelResult findChannel(const QString &title, const QString &url);
 
-    void addEpisode(const QString &feedurl);
+    void addEpisode(const EpisodeData &ep);
+
+    //TODO: history, notes, play-position, etc.
+    //if have ever been played, will have one , else , no need.
     void updateEpisode();
+
     void close() { m_sqldb.close(); }
     bool runScript(QString fileName);
     bool runScript(QFile *file, QSqlQuery *query);
 
-    bool logSqlError(QSqlError error, bool fatal = false);
+    bool logSqlError(QSqlError error, bool fatal = false) ;
+    void checkReturn(bool ok, QSqlQuery &q, const QString &msg = "", int line = -1) ;
 
   private:
     QSqlDatabase m_sqldb;

@@ -157,9 +157,8 @@ EpisodeDetailWidget *Podcast::ep_detail() const { return d->ep_detail; }
 
 void Podcast::importdlg() {
     QString filename = QFileDialog::getOpenFileName(/*paent wgt*/ this,
-                                                    /*caption*/ "get opml file");
-    /*dir*/
-    /*filter*/
+                                                    /*caption*/ "get opml file", "",
+                                                    "Opml(*.opml *.xml);;All(*)");
     if (filename.isEmpty()) return;
     import_opml(filename);
 }
@@ -174,18 +173,38 @@ void Podcast::import_opml(const QString &filename) {
         return i != m_channels.end();
     };
 
+    int added{0}, alreadyhave{0};
     for (auto [title, url] : res) {
-        if (!alreadyHave(title, url)){
+        if (!alreadyHave(title, url)) {
             m_channels.push_back(new PodcastChannel(title, url));
         }
-        if(SQLManager::instance()->findChannel(title, url)){
-            //prompt dialog.
+        auto res = SQLManager::instance()->findChannel(title, url);
+        if (res == SQLError) {
             assert(0);
-        } else {
-            SQLManager::instance()->addChannel(title, url);
         }
-
+        switch (res) {
+            case SQLError:
+                assert(0);
+            case FIND:
+                alreadyhave++;
+                break;
+            case FIND_PARTLY:
+                // dialog.
+                alreadyhave++;
+                break;
+            case NOTFIND:
+                SQLManager::instance()->addChannel(title, url);
+                added++;
+                break;
+            case IN_VALID:
+                assert(0);
+                break;
+        }
     }
+    qDebug() << QString("import result: sum(%1), added(%2), ignored(%3)")
+                    .arg(res.size())
+                    .arg(added)
+                    .arg(alreadyhave);
 
     // d->podsmodel->resetData(m_pods);
     d->list->reset();
