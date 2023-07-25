@@ -7,7 +7,7 @@
 #include "rssparser.h"
 
 QString PodcastChannel::datapath() const {
-    return util::ensureDirExist(util::datapath(), this->title);
+    return util::ensureDirExist(util::datapath(), this->m_feedTitle);
 }
 
 QString PodcastChannel::xmlfile() const {
@@ -60,7 +60,7 @@ bool PodcastChannel::updatexml() {
         }
     }
     // auto res = xmlfile();
-    pod.job_id = DownloadManager::instance()->addjob(pod.url, xmlfile());
+    pod.job_id = DownloadManager::instance()->addjob(pod.m_feedUrl, xmlfile());
     connect(
         DownloadManager::instance(), &DownloadManager::stateChanged, this,
         [&pod, this](int id, auto st) {

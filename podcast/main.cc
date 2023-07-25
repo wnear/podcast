@@ -2,6 +2,7 @@
 #include "mainwindow.h"
 #include "log.h"
 #include "global.h"
+#include "sqlmanager.h"
 #include <QApplication>
 
 #include "downloadmanager.h"
@@ -19,6 +20,8 @@ int main(int argc, char *argv[]) {
     Log::init();
 
     Data::init();
+
+    SQLManager::instance()->init();
 
     binfo("icon theme: {}", QIcon::themeName());
     QIcon::setThemeName("breeze");

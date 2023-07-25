@@ -31,6 +31,7 @@
 #include "episode_detail_wgt.h"
 #include "podcastchannel.h"
 #include "podmodel.h"
+#include "sqlmanager.h"
 
 using namespace std;
 using namespace util;
@@ -58,7 +59,7 @@ Podcast::Podcast(QWidget *parent) : QWidget(parent) {
     {
         // d->list->setViewMode(QListView::IconMode);
         // d->list->setResizeMode(QListView::Adjust);
-        d->podsmodel = new PodModel(m_pods, this);
+        d->podsmodel = new PodModel(m_channels, this);
         d->list->setModel(d->podsmodel);
         d->list->setContextMenuPolicy(Qt::CustomContextMenu);
     }
@@ -81,7 +82,7 @@ Podcast::Podcast(QWidget *parent) : QWidget(parent) {
             [this](const QPoint &pos) {
                 auto idx = d->list->indexAt(pos);
                 int row = idx.row();
-                PodcastChannel &pod = *m_pods[row];
+                PodcastChannel &pod = *m_channels[row];
                 pod.load();
                 auto menu = new QMenu(this);
                 menu->addAction("reparse", this, [&pod]() { pod.parserxml(); });
@@ -94,12 +95,12 @@ Podcast::Podcast(QWidget *parent) : QWidget(parent) {
         auto model = qobject_cast<PodModel *>(d->list->model());
         auto url = model->data(idx, PodModel::UrlRole).toString();
         int row = idx.row();
-        PodcastChannel &pod = *m_pods[row];
+        PodcastChannel &pod = *m_channels[row];
         pod.load();
-        int cnt = m_pods[row]->episodes.count();
+        int cnt = m_channels[row]->episodes.count();
         qDebug() << "by load from cache, get episodes of count: " << cnt;
         // d->detaillist->setPod( m_pods[row]);
-        d->detailtree->setPod(m_pods[row]);
+        d->detailtree->setPod(m_channels[row]);
     });
 }
 
@@ -113,8 +114,8 @@ bool Podcast::save() {
     }
 
     QJsonArray whole;
-    for (auto i : m_pods) {
-        whole.push_back(QJsonObject{{"title", i->title}, {"url", i->url}});
+    for (auto i : m_channels) {
+        whole.push_back(QJsonObject{{"title", i->m_feedTitle}, {"url", i->m_feedUrl}});
     }
     QJsonDocument doc;
     doc.setArray(whole);
@@ -143,7 +144,7 @@ bool Podcast::load() {
         auto x = new PodcastChannel(item.value("title").toString(),
                                     item.value("url").toString());
 
-        m_pods.push_back(x);
+        m_channels.push_back(x);
         // m_pods.push_back(std::move(PodcastChannel(item.value("title").toString(),
         // item.value("url").toString())));
     }
@@ -167,15 +168,23 @@ void Podcast::import_opml(const QString &filename) {
     auto res = OpmlParser(filename).parse();
     if (res.isEmpty()) return;
 
-    auto alreadyHave = [this](const QString &name, const QString &title) {
-        auto i = std::find_if(m_pods.begin(), m_pods.end(),
-                              [name, title](auto &&p) { return p->url == title; });
-        return i != m_pods.end();
+    auto alreadyHave = [this](const QString &title, const QString &url) {
+        auto i = std::find_if(m_channels.begin(), m_channels.end(),
+                              [url, title](auto &&p) { return p->m_feedUrl == url; });
+        return i != m_channels.end();
     };
 
-    for (auto i : res) {
-        if (!alreadyHave(i.first, i.second))
-            m_pods.push_back(new PodcastChannel(i.first, i.second));
+    for (auto [title, url] : res) {
+        if (!alreadyHave(title, url)){
+            m_channels.push_back(new PodcastChannel(title, url));
+        }
+        if(SQLManager::instance()->findChannel(title, url)){
+            //prompt dialog.
+            assert(0);
+        } else {
+            SQLManager::instance()->addChannel(title, url);
+        }
+
     }
 
     // d->podsmodel->resetData(m_pods);

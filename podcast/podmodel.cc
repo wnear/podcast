@@ -19,14 +19,14 @@ QVariant PodModel::data(const QModelIndex &index, int role) const {
     switch (role) {
         case Qt::DisplayRole:{
             QString res;
-            res = cur->title;
+            res = cur->m_feedTitle;
             if(cur->size()){
                 res += QString("(%1)").arg(cur->episodes.size());
             }
             return res;
         }
         case UrlRole:
-            return cur->url;
+            return cur->m_feedUrl;
         case Qt::DecorationRole:
             return QIcon::fromTheme("mpv");
             // if(QFile(cur->coverfile()).exists()){

@@ -39,7 +39,8 @@ HEADERS += downloadmanager.h \
            podmodel.h \
            rssparser.h \
            setting.h \
-           utils.h
+           utils.h \
+           sqlmanager.h \
 
 SOURCES += downloadmanager.cc \
            downloadmanagerwgt.cc \
@@ -65,7 +66,8 @@ SOURCES += downloadmanager.cc \
            podmodel.cc \
            rssparser.cc \
            setting.cc \
-           utils.cc
+           utils.cc \
+           sqlmanager.cc \
 
 RESOURCES += \
     $$PWD/resources/sqlfiles.qrc \

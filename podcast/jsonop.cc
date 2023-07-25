@@ -20,7 +20,7 @@ bool jsonload(PodcastChannel *entity, const QString &filepath) {
     }
 
     if (json_file.open(QIODevice::ReadOnly) == false) {
-        qDebug() << "erro to open pod cofig for read: " << pod.title;
+        qDebug() << "erro to open pod cofig for read: " << pod.m_feedTitle;
         return false;
     }
 
@@ -36,8 +36,8 @@ bool jsonload(PodcastChannel *entity, const QString &filepath) {
     auto &&obj = doc.object();
     auto pod_ = obj["podinfo"].toObject();
     if (!pod_.isEmpty()) {
-        pod.title = pod_["title"].toString();
-        pod.url = pod_["url"].toString();
+        pod.m_feedTitle = pod_["title"].toString();
+        pod.m_feedUrl = pod_["url"].toString();
         // if(pod.location.isEmpty())
         //     pod.location = datapath(pod);
     }
@@ -77,12 +77,12 @@ bool jsonsave(PodcastChannel *entity, const QString &filepath) {
     auto file = filepath;
     QFile f(file);
     if (f.open(QIODevice::WriteOnly) == false) {
-        qDebug() << "erro to open pod cofig for write: " << pod.title;
+        qDebug() << "erro to open pod cofig for write: " << pod.m_feedTitle;
         return false;
     }
 
     QJsonObject whole;
-    whole["podinfo"] = QJsonObject{{"title", pod.title}, {"url", pod.url}};
+    whole["podinfo"] = QJsonObject{{"title", pod.m_feedTitle}, {"url", pod.m_feedUrl}};
     QJsonArray eps;
     for (auto e : pod.episodes) {
         // QJsonObject obj;

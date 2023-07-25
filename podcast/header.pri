@@ -1,4 +1,4 @@
-QT += widgets network xml multimedia core opengl openglwidgets
+QT += widgets network xml multimedia core opengl openglwidgets sql
 
 #/* QT += xmlpatterns */
 

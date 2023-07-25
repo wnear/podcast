@@ -1,5 +1,7 @@
 #pragma once
+
 #include <QString>
+#include <QDir>
 
 
 namespace util {
@@ -20,8 +22,10 @@ bool file_is_newer(const T &a, const T &b){
 }
 QString ensureDirExist(const QString &parentdir, const QString &dirname);
 
-
-
 QString datapath();
+
+inline QDir datadir(){
+    return QDir(datapath());
+}
 
 };  // namespace util

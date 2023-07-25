@@ -1,4 +1,5 @@
 
+
 * database design
 
 table localPodChannel
@@ -45,3 +46,6 @@ table playlist
 - id
 - playlistName
 - episodeName
+
+* database usage.
+

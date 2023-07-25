@@ -42,7 +42,7 @@ class Podcast : public QWidget {
   private:
     class Private;
     Private *d;
-    QList<PodcastChannel *> m_pods;
+    QList<PodcastChannel *> m_channels;
 
     // TODO: to save/restore channel upon app startup.
     QString m_active_channel;
