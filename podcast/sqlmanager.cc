@@ -93,6 +93,57 @@ bool SQLManager::logSqlError(QSqlError error, bool fatal) {
     return false;
 }
 
+void SQLManager::loadChannels(QList<PodcastChannel *> &result) {
+    QSqlQuery q;
+    QString cmdstr = QString("select id, title,feedurl from localchannel");
+    q.prepare(cmdstr);
+    auto ok = q.exec();
+    checkReturn(ok, q, __PRETTY_FUNCTION__, __LINE__);
+    if (!ok) {
+        return;
+    }
+
+    // TODO: load more data fields to channel.
+    while (q.next()) {
+        auto id = q.value("id").toInt();
+        auto title = q.value("title").toString();
+        auto feed = q.value("feedurl").toString();
+        result.push_back(new PodcastChannel(title, feed));
+        result.back()->channelID = id;
+    }
+}
+
+void SQLManager::loadEpisodes(PodcastChannel *channel) {
+    QSqlQuery q;
+    QString cmdstr = QString(
+                         "select title, mediafileUrl, "
+                         "cached,cacheLoaction,description,filesize,date_published,"
+                         "duration from episodes where channelid = %1")
+                         .arg(channel->channelID);
+    q.prepare(cmdstr);
+    auto ok = q.exec();
+    checkReturn(ok, q, __PRETTY_FUNCTION__, __LINE__);
+    if (!ok) {
+        return;
+    }
+
+    // TODO: load more data fields.
+    while (q.next()) {
+        EpisodeData *x = new EpisodeData;
+        x->title = q.value("title").toString();
+        x->url = QUrl::fromEncoded(q.value("mediafileUrl").toString().toLatin1());
+        x->cached = q.value("cached").toBool();
+        x->location = q.value("cacheLoaction").toString();
+        x->description = q.value("description").toString();
+        x->filesize = q.value("filesize").toInt();
+        x->updatetime = QDateTime::fromString(q.value("date_published").toString());
+        x->duration = q.value("duration").toInt();
+        // TODO: episode data init should be in one loadFromJsoon,
+        x->calculateCurrentSize();
+        channel->episodes.push_back(x);
+    }
+}
+
 // TODO: merge findchannel into addchannel, return false/true.
 // prompt dialog is make from here.
 void SQLManager::addChannel(const QString &title, const QString &url) {
@@ -110,13 +161,13 @@ void SQLManager::addChannel(const QString &title, const QString &url) {
     q.bindValue(":url", url);
 
     auto ok = q.exec();
+    checkReturn(ok, q, "add channel");
+}
 
-    if (!ok) {
-        qDebug() << "[sql], add channel error";
-        logSqlError(q.lastError());
-    } else {
-        qDebug() << "[sql], add channel ok:" << title;
-    }
+void SQLManager::addChannels(QList<std::pair<QString, QString>> ch,
+                             QList<std::tuple<int, QString, QString>> &feedback) {
+
+    //TODO: impl.
 }
 
 // TODO: dialog ask what to do for existing one.
@@ -169,7 +220,7 @@ FindChannelResult SQLManager::findChannel(const QString &title, const QString &u
     return IN_VALID;
 }
 
-//TODO: check.
+// TODO: check.
 void SQLManager::addEpisode(int channelid, EpisodeData *ep) {
     assert(channelid != -1);
     QSqlQuery q;
@@ -205,3 +256,8 @@ void SQLManager::checkReturn(bool ok, QSqlQuery &q, const QString &msg, int line
         logSqlError(q.lastError());
     }
 }
+
+void SQLManager::updateChannelData(int channelid, PodcastChannel *ch) {}
+
+void SQLManager::updateChannelTiTleUrl(int channelid, PodcastChannel *ch) {}
+

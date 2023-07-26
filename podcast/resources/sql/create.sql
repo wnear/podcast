@@ -23,6 +23,11 @@ CREATE TABLE IF NOT EXISTS episodes (
 
     mediaSize  INTEGER,
     mediaDuration INTEGER,
+    cached BOOLEAN,
+    cacheLocation TEXT,
+    filesize INTEGER,
+    duration INTEGER,
+
     iconUrl TEXT,
     websiteUrl TEXT,
     webpageUrl TEXT,

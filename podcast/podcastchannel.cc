@@ -24,7 +24,20 @@ QString PodcastChannel::coverfile() const {
     return QDir(location).absoluteFilePath(coverfmt);
 }
 
+PodcastChannel::PodcastChannel(const QString &title, const QString &url, QObject *parent)
+    : QObject(parent) {
+    m_feedTitle = title;
+    m_feedUrl = url;
+    location = Data::podcastChannelDataPath(m_feedTitle);
+}
+
+//TODO: load should happen only on pod init and after pod update.
 bool PodcastChannel::load() {
+    SQLManager::instance()->loadEpisodes(this);
+    return true;
+
+
+    bool ret;
     QFile xml_file(xmlfile());
     QFile json_file(jsonfile());
 
@@ -37,13 +50,14 @@ bool PodcastChannel::load() {
     if (xml_file.exists()) {
         // if json not existed, or not update.
         if (json_file.exists() == false || util::file_is_newer(xml_file, xml_file)) {
-            bool ret = this->parserxml();
+            ret = this->parserxml();
             if (ret == false) return ret;
         }
     }
 
     // json should exist by now.
-    return load_json();
+    ret = load_json();
+    return ret;
 }
 
 bool PodcastChannel::load_json() { return jsonload(this, jsonfile()); }
@@ -98,4 +112,5 @@ void PodcastChannel::addEpisode(EpisodeData *ep) {
     episodes.push_back(ep);
     SQLManager::instance()->addEpisode(this->channelID, ep);
 }
+
 

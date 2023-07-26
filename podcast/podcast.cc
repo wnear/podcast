@@ -124,11 +124,16 @@ bool Podcast::save() {
 }
 
 bool Podcast::load() {
+    SQLManager::instance()->loadChannels(m_channels);
+    qDebug() << "podcast, channels:"<<m_channels.size();
+    return true;
+
     auto path = util::datapath();
     auto podsfile = QDir(path).filePath("subscription.json");
     QFile pods(podsfile);
     if (pods.exists() == false || pods.open(QIODevice::ReadOnly) == false) {
-        qDebug() << "fail to open";
+        qDebug() << "fail to open subscription.json file:"
+                 << QFileInfo(pods).absoluteFilePath();
         return false;
     }
 
@@ -145,8 +150,6 @@ bool Podcast::load() {
                                     item.value("url").toString());
 
         m_channels.push_back(x);
-        // m_pods.push_back(std::move(PodcastChannel(item.value("title").toString(),
-        // item.value("url").toString())));
     }
     return true;
 }
@@ -172,6 +175,15 @@ void Podcast::import_opml(const QString &filename) {
                               [url, title](auto &&p) { return p->m_feedUrl == url; });
         return i != m_channels.end();
     };
+    // QMap<int, pair<QString, QString> > feedback;
+    //index, title, feed.
+    QList<tuple<int, QString, QString> > feedback;
+
+    while(1){
+
+    // SQLManager::instance()->importChannels();
+    }
+
 
     int added{0}, alreadyhave{0};
     for (auto [title, url] : res) {

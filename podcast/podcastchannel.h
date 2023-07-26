@@ -18,12 +18,7 @@ constexpr char c_podcast_localxml[] = "podcast.xml";
 //TODO: lastest episode.
 class PodcastChannel : public QObject {
   public:
-    PodcastChannel(const QString &title, const QString &url, QObject *parent = nullptr)
-        : QObject(parent) {
-        m_feedTitle = title;
-        m_feedUrl = url;
-        location = Data::podcastChannelDataPath(m_feedTitle);
-    }
+    PodcastChannel(const QString &title, const QString &url, QObject *parent = nullptr);
     bool isValid() { return !(m_feedTitle.isEmpty() || m_feedUrl.isEmpty()); }
     size_t size(){
         return episodes.size();
