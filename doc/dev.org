@@ -1,4 +1,17 @@
+* channel update
+when to update:
+- on startup
+- on timeinterval
 
+update behavior:
+- update xml
+- download new episode.
+  - global or for specific channels (channel settings)
+  - if download, max concurrent task.
+
+* marks and notes
+- add button on player
+- notes bahavior setting: should pause the playback or not.
 
 * database design
 
@@ -35,7 +48,7 @@ table playHistory
 - timeEnd
 - timePaused
 
-table bookmarks
+table marksnotes
 - id
 - episodeName
 - timestamp
@@ -47,4 +60,3 @@ table playlist
 - playlistName
 - episodeName
 
-* database usage.
