@@ -1,6 +1,6 @@
 #include "episodelistwgt.h"
 #include "podcastchannel.h"
-#include "episodewgt.h"
+#include "episodewidgetitem.h"
 #include "log.h"
 
 #include <QVBoxLayout>
@@ -39,7 +39,7 @@ QString EpisodeListWidget::current() const { return cur == nullptr ? "" : cur->t
 
 void EpisodeListWidget::setPod(PodcastChannel *pod) {
     cur = pod;
-    auto childs = this->findChildren<EpisodeWidget *>();
+    auto childs = this->findChildren<EpisodeWidgetItem *>();
     scrollWidget()->findChild<QWidget *>();
     for (auto i : childs) i->deleteLater();
 
@@ -50,6 +50,6 @@ void EpisodeListWidget::setPod(PodcastChannel *pod) {
     binfo("episodelistwget draw...");
     for (int i = 0; i < count; i++) {
         scrollWidget()->layout()->addWidget(
-            new EpisodeWidget((EpisodeData *)(pod->episodes[i]), scrollWidget()));
+            new EpisodeWidgetItem((EpisodeData *)(pod->episodes[i]), scrollWidget()));
     }
 }

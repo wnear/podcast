@@ -26,7 +26,7 @@ HEADERS += downloadmanager.h \
            #episodelistwgt.h \
            episodemodel.h \
            episodepropertymanager.h \
-           episodewgt.h \
+           episodewidgetitem.h \
            global.h \
            jsonop.h \
            log.h \
@@ -52,7 +52,7 @@ SOURCES += downloadmanager.cc \
            #episodelistwgt.cc \
            episodemodel.cc \
            episodepropertymanager.cpp \
-           episodewgt.cc \
+           episodewidgetitem.cc \
            global.cc \
            jsonop.cc \
            log.cc \

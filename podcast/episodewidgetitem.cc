@@ -1,4 +1,4 @@
-#include "episodewgt.h"
+#include "episodewidgetitem.h"
 #include "log.h"
 
 #include <QLabel>
@@ -26,7 +26,7 @@ using namespace util;
 static int a = 0;
 static QNetworkAccessManager net;
 
-struct EpisodeWidgetPrivate {
+struct EpisodeWidgetItemPrivate {
     QLabel *title;
     QLabel *progress;
     QLabel *duration;
@@ -36,7 +36,7 @@ struct EpisodeWidgetPrivate {
 
 namespace {}
 
-void EpisodeWidget::setProgressText() {
+void EpisodeWidgetItem::setProgressText() {
     QString title = m_data->stateString();
     QString progress;
     int cur{m_data->currentSize()}, total{m_data->filesize};
@@ -61,10 +61,10 @@ void EpisodeWidget::setProgressText() {
     d->progress->setText(title + progress);
 }
 
-EpisodeWidget::EpisodeWidget(EpisodeData *data, QWidget *parent)
+EpisodeWidgetItem::EpisodeWidgetItem(EpisodeData *data, QWidget *parent)
     : QFrame(parent), id(a++), m_data(data) {
     this->setFrameStyle(QFrame::Raised);
-    d = new EpisodeWidgetPrivate;
+    d = new EpisodeWidgetItemPrivate;
     d->title = new QLabel(this);
     d->progress = new QLabel("0%", this);
     d->duration = new QLabel(this);
@@ -96,13 +96,13 @@ EpisodeWidget::EpisodeWidget(EpisodeData *data, QWidget *parent)
 
     this->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, &QWidget::customContextMenuRequested, this,
-            &EpisodeWidget::onCustomContextMenuRequested);
-    connect(m_data, &EpisodeData::fileChanged, this, &EpisodeWidget::setProgressText);
+            &EpisodeWidgetItem::onCustomContextMenuRequested);
+    connect(m_data, &EpisodeData::fileChanged, this, &EpisodeWidgetItem::setProgressText);
 }
 
-QString EpisodeWidget::msg() const { return QString("%1").arg(id); }
+QString EpisodeWidgetItem::msg() const { return QString("%1").arg(id); }
 
-void EpisodeWidget::onCustomContextMenuRequested(const QPoint &pos) {
+void EpisodeWidgetItem::onCustomContextMenuRequested(const QPoint &pos) {
     QString fileOndisk = m_data->location;
     auto dw = DownloadManager::instance();
     auto player = PlayerEngine::instance();

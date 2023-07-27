@@ -4,12 +4,12 @@
 #include <QFrame>
 #include "episodedata.h"
 
-class EpisodeWidget : public QFrame {
+class EpisodeWidgetItem : public QFrame {
     Q_OBJECT
 
   public:
-    EpisodeWidget(EpisodeData *data, QWidget *parent = nullptr);
-    ~EpisodeWidget() {}
+    EpisodeWidgetItem(EpisodeData *data, QWidget *parent = nullptr);
+    ~EpisodeWidgetItem() {}
     QString msg() const;
     void setProgressText();
 
@@ -17,7 +17,7 @@ class EpisodeWidget : public QFrame {
     void onCustomContextMenuRequested(const QPoint &);
 
   private:
-    struct EpisodeWidgetPrivate *d;
+    struct EpisodeWidgetItemPrivate *d;
     int id;
     EpisodeData *m_data{nullptr};
 };
