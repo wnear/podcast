@@ -32,7 +32,9 @@ PodcastChannel::PodcastChannel(const QString &title, const QString &url, QObject
 }
 
 //TODO: load should happen only on pod init and after pod update.
+//update should diff with load, add only new episodes => more fluent ui.
 bool PodcastChannel::load() {
+    this->episodes.clear();
     SQLManager::instance()->loadEpisodes(this);
     return true;
 
