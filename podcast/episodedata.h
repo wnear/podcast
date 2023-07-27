@@ -37,6 +37,8 @@ class EpisodeData : public QObject {
     EpisodeData(QObject *parent = nullptr);
     ~EpisodeData() = default;
     int jobid{-1};  // runtime value, to access the download status.
+    int id;         // id is a db key can be used across many table,
+                    // like the play-history table, the bookmark/notes table.
     QString title;
     QString author;
     QUrl url;
@@ -44,8 +46,8 @@ class EpisodeData : public QObject {
     int net_totalsize{0};  // During downloading, bytesize need to download reported from
                            // Network, not very useful if not a fresh download.
 
-    int actualSize;   // media file current size of the disk file.
-    int filesize{0};  // media file filesize, parsed from the xml description.
+    int actualSize;   // mediafile's current size, of the disk file, useful if downloaded partially.
+    int filesize{0};  // mediafile full filesize, parsed from the xml description.
     QString description;
     QDateTime updatetime;
     QString updatetime_str;

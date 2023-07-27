@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS localchannel (
 );
 
 
+-- all the fields contained in the xml file.
 CREATE TABLE IF NOT EXISTS episodes (
     id INTEGER unique,
     title TEXT,
@@ -23,8 +24,6 @@ CREATE TABLE IF NOT EXISTS episodes (
 
     mediaSize  INTEGER,
     mediaDuration INTEGER,
-    cached BOOLEAN,
-    cacheLocation TEXT,
     filesize INTEGER,
     duration INTEGER,
 
@@ -35,8 +34,23 @@ CREATE TABLE IF NOT EXISTS episodes (
     date_published DATETIME,
     valid BOOLEAN,
 
+    cached BOOLEAN,
+    cacheLocation TEXT,
+
     pullOK INTEGER,
     pullFail INTEGER
+);
 
-) ;
+
+-- CREATE TABLE IF NOT EXISTS channel-config ();
+-- updatetime.
+
+-- CREATE TABLE IF NOT EXISTS episodes-config ();
+-- notes: favourite. stars. lock for no delete, etc.
+
+-- CREATE TABLE IF NOT EXISTS playhistory ();
+
+
+-- CREATE TABLE IF NOT EXISTS notes ();
+
 

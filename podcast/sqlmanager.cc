@@ -116,8 +116,8 @@ void SQLManager::loadChannels(QList<PodcastChannel *> &result) {
 void SQLManager::loadEpisodes(PodcastChannel *channel) {
     QSqlQuery q;
     QString cmdstr = QString(
-                         "select title, mediafileUrl, "
-                         "cached,cacheLoaction,description,filesize,date_published,"
+                         "select id, title, mediafileUrl, "
+                         "cached,cacheLocation,description,filesize,date_published,"
                          "duration from episodes where channelid = %1")
                          .arg(channel->channelID);
     q.prepare(cmdstr);
@@ -130,10 +130,11 @@ void SQLManager::loadEpisodes(PodcastChannel *channel) {
     // TODO: load more data fields.
     while (q.next()) {
         EpisodeData *x = new EpisodeData;
+        x->id = q.value("id").toInt();
         x->title = q.value("title").toString();
         x->url = QUrl::fromEncoded(q.value("mediafileUrl").toString().toLatin1());
         x->cached = q.value("cached").toBool();
-        x->location = q.value("cacheLoaction").toString();
+        x->location = q.value("cacheLocation").toString();
         x->description = q.value("description").toString();
         x->filesize = q.value("filesize").toInt();
         x->updatetime = QDateTime::fromString(q.value("date_published").toString());
@@ -146,7 +147,7 @@ void SQLManager::loadEpisodes(PodcastChannel *channel) {
 
 // TODO: merge findchannel into addchannel, return false/true.
 // prompt dialog is make from here.
-void SQLManager::addChannel(const QString &title, const QString &url) {
+int SQLManager::addChannel(const QString &title, const QString &url) {
     QSqlQuery q;
     QString cmdstr =
         QString("insert into localchannel (id, title, feedurl) values (%1, %2, %3)")
@@ -162,12 +163,16 @@ void SQLManager::addChannel(const QString &title, const QString &url) {
 
     auto ok = q.exec();
     checkReturn(ok, q, "add channel");
+    if(!ok){
+        return -1;
+    } else {
+        return m_channelID;
+    }
 }
 
 void SQLManager::addChannels(QList<std::pair<QString, QString>> ch,
                              QList<std::tuple<int, QString, QString>> &feedback) {
-
-    //TODO: impl.
+    // TODO: impl.
 }
 
 // TODO: dialog ask what to do for existing one.
@@ -224,14 +229,21 @@ FindChannelResult SQLManager::findChannel(const QString &title, const QString &u
 void SQLManager::addEpisode(int channelid, EpisodeData *ep) {
     assert(channelid != -1);
     QSqlQuery q;
-    QString cmdstr = QString(
-                         "insert into episodes (id, title, mediafileUrl, channelid, "
-                         "description) values (%1, %2, %3, %4, %5)")
-                         .arg(":id")
-                         .arg(":title")
-                         .arg(":url")
-                         .arg(":channel")
-                         .arg(":description");
+    QString cmdstr =
+        QString(
+            "insert into episodes (id, title, mediafileUrl, channelid, description, "
+            "cached, cacheLocation, filesize, date_published, duration"
+            ") values (%1, %2, %3, %4, %5, %6, %7, %8, %9, %10)")
+            .arg(":id")
+            .arg(":title")
+            .arg(":url")
+            .arg(":channel")
+            .arg(":description")
+            .arg(":cached")
+            .arg(":cachelocation")
+            .arg(":filesize")
+            .arg(":date_published")
+            .arg(":duration");
     q.prepare(cmdstr);
 
     m_epID++;
@@ -240,19 +252,25 @@ void SQLManager::addEpisode(int channelid, EpisodeData *ep) {
     q.bindValue(":url", ep->url);
     q.bindValue(":channel", channelid);
     q.bindValue(":description", ep->description);
+    q.bindValue(":cached", ep->actualSize == ep->filesize);
+    q.bindValue(":cachelocation", ep->location);
+    q.bindValue(":filesize", ep->filesize);
+    q.bindValue(":date_published", ep->duration);
+    q.bindValue(":duration", ep->duration);
+
     // q.bindValue(":title", title);
     // q.bindValue(":url", url);
 
     auto ok = q.exec();
-    checkReturn(ok, q, "add channel error");
+    checkReturn(ok, q, __PRETTY_FUNCTION__);
 }
 
 void SQLManager::checkReturn(bool ok, QSqlQuery &q, const QString &msg, int line) {
     if (not ok) {
         if (line == -1)
-            qDebug() << QString("[sql]: %1").arg(msg);
+            qDebug() << QString("[sql error]: %1").arg(msg);
         else
-            qDebug() << QString("[sql line%1]: %2").arg(line).arg(msg);
+            qDebug() << QString("[sql error at L%1]: %2").arg(line).arg(msg);
         logSqlError(q.lastError());
     }
 }
@@ -260,4 +278,3 @@ void SQLManager::checkReturn(bool ok, QSqlQuery &q, const QString &msg, int line
 void SQLManager::updateChannelData(int channelid, PodcastChannel *ch) {}
 
 void SQLManager::updateChannelTiTleUrl(int channelid, PodcastChannel *ch) {}
-

@@ -125,7 +125,7 @@ bool Podcast::save() {
 
 bool Podcast::load() {
     SQLManager::instance()->loadChannels(m_channels);
-    qDebug() << "podcast, channels:"<<m_channels.size();
+    qDebug() << "podcast, channels:" << m_channels.size();
     return true;
 
     auto path = util::datapath();
@@ -176,14 +176,12 @@ void Podcast::import_opml(const QString &filename) {
         return i != m_channels.end();
     };
     // QMap<int, pair<QString, QString> > feedback;
-    //index, title, feed.
+    // index, title, feed.
     QList<tuple<int, QString, QString> > feedback;
 
-    while(1){
-
-    // SQLManager::instance()->importChannels();
-    }
-
+    // while(1){
+    // // SQLManager::instance()->importChannels();
+    // }
 
     int added{0}, alreadyhave{0};
     for (auto [title, url] : res) {
@@ -204,10 +202,15 @@ void Podcast::import_opml(const QString &filename) {
                 // dialog.
                 alreadyhave++;
                 break;
-            case NOTFIND:
-                SQLManager::instance()->addChannel(title, url);
-                added++;
+            case NOTFIND: {
+                auto id = SQLManager::instance()->addChannel(title, url);
+                if (id != -1) {
+                    m_channels.push_back(new PodcastChannel(title, url));
+                    m_channels.back()->channelID = id;
+                    added++;
+                }
                 break;
+            }
             case IN_VALID:
                 assert(0);
                 break;

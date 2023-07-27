@@ -23,7 +23,7 @@ class SQLManager {
     void loadChannels(QList<PodcastChannel *> &result);
     void loadEpisodes(PodcastChannel *channel);
 
-    void addChannel(const QString &title, const QString &url);
+    int addChannel(const QString &title, const QString &url);
     void addChannels(QList<std::pair<QString, QString>> ch,
                      QList<std::tuple<int, QString, QString>> &feedback);
     // find channel in db, prompt dialog asking abort or edit existing.
