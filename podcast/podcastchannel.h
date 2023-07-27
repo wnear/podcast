@@ -11,18 +11,17 @@
 
 constexpr char c_podcast_localxml[] = "podcast.xml";
 
-
 // xml, json, xml is from rss, json is for local.
 // TODO: use json to save deleted item at original rss.xml
 //
-//TODO: lastest episode.
+// TODO: lastest episode.
 class PodcastChannel : public QObject {
+    Q_OBJECT
+
   public:
     PodcastChannel(const QString &title, const QString &url, QObject *parent = nullptr);
     bool isValid() { return !(m_feedTitle.isEmpty() || m_feedUrl.isEmpty()); }
-    size_t size(){
-        return episodes.size();
-    }
+    size_t size() { return episodes.size(); }
 
     // TODO:
     // PodcastChannel& operator=(const PodData&) = default;
@@ -54,6 +53,10 @@ class PodcastChannel : public QObject {
     QString jsonfile() const;
 
     void addEpisode(EpisodeData *ep);
+    void finishUpdate(){
+        emit channelUpdated();
+        emit episodesUpdated();
+    }
 
     // will check both json and xml, check for existance and modification time.
     bool load();
@@ -65,6 +68,10 @@ class PodcastChannel : public QObject {
 
     // save from xml to json.
     bool save();
+
+  signals:
+    void channelUpdated();
+    void episodesUpdated();
 };
 
 #endif

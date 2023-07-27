@@ -132,6 +132,7 @@ bool RssParser::parse() {
     }
 
     binfo("{} episode cnt, {}", m_pod->title.toStdString(), m_pod->episodes.length());
+    m_pod->finishUpdate();
     return m_pod->episodes.length() > 0;
 }
 
