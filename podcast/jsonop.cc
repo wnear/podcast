@@ -42,7 +42,7 @@ bool jsonload(PodcastChannel *entity, const QString &filepath) {
         //     pod.location = datapath(pod);
     }
     auto eps = obj["episodes"].toArray();
-    pod.episodes.clear();
+    pod.m_episodes.clear();
     for (auto i : eps) {
         EpisodeData *x = new EpisodeData;
         auto &&obj = i.toObject();
@@ -59,7 +59,7 @@ bool jsonload(PodcastChannel *entity, const QString &filepath) {
         x->duration = obj["duration"].toInt();
         // TODO: episode data init should be in one loadFromJsoon,
         x->calculateCurrentSize();
-        pod.episodes.push_back(x);
+        pod.m_episodes.push_back(x);
     }
     return true;
 }
@@ -84,7 +84,7 @@ bool jsonsave(PodcastChannel *entity, const QString &filepath) {
     QJsonObject whole;
     whole["podinfo"] = QJsonObject{{"title", pod.m_feedTitle}, {"url", pod.m_feedUrl}};
     QJsonArray eps;
-    for (auto e : pod.episodes) {
+    for (auto e : pod.m_episodes) {
         // QJsonObject obj;
         // obj["title"] = e.title;
         // obj["url"] = e.url.toString();

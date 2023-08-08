@@ -1,10 +1,12 @@
 #pragma once
 
 #include <QString>
+#include <QList>
 
 class QIODevice;
 class PodcastChannel;
 class QXmlStreamReader;
+class EpisodeData;
 
 class RssParser {
   public:
@@ -18,7 +20,8 @@ class RssParser {
     void ParseImage();
 
   private:
-    PodcastChannel *m_pod;
+    PodcastChannel *m_podchannel;
+    QList<EpisodeData*> m_episodes;
     QIODevice *m_file;
     QXmlStreamReader *reader;
 };

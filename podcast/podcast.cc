@@ -97,7 +97,7 @@ Podcast::Podcast(QWidget *parent) : QWidget(parent) {
         int row = idx.row();
         PodcastChannel &pod = *m_channels[row];
         pod.load();
-        int cnt = m_channels[row]->episodes.count();
+        int cnt = m_channels[row]->m_episodes.count();
         qDebug() << "by load from cache, get episodes of count: " << cnt;
         // d->detaillist->setPod( m_pods[row]);
         d->detailtree->setPod(m_channels[row]);

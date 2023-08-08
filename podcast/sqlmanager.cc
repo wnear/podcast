@@ -1,10 +1,13 @@
 #include "sqlmanager.h"
+#include "quuid.h"
 #include "utils.h"
 #include <QDebug>
 #include <QRegularExpression>
 #include <QSqlQuery>
 #include <QSqlResult>
 #include <QSqlError>
+#include <QSqlTableModel>
+#include <QSqlRecord>
 
 SQLManager::SQLManager() {
     QString m_location = util::datadir().absoluteFilePath("localpod.sqlite3");
@@ -118,7 +121,7 @@ void SQLManager::loadEpisodes(PodcastChannel *channel) {
     QString cmdstr = QString(
                          "select id, title, mediafileUrl, "
                          "cached,cacheLocation,description,filesize,date_published,"
-                         "duration from episodes where channelid = %1")
+                         "duration from episodes where channelid = %1 order by date_published")
                          .arg(channel->channelID);
     q.prepare(cmdstr);
     auto ok = q.exec();
@@ -141,7 +144,7 @@ void SQLManager::loadEpisodes(PodcastChannel *channel) {
         x->duration = q.value("duration").toInt();
         // TODO: episode data init should be in one loadFromJsoon,
         x->calculateCurrentSize();
-        channel->episodes.push_back(x);
+        channel->m_episodes.push_back(x);
     }
 }
 
@@ -254,6 +257,25 @@ FindChannelResult SQLManager::findChannel(const QString &title, const QString &u
     return IN_VALID;
 }
 
+void SQLManager::reinitEpisode(EpisodeData *ep) {
+    assert(ep->id != -1);
+    QSqlTableModel model;
+    model.setTable("episodes");
+    model.setFilter(
+        QString("id = \"%1\"").arg(ep->id));
+    model.select();
+
+    if (model.rowCount() > 1)
+        qWarning() << "[Duplicate Tag SQLite3 Warning!] Found" << model.rowCount() << "of"
+                   << ep->title;
+
+    QSqlRecord tagInDB = model.record(0);
+    tagInDB.setValue("title", ep->title);
+    model.setRecord(0, tagInDB);
+
+    // return logSqlError(model.lastError());
+}
+
 // TODO: check.
 void SQLManager::addEpisode(int channelid, EpisodeData *ep) {
     assert(channelid != -1);
@@ -277,6 +299,7 @@ void SQLManager::addEpisode(int channelid, EpisodeData *ep) {
 
     m_epID++;
     q.bindValue(":id", m_epID);
+    ep->id = m_epID;
     q.bindValue(":title", ep->title);
     q.bindValue(":url", ep->url);
     q.bindValue(":channel", channelid);
@@ -307,3 +330,4 @@ void SQLManager::checkReturn(bool ok, QSqlQuery &q, const QString &msg, int line
 void SQLManager::updateChannelData(int channelid, PodcastChannel *ch) {}
 
 void SQLManager::updateChannelTiTleUrl(int channelid, PodcastChannel *ch) {}
+

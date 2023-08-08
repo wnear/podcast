@@ -49,7 +49,7 @@ QModelIndex EpisodeTreeModel::index(int row, int column,
                                     const QModelIndex &parent) const {
     Q_UNUSED(parent);
     return (row >= 0 && row < this->rowCount())
-               ? createIndex(row, column, d->pod->episodes[row])
+               ? createIndex(row, column, d->pod->m_episodes[row])
                : QModelIndex();
 }
 
@@ -62,7 +62,7 @@ QModelIndex EpisodeTreeModel::parent(const QModelIndex &child) const {
 // TODO: use std::accumulate from c++20
 int EpisodeTreeModel::rowCount(const QModelIndex &parent) const {
     if (d->pod == nullptr || parent.isValid()) return 0;
-    return std::min<int>(d->maxRow, d->pod->episodes.count());
+    return std::min<int>(d->maxRow, d->pod->m_episodes.count());
 }
 
 int EpisodeTreeModel::columnCount(const QModelIndex &parent) const {
@@ -76,7 +76,7 @@ TreeColumn EpisodeTreeModel::columnType(int column) const {
 
 QVariant EpisodeTreeModel::data(const QModelIndex &index, int role) const {
     if (!index.isValid()) return QVariant();
-    auto &&ep = d->pod->episodes[index.row()];
+    auto &&ep = d->pod->m_episodes[index.row()];
     // auto realIndex = d->availproperty.keys().at(index.column());
     auto realIndex = columnType(index.column());
 

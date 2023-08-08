@@ -31,13 +31,12 @@ PodcastChannel::PodcastChannel(const QString &title, const QString &url, QObject
     location = Data::podcastChannelDataPath(m_feedTitle);
 }
 
-//TODO: load should happen only on pod init and after pod update.
-//update should diff with load, add only new episodes => more fluent ui.
+// TODO: load should happen only on pod init and after pod update.
+// update should diff with load, add only new episodes => more fluent ui.
 bool PodcastChannel::load() {
-    this->episodes.clear();
+    this->m_episodes.clear();
     SQLManager::instance()->loadEpisodes(this);
     return true;
-
 
     bool ret;
     QFile xml_file(xmlfile());
@@ -107,12 +106,45 @@ bool PodcastChannel::parserxml() {
     return ret;
 }
 
-bool PodcastChannel::save() {
-    return jsonsave(this, jsonfile());
+bool PodcastChannel::save() { return jsonsave(this, jsonfile()); }
+
+// TODO: deal with memory is tricky here.
+//
+// FIXME: should delete memory of old episodes.
+void PodcastChannel::addEpisodes(QList<EpisodeData *> &eps) {
+    std::reverse(eps.begin(), eps.end());
+    bool st{true};
+    st = std::is_sorted(eps.begin(), eps.end(),
+                   [](auto &&lhs, auto &&rhs) { return lhs->updatetime < rhs->updatetime; });
+    assert(st == true);
+    auto it_new = std::lower_bound(
+        eps.begin(), eps.end(), this->lastEpisodeUpdate,
+        [](EpisodeData *cur, QDateTime val) { return cur->updatetime > val; });
+    if (it_new == eps.end()) return;
+
+    bool dev = false;
+    if (dev) {
+        for (; it_new < eps.end(); it_new++) {
+            // SQLManager::instance()->findEpisode(1,1);
+            QDateTime dt_cur = (*it_new)->updatetime;
+            auto ep = std::find_if(m_episodes.begin(), m_episodes.end(),
+            [dt_cur](EpisodeData *cur){
+                return cur->updatetime == dt_cur;
+            });
+
+            (*it_new)->id = (*ep)->id;
+
+            SQLManager::instance()->reinitEpisode(*it_new);
+        }
+    }
+
+    for (; it_new < eps.end(); it_new++) {
+        this->addEpisode(*it_new);
+    }
+    lastEpisodeUpdate = eps.back()->updatetime;
 }
+
 void PodcastChannel::addEpisode(EpisodeData *ep) {
-    episodes.push_back(ep);
     SQLManager::instance()->addEpisode(this->channelID, ep);
+    m_episodes.push_front(ep);
 }
-
-

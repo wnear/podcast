@@ -21,7 +21,7 @@ QVariant PodModel::data(const QModelIndex &index, int role) const {
             QString res;
             res = cur->m_feedTitle;
             if(cur->size()){
-                res += QString("(%1)").arg(cur->episodes.size());
+                res += QString("(%1)").arg(cur->m_episodes.size());
             }
             return res;
         }

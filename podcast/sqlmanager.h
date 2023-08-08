@@ -32,9 +32,13 @@ class SQLManager {
     void updateChannelData(int channelid, PodcastChannel *ch);
     void updateChannelTiTleUrl(int channelid, PodcastChannel *ch);
 
-    int findEpisode(int channelid, int episodeid);
-    void reinitEpisode();
+    // int findEpisode(int channelid, int episodeid);
+    // int findEpisode(int channelid, const QString &title);
+
     void addEpisode(int channelid, EpisodeData *ep);
+
+    //NOTE: dev only, some data field may not be inited in early stage of the dev.
+    void reinitEpisode(EpisodeData *ep);
 
     // TODO: history, notes, play-position, etc.
     // if have ever been played, will have one , else , no need.

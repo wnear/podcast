@@ -21,7 +21,7 @@ class PodcastChannel : public QObject {
   public:
     PodcastChannel(const QString &title, const QString &url, QObject *parent = nullptr);
     bool isValid() { return !(m_feedTitle.isEmpty() || m_feedUrl.isEmpty()); }
-    size_t size() { return episodes.size(); }
+    size_t size() { return m_episodes.size(); }
 
     // TODO:
     // PodcastChannel& operator=(const PodData&) = default;
@@ -35,11 +35,12 @@ class PodcastChannel : public QObject {
     int job_id{-1};
     QString location;
     QString xmllocation;
-    QDateTime lastEpisodeUpdate;
+    QDateTime lastEpisodeUpdate; // time of the last episode.
+    QDateTime lastEpisodeUpdateCache; // time of the last episode.
     QString language;
     int episodeCount;
     int episodeDuratinSum;
-    QList<EpisodeData *> episodes;
+    QList<EpisodeData *> m_episodes;
 
     const QString xmlfmt = "podcast.xml";
     const QString jsonfmt = "pods_detail.json";
@@ -67,6 +68,10 @@ class PodcastChannel : public QObject {
     //episodes in xml and gui should be listed from new to old,
     //episodes in sql and ch.eps, in the other hand, should be old to new.
     //a order reversal should happen somewhere.
+    void beginUpdate(){
+        lastEpisodeUpdateCache = lastEpisodeUpdate;
+    }
+    void addEpisodes(QList<EpisodeData *> &ep);
     void addEpisode(EpisodeData *ep);
     void finishUpdate(){
         emit channelUpdated();
