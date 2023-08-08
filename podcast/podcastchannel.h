@@ -52,6 +52,21 @@ class PodcastChannel : public QObject {
     QString xmlfile() const;
     QString jsonfile() const;
 
+    //TODO: refactor to batch add for view and db perfomance,
+    //design:
+    //`list<episodes*> m_neweps;`
+    //`void prepareAdd(){m_neweps.clear();}`
+    //`void addEpisode(ep){m_neweps.pushback(ep);}`
+    //`void finnishAdd(){m_episodes.pushback();}`
+    //
+    //design 2:
+    //register callback for prepareAdd and finishAdd.
+    //
+    //
+    //NOTE: tricky, also a bug of previous impl(no appending ever happens):
+    //episodes in xml and gui should be listed from new to old,
+    //episodes in sql and ch.eps, in the other hand, should be old to new.
+    //a order reversal should happen somewhere.
     void addEpisode(EpisodeData *ep);
     void finishUpdate(){
         emit channelUpdated();

@@ -37,7 +37,7 @@ using namespace std;
 using namespace util;
 class Podcast::Private {
   public:
-    QListView *list;
+    QListView *listview;
     QTabWidget *detail;
     // EpisodeListWidget *detaillist;
     EpisodeTreeWidget *detailtree;
@@ -55,15 +55,15 @@ Podcast::Podcast(QWidget *parent) : QWidget(parent) {
 
     QVBoxLayout *lay = new QVBoxLayout(this);
     lay->setContentsMargins(0, 0, 0, 0);
-    d->list = new QListView(this);
+    d->listview = new QListView(this);
     {
         // d->list->setViewMode(QListView::IconMode);
         // d->list->setResizeMode(QListView::Adjust);
         d->podsmodel = new PodModel(m_channels, this);
-        d->list->setModel(d->podsmodel);
-        d->list->setContextMenuPolicy(Qt::CustomContextMenu);
+        d->listview->setModel(d->podsmodel);
+        d->listview->setContextMenuPolicy(Qt::CustomContextMenu);
     }
-    lay->addWidget(d->list);
+    lay->addWidget(d->listview);
 
     d->detail = new QTabWidget(this);
     // d->detaillist = new EpisodeListWidget(this);
@@ -72,15 +72,15 @@ Podcast::Podcast(QWidget *parent) : QWidget(parent) {
     d->detail->addTab(d->detailtree, "modal list");
     d->detail->addTab(d->ep_detail, "ep detail");
 
-    assert(d->list != nullptr);
+    assert(d->listview != nullptr);
 
     connect(d->detailtree, &EpisodeTreeWidget::requestPlay, this, &Podcast::requestPlay);
     connect(d->detailtree, &EpisodeTreeWidget::requestDetail, this,
             &Podcast::requestDetail);
 
-    connect(d->list, &QWidget::customContextMenuRequested, this,
+    connect(d->listview, &QWidget::customContextMenuRequested, this,
             [this](const QPoint &pos) {
-                auto idx = d->list->indexAt(pos);
+                auto idx = d->listview->indexAt(pos);
                 int row = idx.row();
                 PodcastChannel &pod = *m_channels[row];
                 pod.load();
@@ -89,10 +89,10 @@ Podcast::Podcast(QWidget *parent) : QWidget(parent) {
                 menu->addAction("update", this, [&pod]() { pod.updatexml(); });
                 menu->exec(mapToGlobal(pos));
             });
-    connect(d->list, &QListView::clicked, [this](auto &&idx) {
+    connect(d->listview, &QListView::clicked, [this](auto &&idx) {
         // title/ url ==> feed ==> detailview ==> detailview update.
 
-        auto model = qobject_cast<PodModel *>(d->list->model());
+        auto model = qobject_cast<PodModel *>(d->listview->model());
         auto url = model->data(idx, PodModel::UrlRole).toString();
         int row = idx.row();
         PodcastChannel &pod = *m_channels[row];
@@ -167,62 +167,25 @@ void Podcast::importdlg() {
 }
 
 void Podcast::import_opml(const QString &filename) {
-    auto res = OpmlParser(filename).parse();
-    if (res.isEmpty()) return;
+    auto channels = OpmlParser(filename).parse();
+    if (channels.isEmpty()) return;
 
-    auto alreadyHave = [this](const QString &title, const QString &url) {
-        auto i = std::find_if(m_channels.begin(), m_channels.end(),
-                              [url, title](auto &&p) { return p->m_feedUrl == url; });
-        return i != m_channels.end();
-    };
-    // QMap<int, pair<QString, QString> > feedback;
-    // index, title, feed.
-    QList<tuple<int, QString, QString> > feedback;
-
-    // while(1){
-    // // SQLManager::instance()->importChannels();
-    // }
-
-    int added{0}, alreadyhave{0};
-    for (auto [title, url] : res) {
-        if (!alreadyHave(title, url)) {
-            m_channels.push_back(new PodcastChannel(title, url));
+    QList<std::pair<channel_item_t, channel_item_t>> conflicts;
+    while(1){
+        SQLManager::instance()->addChannels(m_channels, channels, conflicts);
+        if(conflicts.empty())break;
+        else {
+            //dialog to choose from list for channel list info to add.
         }
-        auto res = SQLManager::instance()->findChannel(title, url);
-        if (res == SQLError) {
-            assert(0);
-        }
-        switch (res) {
-            case SQLError:
-                assert(0);
-            case FIND:
-                alreadyhave++;
-                break;
-            case FIND_PARTLY:
-                // dialog.
-                alreadyhave++;
-                break;
-            case NOTFIND: {
-                auto id = SQLManager::instance()->addChannel(title, url);
-                if (id != -1) {
-                    m_channels.push_back(new PodcastChannel(title, url));
-                    m_channels.back()->channelID = id;
-                    added++;
-                }
-                break;
-            }
-            case IN_VALID:
-                assert(0);
-                break;
-        }
+        //TODO: implement the else dislog.
+        break;
     }
-    qDebug() << QString("import result: sum(%1), added(%2), ignored(%3)")
-                    .arg(res.size())
-                    .arg(added)
-                    .arg(alreadyhave);
+    // qDebug() << QString("import result: sum(%1), added(%2), ignored(%3)")
+    //                 .arg(channels.size())
+    //                 .arg(added)
+    //                 .arg(alreadyhave);
 
-    // d->podsmodel->resetData(m_pods);
-    d->list->reset();
+    d->listview->reset();
 
     save();
 }

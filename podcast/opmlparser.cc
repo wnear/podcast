@@ -3,8 +3,8 @@
 #include <QFile>
 #include "log.h"
 
-QList<std::pair<QString, QString>> OpmlParser::parse() {
-    elems_t res{};
+QList<channel_item_t> OpmlParser::parse() {
+    QList<channel_item_t> res{};
 
     QFile xml(m_filename);
     if (xml.exists() == false || xml.open(QIODevice::ReadOnly) == false) {

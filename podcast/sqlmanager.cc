@@ -163,22 +163,49 @@ int SQLManager::addChannel(const QString &title, const QString &url) {
 
     auto ok = q.exec();
     checkReturn(ok, q, "add channel");
-    if(!ok){
+    if (!ok) {
         return -1;
     } else {
         return m_channelID;
     }
 }
 
-void SQLManager::addChannels(QList<std::pair<QString, QString>> ch,
-                             QList<std::tuple<int, QString, QString>> &feedback) {
-    // TODO: impl.
+void SQLManager::addChannels(QList<PodcastChannel *> &container,
+                             QList<channel_item_t> &channels,
+                             QList<std::pair<channel_item_t, channel_item_t>> &conflict) {
+    channel_item_t match;
+    for (auto [title, url] : channels) {
+        auto res = findChannel(title, url, match);
+        switch (res) {
+            case SQLError:
+                assert(0);
+            case FIND:
+                break;
+            case FIND_CONFLICT:
+                // dialog.
+                conflict.emplace_back(std::make_pair(title, url), match);
+                break;
+            case NOTFIND: {
+                auto id = SQLManager::instance()->addChannel(title, url);
+                if (id != -1) {
+                    container.push_back(new PodcastChannel(title, url));
+                    container.back()->channelID = id;
+                } else {
+                    assert(0);
+                }
+                break;
+            }
+            case IN_VALID:
+                break;
+        }
+    }
 }
 
 // TODO: dialog ask what to do for existing one.
 //  if tile==title, url==url, skip
 //  if one of the comparsion is true, ask user to decide.
-FindChannelResult SQLManager::findChannel(const QString &title, const QString &url) {
+FindChannelResult SQLManager::findChannel(const QString &title, const QString &url,
+                                          channel_item_t &match) {
     if (url.isEmpty()) {
         qDebug() << "url is empty";
         return IN_VALID;
@@ -210,14 +237,16 @@ FindChannelResult SQLManager::findChannel(const QString &title, const QString &u
         auto ok = q.exec();
         checkReturn(ok, q, "find with url", __LINE__);
         if (not ok) return SQLError;
-        QString ret_title, ret_url;
+        // QString ret_title, ret_url;
+        auto &match_title = match.first;
+        auto &match_url = match.second;
         if (q.next()) {
-            ret_title = q.value("title").toString();
-            ret_url = q.value("feedurl").toString();
-            if (ret_title == title and ret_url == url) {
+            match_title = q.value("title").toString();
+            match_url = q.value("feedurl").toString();
+            if (match_title == title and match_url == url) {
                 return FIND;
             } else {
-                return FIND_PARTLY;
+                return FIND_CONFLICT;
             }
         }
         return NOTFIND;
