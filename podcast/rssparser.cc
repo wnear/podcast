@@ -118,7 +118,6 @@ bool RssParser::parse() {
             case QXmlStreamReader::EndElement:
                 binfo("{} episode cnt, {}", m_pod->title.toStdString(),
                       m_pod->episodes.length());
-                return m_podchannel->m_episodes.length() > 0;
 
             default:
                 break;
@@ -167,7 +166,6 @@ void RssParser::parseEpisode() {
                 const QString lower_namespace =
                     reader->namespaceUri().toString().toLower();
 
-                qDebug()<<__PRETTY_FUNCTION__ << ": "<< name;
                 if (name == "title") {
                     episode->title = (reader->readElementText());
                 } else if (name == "description") {
@@ -221,6 +219,7 @@ void RssParser::parseEpisode() {
             }
 
             case QXmlStreamReader::EndElement:
+                qDebug() << "eposide should be added:";
                 if (!episode->url.isEmpty()) {
                     // auto ret = std::find_if(
                     //     m_podchannel->episodes.begin(), m_podchannel->episodes.end(),
@@ -233,7 +232,11 @@ void RssParser::parseEpisode() {
                     //     // m_pod->episodes.push_back(episode);
                     //     m_podchannel->addEpisode(episode);
                     // }
+
                     m_episodes.push_back(episode);
+                    qDebug()<< "ok, episodes count:" << m_episodes.count();
+                } else {
+                    qDebug()<< "error, episode url is empty";
                 }
 
                 return;
