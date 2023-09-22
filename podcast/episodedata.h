@@ -46,7 +46,8 @@ class EpisodeData : public QObject {
     int net_totalsize{0};  // During downloading, bytesize need to download reported from
                            // Network, not very useful if not a fresh download.
 
-    int actualSize;   // mediafile's current size, of the disk file, useful if downloaded partially.
+    int actualSize;   // mediafile's current size, of the disk file, useful if downloaded
+                      // partially.
     int filesize{0};  // mediafile full filesize, parsed from the xml description.
     QString description;
     QDateTime updatetime;
@@ -69,6 +70,12 @@ class EpisodeData : public QObject {
     void calculateCurrentSize();
     int currentSize() const;
     QString currentSize_str() const;
+
+    void setUpdatetime() {
+        // TODO: format of update time.
+        QString format = "yyyy/mm/dd hh:mm";
+        updatetime_str = updatetime.isValid() ? updatetime.toString(format) : "Invalid";
+    }
 
     bool canPlay() const;
 

@@ -57,7 +57,6 @@ bool RssParser::parse() {
         berror(" before parse, xml file not valid. abort...");
         return false;
     }
-    m_podchannel->m_episodes.clear();
     bool ret = true;
     if (!m_file->isOpen()) {
         if (m_file->open(QIODevice::ReadOnly) == false) {
@@ -170,10 +169,12 @@ void RssParser::parseEpisode() {
                     episode->title = (reader->readElementText());
                 } else if (name == "description") {
                     episode->description = (reader->readElementText());
-                    qDebug()<<episode->description;
+                    qDebug() << episode->description;
                 } else if (name == "pubDate") {
                     QString date = reader->readElementText();
-                    episode->updatetime_str = date;
+                    QString format = "ddd, d MMM yyyy hh:mm:ss tt";
+                    episode->updatetime = QDateTime::fromString(date, format);
+                    episode->setUpdatetime();
                 } else if (name ==
                            "duration" /* && lower_namespace == kItunesNamespace */) {
                     // http://www.apple.com/itunes/podcasts/specs.html
@@ -234,9 +235,9 @@ void RssParser::parseEpisode() {
                     // }
 
                     m_episodes.push_back(episode);
-                    qDebug()<< "ok, episodes count:" << m_episodes.count();
+                    qDebug() << "ok, episodes count:" << m_episodes.count();
                 } else {
-                    qDebug()<< "error, episode url is empty";
+                    qDebug() << "error, episode url is empty";
                 }
 
                 return;
