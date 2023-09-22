@@ -36,6 +36,7 @@ class SQLManager {
     // int findEpisode(int channelid, const QString &title);
 
     void addEpisode(int channelid, EpisodeData *ep);
+    void clearEpisodes(int channelid);
 
     //NOTE: dev only, some data field may not be inited in early stage of the dev.
     void reinitEpisode(EpisodeData *ep);

@@ -73,7 +73,8 @@ class PodcastChannel : public QObject {
     }
     void addEpisodes(QList<EpisodeData *> &ep);
     void addEpisode(EpisodeData *ep);
-    void finishUpdate(){
+    void clearEpisodes();
+    void finishUpdate() {
         emit channelUpdated();
         emit episodesUpdated();
     }

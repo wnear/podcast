@@ -332,3 +332,16 @@ void SQLManager::updateChannelData(int channelid, PodcastChannel *ch) {}
 
 void SQLManager::updateChannelTiTleUrl(int channelid, PodcastChannel *ch) {}
 
+void SQLManager::clearEpisodes(int channelid) {
+    QSqlQuery q;
+    QString cmdstr = QString(
+                         "delete from episodes where channelid = %1")
+                         .arg(channelid);
+    q.prepare(cmdstr);
+    auto ok = q.exec();
+    checkReturn(ok, q, __PRETTY_FUNCTION__, __LINE__);
+    if (!ok) {
+        return;
+    }
+}
+

@@ -85,7 +85,10 @@ Podcast::Podcast(QWidget *parent) : QWidget(parent) {
                 PodcastChannel &pod = *m_channels[row];
                 pod.load();
                 auto menu = new QMenu(this);
-                menu->addAction("reparse", this, [&pod]() { pod.parserxml(); });
+                menu->addAction("[debug]reparse", this, [&pod]() { pod.parserxml(); });
+                menu->addAction("[debug]clear all episodes", this,
+                                [&pod]() { pod.clearEpisodes(); });
+
                 menu->addAction("update", this, [&pod]() { pod.updatexml(); });
                 menu->exec(mapToGlobal(pos));
             });
