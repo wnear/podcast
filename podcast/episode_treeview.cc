@@ -10,6 +10,9 @@
 #include <QHoverEvent>
 #include <QHeaderView>
 
+#include <QGuiApplication>
+#include <QClipboard>
+
 class EpisodeTreeModel;
 
 class EpisodeTreeViewPrivate {
@@ -69,19 +72,20 @@ void EpisodeTreeView::onCustomContextMenuRequested(const QPoint &p) {
     auto idx = this->indexAt(p);
     auto srcIdx = d->sortmodel->mapToSource(idx);
 
-    if(!srcIdx.isValid())
-        return;
+    if (!srcIdx.isValid()) return;
 
     // auto urlIdx = d->data->index(srcIdx.row(), TreeColumn::URL - 1);
     // auto url = d->data->data(urlIdx).toUrl();
     // emit requestPlay(url);
 
-    auto *ep = static_cast<EpisodeData*>(srcIdx.internalPointer());
-    menu->addAction("Detail", this, [this, ep](){
-        emit requestDetail(ep);
-    });
+    auto *ep = static_cast<EpisodeData *>(srcIdx.internalPointer());
+    menu->addAction("Detail", this, [this, ep]() { emit requestDetail(ep); });
     menu->addAction("Locate File");
     menu->addAction("Toggle Play");
+    menu->addAction("Copy mediafile url to clipboard", [ep]() {
+        QClipboard *clipboard = QGuiApplication::clipboard();
+        clipboard->setText(ep->url.toString());
+    });
     menu->addAction("Open With Default Player");
     menu->addSeparator();
     menu->addAction("Download or pause");
@@ -99,8 +103,8 @@ void EpisodeTreeView::mouseDoubleClickEvent(QMouseEvent *event) {
     auto srcIdx = d->sortmodel->mapToSource(idx);
     if (srcIdx.isValid()) {
         auto urlIdx = d->data->index(srcIdx.row(), TreeColumn::URL - 1);
-        auto *ep = static_cast<EpisodeData*>(urlIdx.internalPointer());
-        qDebug()<< ep->title;
+        auto *ep = static_cast<EpisodeData *>(urlIdx.internalPointer());
+        qDebug() << ep->title;
         qDebug() << ep->description;
         // auto url = d->data->data(urlIdx).toUrl();
         emit requestPlay(ep);
