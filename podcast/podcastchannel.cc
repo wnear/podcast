@@ -138,3 +138,8 @@ void PodcastChannel::addEpisode(EpisodeData *ep) {
     SQLManager::instance()->addEpisode(this->channelID, ep);
     m_episodes.push_front(ep);
 }
+void PodcastChannel::clearEpisodes() {
+    SQLManager::instance()->clearEpisodes(this->channelID);
+    m_episodes.clear();
+}
+
