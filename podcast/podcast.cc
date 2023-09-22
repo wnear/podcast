@@ -21,6 +21,8 @@
 
 #include <QListWidget>
 #include <QListWidgetItem>
+#include <QGuiApplication>
+#include <QClipboard>
 
 #include <QScrollArea>
 
@@ -90,6 +92,10 @@ Podcast::Podcast(QWidget *parent) : QWidget(parent) {
                                 [&pod]() { pod.clearEpisodes(); });
 
                 menu->addAction("update", this, [&pod]() { pod.updatexml(); });
+                menu->addAction("copy url", this, [&pod]() {
+                    QClipboard *clipboard = QGuiApplication::clipboard();
+                    clipboard->setText(pod.url());
+                });
                 menu->exec(mapToGlobal(pos));
             });
     connect(d->listview, &QListView::clicked, [this](auto &&idx) {
