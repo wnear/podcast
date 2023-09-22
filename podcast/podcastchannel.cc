@@ -36,6 +36,8 @@ PodcastChannel::PodcastChannel(const QString &title, const QString &url, QObject
 bool PodcastChannel::load() {
     this->m_episodes.clear();
     SQLManager::instance()->loadEpisodes(this);
+    if (m_episodes.size())
+        lastEpisodeUpdate = m_episodes.back()->updatetime;
     return true;
 
     bool ret;
@@ -108,34 +110,22 @@ bool PodcastChannel::parserxml() {
 
 bool PodcastChannel::save() { return jsonsave(this, jsonfile()); }
 
-// TODO: deal with memory is tricky here.
-//
-// FIXME: should delete memory of old episodes.
 void PodcastChannel::addEpisodes(QList<EpisodeData *> &eps) {
     std::reverse(eps.begin(), eps.end());
-    bool st{true};
-    st = std::is_sorted(eps.begin(), eps.end(),
-                   [](auto &&lhs, auto &&rhs) { return lhs->updatetime < rhs->updatetime; });
-    assert(st == true);
-    auto it_new = std::lower_bound(
-        eps.begin(), eps.end(), this->lastEpisodeUpdate,
-        [](EpisodeData *cur, QDateTime val) { return cur->updatetime > val; });
-    if (it_new == eps.end()) return;
+    std::sort(eps.begin(), eps.end(), [](auto &&lhs, auto &&rhs) {
+        assert(lhs->updatetime.isValid());
+        assert(rhs->updatetime.isValid());
+        return lhs->updatetime <= rhs->updatetime;
+    });
 
-    bool dev = false;
-    if (dev) {
-        for (; it_new < eps.end(); it_new++) {
-            // SQLManager::instance()->findEpisode(1,1);
-            QDateTime dt_cur = (*it_new)->updatetime;
-            auto ep = std::find_if(m_episodes.begin(), m_episodes.end(),
-            [dt_cur](EpisodeData *cur){
-                return cur->updatetime == dt_cur;
-            });
+    auto it_new = eps.begin();
+    if (m_episodes.size()) {
+        assert(lastEpisodeUpdate.isValid());
 
-            (*it_new)->id = (*ep)->id;
-
-            SQLManager::instance()->reinitEpisode(*it_new);
-        }
+        it_new = std::lower_bound(
+            eps.begin(), eps.end(), this->lastEpisodeUpdate,
+            [](EpisodeData *ep, QDateTime val) { return ep->updatetime <= val; });
+        if (it_new == eps.end()) return;
     }
 
     for (; it_new < eps.end(); it_new++) {

@@ -140,7 +140,8 @@ void SQLManager::loadEpisodes(PodcastChannel *channel) {
         x->location = q.value("cacheLocation").toString();
         x->description = q.value("description").toString();
         x->filesize = q.value("filesize").toInt();
-        x->updatetime = QDateTime::fromString(q.value("date_published").toString());
+        x->updatetime = q.value("date_published").toDateTime();
+        x->setUpdatetime();
         x->duration = q.value("duration").toInt();
         // TODO: episode data init should be in one loadFromJsoon,
         x->calculateCurrentSize();
@@ -307,7 +308,7 @@ void SQLManager::addEpisode(int channelid, EpisodeData *ep) {
     q.bindValue(":cached", ep->actualSize == ep->filesize);
     q.bindValue(":cachelocation", ep->location);
     q.bindValue(":filesize", ep->filesize);
-    q.bindValue(":date_published", ep->duration);
+    q.bindValue(":date_published", ep->updatetime);
     q.bindValue(":duration", ep->duration);
 
     // q.bindValue(":title", title);

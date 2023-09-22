@@ -101,6 +101,7 @@ QVariant EpisodeTreeModel::data(const QModelIndex &index, int role) const {
         case TreeColumn::TITLE:
             return ep->title;
         case TreeColumn::UPDATETIME:
+            return ep->updatetime_str;
             break;
         case TreeColumn::SIZE:
             if (role == Qt::UserRole) {
@@ -116,7 +117,7 @@ QVariant EpisodeTreeModel::data(const QModelIndex &index, int role) const {
             }
 
         case TreeColumn::DATETIME_UPDATED:
-            return ep->releaseTime.toString();
+            return ep->updatetime_str;
             break;
         case TreeColumn::DATETIME_LASTVIEW:
             break;
