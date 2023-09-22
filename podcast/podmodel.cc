@@ -28,12 +28,12 @@ QVariant PodModel::data(const QModelIndex &index, int role) const {
         case UrlRole:
             return cur->m_feedUrl;
         case Qt::DecorationRole:
-            return QIcon::fromTheme("mpv");
-            // if(QFile(cur->coverfile()).exists()){
-            //     return QIcon(QPixmap::fromImage(QImage(cur->coverfile())));
-            // } else  {
-            //     return QIcon::fromTheme("mpv");
-            // }
+            if(QFile(cur->coverfile()).exists()){
+                return QIcon(QPixmap::fromImage(QImage(cur->coverfile())));
+            } else  {
+                //TODO: default icon.
+                return QIcon::fromTheme("mpv");
+            }
         default:
             break;
     }
