@@ -35,8 +35,8 @@ class PodcastChannel : public QObject {
     int job_id{-1};
     QString location;
     QString xmllocation;
-    QDateTime lastEpisodeUpdate; // time of the last episode.
-    QDateTime lastEpisodeUpdateCache; // time of the last episode.
+    QDateTime lastEpisodeUpdate;       // time of the last episode.
+    QDateTime lastEpisodeUpdateCache;  // time of the last episode.
     QString language;
     int episodeCount;
     int episodeDuratinSum;
@@ -48,29 +48,28 @@ class PodcastChannel : public QObject {
 
     const QString c_podcast_default_filename = "podcast.xml";
 
+    QString url() const { return m_feedUrl; }
     QString datapath() const;
     QString coverfile() const;
     QString xmlfile() const;
     QString jsonfile() const;
 
-    //TODO: refactor to batch add for view and db perfomance,
-    //design:
+    // TODO: refactor to batch add for view and db perfomance,
+    // design:
     //`list<episodes*> m_neweps;`
     //`void prepareAdd(){m_neweps.clear();}`
     //`void addEpisode(ep){m_neweps.pushback(ep);}`
     //`void finnishAdd(){m_episodes.pushback();}`
     //
-    //design 2:
-    //register callback for prepareAdd and finishAdd.
+    // design 2:
+    // register callback for prepareAdd and finishAdd.
     //
     //
-    //NOTE: tricky, also a bug of previous impl(no appending ever happens):
-    //episodes in xml and gui should be listed from new to old,
-    //episodes in sql and ch.eps, in the other hand, should be old to new.
-    //a order reversal should happen somewhere.
-    void beginUpdate(){
-        lastEpisodeUpdateCache = lastEpisodeUpdate;
-    }
+    // NOTE: tricky, also a bug of previous impl(no appending ever happens):
+    // episodes in xml and gui should be listed from new to old,
+    // episodes in sql and ch.eps, in the other hand, should be old to new.
+    // a order reversal should happen somewhere.
+    void beginUpdate() { lastEpisodeUpdateCache = lastEpisodeUpdate; }
     void addEpisodes(QList<EpisodeData *> &ep);
     void addEpisode(EpisodeData *ep);
     void clearEpisodes();

@@ -169,7 +169,6 @@ void RssParser::parseEpisode() {
                     episode->title = (reader->readElementText());
                 } else if (name == "description") {
                     episode->description = (reader->readElementText());
-                    qDebug() << episode->description;
                 } else if (name == "pubDate") {
                     QString date = reader->readElementText();
                     QString format = "ddd, d MMM yyyy hh:mm:ss tt";
@@ -220,7 +219,6 @@ void RssParser::parseEpisode() {
             }
 
             case QXmlStreamReader::EndElement:
-                qDebug() << "eposide should be added:";
                 if (!episode->url.isEmpty()) {
                     // auto ret = std::find_if(
                     //     m_podchannel->episodes.begin(), m_podchannel->episodes.end(),
@@ -235,7 +233,7 @@ void RssParser::parseEpisode() {
                     // }
 
                     m_episodes.push_back(episode);
-                    qDebug() << "ok, episodes count:" << m_episodes.count();
+                    qDebug() << QString("episode %1th, release at:%2").arg(m_episodes.size()).arg(episode->updatetime.toString());
                 } else {
                     qDebug() << "error, episode url is empty";
                 }

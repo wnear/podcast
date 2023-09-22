@@ -180,13 +180,14 @@ void Podcast::import_opml(const QString &filename) {
     if (channels.isEmpty()) return;
 
     QList<std::pair<channel_item_t, channel_item_t>> conflicts;
-    while(1){
+    while (1) {
         SQLManager::instance()->addChannels(m_channels, channels, conflicts);
-        if(conflicts.empty())break;
+        if (conflicts.empty())
+            break;
         else {
-            //dialog to choose from list for channel list info to add.
+            // dialog to choose from list for channel list info to add.
         }
-        //TODO: implement the else dislog.
+        // TODO: implement the else dislog.
         break;
     }
     // qDebug() << QString("import result: sum(%1), added(%2), ignored(%3)")
