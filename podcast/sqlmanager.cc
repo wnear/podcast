@@ -118,11 +118,13 @@ void SQLManager::loadChannels(QList<PodcastChannel *> &result) {
 
 void SQLManager::loadEpisodes(PodcastChannel *channel) {
     QSqlQuery q;
-    QString cmdstr = QString(
-                         "select id, title, mediafileUrl, "
-                         "cached,cacheLocation,description,filesize,date_published,"
-                         "duration from episodes where channelid = %1 order by date_published")
-                         .arg(channel->channelID);
+    QString cmdstr =
+        QString(
+            "select id, title, mediafileUrl, "
+            "cached,cacheLocation,description,filesize,date_published,"
+            "duration from episodes where channelid = %1 order by date_published "
+            "limit 30")
+            .arg(channel->channelID);
     q.prepare(cmdstr);
     auto ok = q.exec();
     checkReturn(ok, q, __PRETTY_FUNCTION__, __LINE__);
@@ -262,8 +264,7 @@ void SQLManager::reinitEpisode(EpisodeData *ep) {
     assert(ep->id != -1);
     QSqlTableModel model;
     model.setTable("episodes");
-    model.setFilter(
-        QString("id = \"%1\"").arg(ep->id));
+    model.setFilter(QString("id = \"%1\"").arg(ep->id));
     model.select();
 
     if (model.rowCount() > 1)
@@ -334,9 +335,7 @@ void SQLManager::updateChannelTiTleUrl(int channelid, PodcastChannel *ch) {}
 
 void SQLManager::clearEpisodes(int channelid) {
     QSqlQuery q;
-    QString cmdstr = QString(
-                         "delete from episodes where channelid = %1")
-                         .arg(channelid);
+    QString cmdstr = QString("delete from episodes where channelid = %1").arg(channelid);
     q.prepare(cmdstr);
     auto ok = q.exec();
     checkReturn(ok, q, __PRETTY_FUNCTION__, __LINE__);
@@ -344,4 +343,3 @@ void SQLManager::clearEpisodes(int channelid) {
         return;
     }
 }
-
