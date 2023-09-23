@@ -21,19 +21,19 @@ QVariant PodModel::data(const QModelIndex &index, int role) const {
             QString res;
             res = cur->m_feedTitle;
             if(cur->size()){
-                res += QString("(%1)").arg(cur->episodes.size());
+                res += QString("(%1)").arg(cur->m_episodes.size());
             }
             return res;
         }
         case UrlRole:
             return cur->m_feedUrl;
         case Qt::DecorationRole:
-            return QIcon::fromTheme("mpv");
-            // if(QFile(cur->coverfile()).exists()){
-            //     return QIcon(QPixmap::fromImage(QImage(cur->coverfile())));
-            // } else  {
-            //     return QIcon::fromTheme("mpv");
-            // }
+            if(QFile(cur->coverfile()).exists()){
+                return QIcon(QPixmap::fromImage(QImage(cur->coverfile())));
+            } else  {
+                //TODO: default icon.
+                return QIcon::fromTheme("mpv");
+            }
         default:
             break;
     }

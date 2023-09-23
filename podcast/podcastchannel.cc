@@ -31,13 +31,14 @@ PodcastChannel::PodcastChannel(const QString &title, const QString &url, QObject
     location = Data::podcastChannelDataPath(m_feedTitle);
 }
 
-//TODO: load should happen only on pod init and after pod update.
-//update should diff with load, add only new episodes => more fluent ui.
+// TODO: load should happen only on pod init and after pod update.
+// update should diff with load, add only new episodes => more fluent ui.
 bool PodcastChannel::load() {
-    this->episodes.clear();
+    this->m_episodes.clear();
     SQLManager::instance()->loadEpisodes(this);
+    if (m_episodes.size())
+        lastEpisodeUpdate = m_episodes.back()->updatetime;
     return true;
-
 
     bool ret;
     QFile xml_file(xmlfile());
@@ -107,12 +108,38 @@ bool PodcastChannel::parserxml() {
     return ret;
 }
 
-bool PodcastChannel::save() {
-    return jsonsave(this, jsonfile());
-}
-void PodcastChannel::addEpisode(EpisodeData *ep) {
-    episodes.push_back(ep);
-    SQLManager::instance()->addEpisode(this->channelID, ep);
+bool PodcastChannel::save() { return jsonsave(this, jsonfile()); }
+
+void PodcastChannel::addEpisodes(QList<EpisodeData *> &eps) {
+    std::reverse(eps.begin(), eps.end());
+    std::sort(eps.begin(), eps.end(), [](auto &&lhs, auto &&rhs) {
+        assert(lhs->updatetime.isValid());
+        assert(rhs->updatetime.isValid());
+        return lhs->updatetime <= rhs->updatetime;
+    });
+
+    auto it_new = eps.begin();
+    if (m_episodes.size()) {
+        assert(lastEpisodeUpdate.isValid());
+
+        it_new = std::lower_bound(
+            eps.begin(), eps.end(), this->lastEpisodeUpdate,
+            [](EpisodeData *ep, QDateTime val) { return ep->updatetime <= val; });
+        if (it_new == eps.end()) return;
+    }
+
+    for (; it_new < eps.end(); it_new++) {
+        this->addEpisode(*it_new);
+    }
+    lastEpisodeUpdate = eps.back()->updatetime;
 }
 
+void PodcastChannel::addEpisode(EpisodeData *ep) {
+    SQLManager::instance()->addEpisode(this->channelID, ep);
+    m_episodes.push_front(ep);
+}
+void PodcastChannel::clearEpisodes() {
+    SQLManager::instance()->clearEpisodes(this->channelID);
+    m_episodes.clear();
+}
 

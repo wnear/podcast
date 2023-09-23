@@ -6,8 +6,9 @@
 
 #include "episodedata.h"
 #include "podcastchannel.h"
+#include "opmlparser.h"
 
-enum FindChannelResult { FIND, NOTFIND, FIND_PARTLY, IN_VALID, SQLError };
+enum FindChannelResult { FIND, NOTFIND, FIND_CONFLICT, IN_VALID, SQLError };
 
 class SQLManager {
   public:
@@ -24,14 +25,21 @@ class SQLManager {
     void loadEpisodes(PodcastChannel *channel);
 
     int addChannel(const QString &title, const QString &url);
-    void addChannels(QList<std::pair<QString, QString>> ch,
-                     QList<std::tuple<int, QString, QString>> &feedback);
+    void addChannels(QList<PodcastChannel*> &container, QList<channel_item_t> &to_add,
+                     QList<std::pair<channel_item_t, channel_item_t>> &conflict);
     // find channel in db, prompt dialog asking abort or edit existing.
-    FindChannelResult findChannel(const QString &title, const QString &url);
+    FindChannelResult findChannel(const QString &title, const QString &url, channel_item_t & res);
     void updateChannelData(int channelid, PodcastChannel *ch);
     void updateChannelTiTleUrl(int channelid, PodcastChannel *ch);
 
+    // int findEpisode(int channelid, int episodeid);
+    // int findEpisode(int channelid, const QString &title);
+
     void addEpisode(int channelid, EpisodeData *ep);
+    void clearEpisodes(int channelid);
+
+    //NOTE: dev only, some data field may not be inited in early stage of the dev.
+    void reinitEpisode(EpisodeData *ep);
 
     // TODO: history, notes, play-position, etc.
     // if have ever been played, will have one , else , no need.

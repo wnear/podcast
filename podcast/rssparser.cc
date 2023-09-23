@@ -47,7 +47,7 @@ bool parseUntilElement(QXmlStreamReader *reader, const QString &name) {
 }
 }  // namespace
 
-RssParser::RssParser(QIODevice *f, PodcastChannel *pod) : m_pod(pod), m_file(f) {
+RssParser::RssParser(QIODevice *f, PodcastChannel *pod) : m_podchannel(pod), m_file(f) {
     binfo("xml for parse: {} big.", size_human(f->size()));
     reader = new QXmlStreamReader{m_file};
 }
@@ -57,7 +57,6 @@ bool RssParser::parse() {
         berror(" before parse, xml file not valid. abort...");
         return false;
     }
-    m_pod->episodes.clear();
     bool ret = true;
     if (!m_file->isOpen()) {
         if (m_file->open(QIODevice::ReadOnly) == false) {
@@ -84,23 +83,17 @@ bool RssParser::parse() {
                 /*
                 if (name == "title") {
                 ret->set_title(reader->readElementText());
-                }
-                else if (name == "link" && lower_namespace.isEmpty()) {
+                } else if (name == "link" && lower_namespace.isEmpty()) {
                 ret->set_link(QUrl::fromEncoded(reader->readElementText().toLatin1()));
-                }
-                else if (name == "description") {
+                } else if (name == "description") {
                 ret->set_description(reader->readElementText());
-                }
-                else if (name == "owner" && lower_namespace == kItunesNamespace) {
+                } else if (name == "owner" && lower_namespace == kItunesNamespace) {
                 ParseItunesOwner(reader, ret);
-                }
-                else if (name == "image") {
+                } else if (name == "image") {
                 ParseImage(reader, ret);
-                }
-                else if (name == "copyright") {
+                } else if (name == "copyright") {
                 ret->set_copyright(reader->readElementText());
-                }
-                else if (name == "link" && lower_namespace == kAtomNamespace &&
+                } else if (name == "link" && lower_namespace == kAtomNamespace &&
                 ret->url().isEmpty() && reader->attributes().value("rel").toString() ==
                 "self") {
                 ret->set_url(QUrl::fromEncoded(reader->readElementText().toLatin1()));
@@ -111,7 +104,7 @@ bool RssParser::parse() {
                     parseEpisode();
                 } else if (name == "image") {
                     auto cover_url = reader->attributes().value("href").toString();
-                    m_pod->cover_url = cover_url;
+                    m_podchannel->cover_url = cover_url;
                     binfo("get cover:{}", cover_url);
                     ParseImage();
                     backToParent(reader);
@@ -124,16 +117,16 @@ bool RssParser::parse() {
             case QXmlStreamReader::EndElement:
                 binfo("{} episode cnt, {}", m_pod->title.toStdString(),
                       m_pod->episodes.length());
-                return m_pod->episodes.length() > 0;
 
             default:
                 break;
         }
     }
 
+    m_podchannel->addEpisodes(m_episodes);
     binfo("{} episode cnt, {}", m_pod->title.toStdString(), m_pod->episodes.length());
-    m_pod->finishUpdate();
-    return m_pod->episodes.length() > 0;
+    m_podchannel->finishUpdate();
+    return m_podchannel->m_episodes.length() > 0;
 }
 
 void RssParser::ParseImage() {
@@ -172,15 +165,15 @@ void RssParser::parseEpisode() {
                 const QString lower_namespace =
                     reader->namespaceUri().toString().toLower();
 
-                qDebug()<<__PRETTY_FUNCTION__ << ": "<< name;
                 if (name == "title") {
                     episode->title = (reader->readElementText());
                 } else if (name == "description") {
                     episode->description = (reader->readElementText());
-                    qDebug()<<episode->description;
                 } else if (name == "pubDate") {
                     QString date = reader->readElementText();
-                    episode->updatetime_str = date;
+                    QString format = "ddd, d MMM yyyy hh:mm:ss tt";
+                    episode->updatetime = QDateTime::fromString(date, format);
+                    episode->setUpdatetime();
                 } else if (name ==
                            "duration" /* && lower_namespace == kItunesNamespace */) {
                     // http://www.apple.com/itunes/podcasts/specs.html
@@ -227,17 +220,22 @@ void RssParser::parseEpisode() {
 
             case QXmlStreamReader::EndElement:
                 if (!episode->url.isEmpty()) {
-                    auto ret = std::find_if(
-                        m_pod->episodes.begin(), m_pod->episodes.end(),
-                        [episode](auto &&ep) { return ep->title == episode->title; });
-                    if (ret == m_pod->episodes.end()) {
-                        episode->location = episode->url.fileName();
-                        // binfo("ending of parser, duration({}), filesize({}),
-                        // location({})", episode->duration, episode->filesize,
-                        // episode->location.toStdString());
-                        // m_pod->episodes.push_back(episode);
-                        m_pod->addEpisode(episode);
-                    }
+                    // auto ret = std::find_if(
+                    //     m_podchannel->episodes.begin(), m_podchannel->episodes.end(),
+                    //     [episode](auto &&ep) { return ep->title == episode->title; });
+                    // if (ret == m_podchannel->episodes.end()) {
+                    //     episode->location = episode->url.fileName();
+                    //     // binfo("ending of parser, duration({}), filesize({}),
+                    //     // location({})", episode->duration, episode->filesize,
+                    //     // episode->location.toStdString());
+                    //     // m_pod->episodes.push_back(episode);
+                    //     m_podchannel->addEpisode(episode);
+                    // }
+
+                    m_episodes.push_back(episode);
+                    qDebug() << QString("episode %1th, release at:%2").arg(m_episodes.size()).arg(episode->updatetime.toString());
+                } else {
+                    qDebug() << "error, episode url is empty";
                 }
 
                 return;

@@ -41,6 +41,13 @@ CREATE TABLE IF NOT EXISTS episodes (
     pullFail INTEGER
 );
 
+CREATE TABLE IF NOT EXISTS episodes_notes (
+    id INTEGER unique,
+    episodeid INTEGER REFERENCES episodes(id),
+    edit_time DATETIME,
+    note TEXT
+);
+
 
 -- CREATE TABLE IF NOT EXISTS channel-config ();
 -- updatetime.

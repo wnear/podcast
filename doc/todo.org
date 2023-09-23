@@ -1,3 +1,26 @@
+** TODO episode update time and listen time.
+- [ ] show episode publish time.
+- [ ] use icon to show episode status.
+  - [ ] new episodes.
+  - [ ] played, completed.
+  - [ ] partly played.
+  - [ ] if failed to download(network error) or played, unavailable.
+x
+
+
+
+** TODO playlist :feature:
+three type of list, they are coexisted, but the next-prev button behavior differ.
+- current podcast, current list.
+  auto create, auto clean. reset on a detail click to play.
+- default playlist
+  current playlist, mannual created, auto clean on app close, support
+  - add to playqueue tail.
+  - add to playqueue next.
+  - add to playqueue current.
+- stored playlist.
+  wont clean or build automatically, have manually created, mannual deleted.
+
 ** common, fix, bug, optimization. (TODO)
 - [X] player_engine should only be accessed from player_widget.
   20230519
@@ -16,15 +39,6 @@ podcast episodes list append to json.episodes.list.
 ** episode list and detail.
 - [ ] batch edit.
 - [ ] select.
-
-** playlist :feature:
-three type of list, they are coexisted, but the next-prev button behavior differ.
-- preview list. like a editor preview. current podcast, current list.
-  auto create, auto clean. reset on a detail click to play.
-- playlist
-  current playlist,mannual created, auto clean on app close.
-- stored playlist.
-  wont clean or build automatically, have manually created, mannual deleted.
 
 ** download :feature:
 - [ ] download widget to show current downloading.

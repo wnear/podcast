@@ -2,13 +2,14 @@
 
 #include <QString>
 
+using channel_item_t = std::pair<QString, QString>;
+
 class OpmlParser {
   public:
-    using elem_t = std::pair<QString, QString>;
-    using elems_t = QList<elem_t>;
+    // using elems_t = QList<channel_item_t>;
     OpmlParser(const QString &filename) : m_filename(filename) {}
 
-    elems_t parse();
+    QList<channel_item_t> parse();
 
   private:
     QString m_filename;

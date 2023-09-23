@@ -1,10 +1,13 @@
 #include "sqlmanager.h"
+#include "quuid.h"
 #include "utils.h"
 #include <QDebug>
 #include <QRegularExpression>
 #include <QSqlQuery>
 #include <QSqlResult>
 #include <QSqlError>
+#include <QSqlTableModel>
+#include <QSqlRecord>
 
 SQLManager::SQLManager() {
     QString m_location = util::datadir().absoluteFilePath("localpod.sqlite3");
@@ -118,7 +121,7 @@ void SQLManager::loadEpisodes(PodcastChannel *channel) {
     QString cmdstr = QString(
                          "select id, title, mediafileUrl, "
                          "cached,cacheLocation,description,filesize,date_published,"
-                         "duration from episodes where channelid = %1")
+                         "duration from episodes where channelid = %1 order by date_published")
                          .arg(channel->channelID);
     q.prepare(cmdstr);
     auto ok = q.exec();
@@ -137,11 +140,12 @@ void SQLManager::loadEpisodes(PodcastChannel *channel) {
         x->location = q.value("cacheLocation").toString();
         x->description = q.value("description").toString();
         x->filesize = q.value("filesize").toInt();
-        x->updatetime = QDateTime::fromString(q.value("date_published").toString());
+        x->updatetime = q.value("date_published").toDateTime();
+        x->setUpdatetime();
         x->duration = q.value("duration").toInt();
         // TODO: episode data init should be in one loadFromJsoon,
         x->calculateCurrentSize();
-        channel->episodes.push_back(x);
+        channel->m_episodes.push_back(x);
     }
 }
 
@@ -163,22 +167,49 @@ int SQLManager::addChannel(const QString &title, const QString &url) {
 
     auto ok = q.exec();
     checkReturn(ok, q, "add channel");
-    if(!ok){
+    if (!ok) {
         return -1;
     } else {
         return m_channelID;
     }
 }
 
-void SQLManager::addChannels(QList<std::pair<QString, QString>> ch,
-                             QList<std::tuple<int, QString, QString>> &feedback) {
-    // TODO: impl.
+void SQLManager::addChannels(QList<PodcastChannel *> &container,
+                             QList<channel_item_t> &channels,
+                             QList<std::pair<channel_item_t, channel_item_t>> &conflict) {
+    channel_item_t match;
+    for (auto [title, url] : channels) {
+        auto res = findChannel(title, url, match);
+        switch (res) {
+            case SQLError:
+                assert(0);
+            case FIND:
+                break;
+            case FIND_CONFLICT:
+                // dialog.
+                conflict.emplace_back(std::make_pair(title, url), match);
+                break;
+            case NOTFIND: {
+                auto id = SQLManager::instance()->addChannel(title, url);
+                if (id != -1) {
+                    container.push_back(new PodcastChannel(title, url));
+                    container.back()->channelID = id;
+                } else {
+                    assert(0);
+                }
+                break;
+            }
+            case IN_VALID:
+                break;
+        }
+    }
 }
 
 // TODO: dialog ask what to do for existing one.
 //  if tile==title, url==url, skip
 //  if one of the comparsion is true, ask user to decide.
-FindChannelResult SQLManager::findChannel(const QString &title, const QString &url) {
+FindChannelResult SQLManager::findChannel(const QString &title, const QString &url,
+                                          channel_item_t &match) {
     if (url.isEmpty()) {
         qDebug() << "url is empty";
         return IN_VALID;
@@ -210,19 +241,40 @@ FindChannelResult SQLManager::findChannel(const QString &title, const QString &u
         auto ok = q.exec();
         checkReturn(ok, q, "find with url", __LINE__);
         if (not ok) return SQLError;
-        QString ret_title, ret_url;
+        // QString ret_title, ret_url;
+        auto &match_title = match.first;
+        auto &match_url = match.second;
         if (q.next()) {
-            ret_title = q.value("title").toString();
-            ret_url = q.value("feedurl").toString();
-            if (ret_title == title and ret_url == url) {
+            match_title = q.value("title").toString();
+            match_url = q.value("feedurl").toString();
+            if (match_title == title and match_url == url) {
                 return FIND;
             } else {
-                return FIND_PARTLY;
+                return FIND_CONFLICT;
             }
         }
         return NOTFIND;
     }
     return IN_VALID;
+}
+
+void SQLManager::reinitEpisode(EpisodeData *ep) {
+    assert(ep->id != -1);
+    QSqlTableModel model;
+    model.setTable("episodes");
+    model.setFilter(
+        QString("id = \"%1\"").arg(ep->id));
+    model.select();
+
+    if (model.rowCount() > 1)
+        qWarning() << "[Duplicate Tag SQLite3 Warning!] Found" << model.rowCount() << "of"
+                   << ep->title;
+
+    QSqlRecord tagInDB = model.record(0);
+    tagInDB.setValue("title", ep->title);
+    model.setRecord(0, tagInDB);
+
+    // return logSqlError(model.lastError());
 }
 
 // TODO: check.
@@ -248,6 +300,7 @@ void SQLManager::addEpisode(int channelid, EpisodeData *ep) {
 
     m_epID++;
     q.bindValue(":id", m_epID);
+    ep->id = m_epID;
     q.bindValue(":title", ep->title);
     q.bindValue(":url", ep->url);
     q.bindValue(":channel", channelid);
@@ -255,7 +308,7 @@ void SQLManager::addEpisode(int channelid, EpisodeData *ep) {
     q.bindValue(":cached", ep->actualSize == ep->filesize);
     q.bindValue(":cachelocation", ep->location);
     q.bindValue(":filesize", ep->filesize);
-    q.bindValue(":date_published", ep->duration);
+    q.bindValue(":date_published", ep->updatetime);
     q.bindValue(":duration", ep->duration);
 
     // q.bindValue(":title", title);
@@ -278,3 +331,17 @@ void SQLManager::checkReturn(bool ok, QSqlQuery &q, const QString &msg, int line
 void SQLManager::updateChannelData(int channelid, PodcastChannel *ch) {}
 
 void SQLManager::updateChannelTiTleUrl(int channelid, PodcastChannel *ch) {}
+
+void SQLManager::clearEpisodes(int channelid) {
+    QSqlQuery q;
+    QString cmdstr = QString(
+                         "delete from episodes where channelid = %1")
+                         .arg(channelid);
+    q.prepare(cmdstr);
+    auto ok = q.exec();
+    checkReturn(ok, q, __PRETTY_FUNCTION__, __LINE__);
+    if (!ok) {
+        return;
+    }
+}
+
