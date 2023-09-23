@@ -2,56 +2,13 @@
 :PROPERTIES:
 :CUSTOM_ID: bugs
 :END:
-- [ ] treeview, selection not effective.
-- [ ] treeview, after sort, an empty line.
+- [X] treeview, selection not effective.
+- [X] treeview, after sort, an empty line.
 - [ ] error from cli,
   - =QObject::connect= invalid nullptr parameter.
   - =SIGABORT= on app exit.
+- [ ] sqlite add too many episodes, may cause gui non-responsive.
+
+- [ ] playback faster/slow, cause voice freq change.
 
 - [ ] play many consume long time, gui not responsive.
-
-** feature
-:PROPERTIES:
-:CUSTOM_ID: feature
-:END:
-- [ ] episode detail widget.
-
-- [ ] layout memorize, restore to last time size.
-
-- [ ] play queue, playlist, smart list.
-
-- [ ] download control.
-
-- [ ] playtime.
-
-- [ ] opml export.
-
-- [ ] compatible, play only, no need to download twice.
-
-  - [ ] with podgrab.
-  - [ ] with airsonic/supersonic.
-  - [ ] specified external location, when mnt all right.
-
-** subsonic podcast
-- [ ] sync with subsonic
-- [ ] get podcasts
-- [ ] get podcast info
- - [ ] podcast info field
-  - [ ] xxx
-  - [ ] xxx
- - [ ] context menu
-- [ ] get episode xx
- - [ ] episode info field.
- - [ ] episode context menu
-- [ ] playqueue.
-- [ ] player
- - [ ] audio engine.
- - [ ] ui of mini
- - [ ] ui of max
- - [ ] functionality
-  - [ ] notes
-  - [ ] bookmarks
-  - [ ] play speed
-  - [ ] stop timer.
-
-- [ ] stackwidget should put widgets by name, to clarify thing.
