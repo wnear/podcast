@@ -20,8 +20,11 @@
 #include <QFrame>
 #include "playercontrolwidget.h"
 #include <QVBoxLayout>
+#include <QDockWidget>
+#include <QPropertyAnimation>
 
 #include "downloadmanagerwgt.h"
+#include "qnamespace.h"
 
 class Mainwindow::Private {
   public:
@@ -30,6 +33,8 @@ class Mainwindow::Private {
     QFrame *right;
     QStackedWidget *rightdetail;
     PlayerControlWidget *rightPlayer;
+    QDockWidget *dock;
+    EpisodeDetailWidget *episode_detail;
 
     Podcast *localpod;
 };
@@ -52,10 +57,26 @@ Mainwindow::Mainwindow(QWidget *parent) : QMainWindow(parent) {
     d->right->setLayout(lay);
 
     d->rightdetail->addWidget(d->localpod->detail());
-    connect(d->localpod, &Podcast::requestPlay, d->rightPlayer, &PlayerControlWidget::addMedia);
-    connect(d->localpod, &Podcast::requestDetail,this, [this](EpisodeData *ep){
-        qDebug()<<"episode should show description:"<<ep->description;
-        d->localpod->ep_detail()->setData(ep);
+
+    d->dock = new QDockWidget(this);
+    d->dock->setAllowedAreas(Qt::RightDockWidgetArea);
+    d->episode_detail = new EpisodeDetailWidget(this);
+    d->dock->setWidget(d->episode_detail);
+    d->dock->setFeatures(QDockWidget::NoDockWidgetFeatures);
+    d->dock->hide();
+    addDockWidget(Qt::RightDockWidgetArea, d->dock);
+
+    connect(d->localpod, &Podcast::requestPlay, d->rightPlayer,
+            &PlayerControlWidget::addMedia);
+    connect(d->localpod, &Podcast::requestDetail, this, [this](EpisodeData *ep) {
+        if(ep == nullptr){
+            if(d->dock->isVisible())
+                d->dock->hide();
+        } else {
+            d->episode_detail->setData(ep);
+            if(d->dock->isHidden())
+                showDetail();
+        }
     });
 
     // d->left->addTab(d->subpod, "Subsonic Podcasts");
@@ -77,7 +98,27 @@ Mainwindow::Mainwindow(QWidget *parent) : QMainWindow(parent) {
     connect(d->left, &QTabWidget::currentChanged, d->rightdetail,
             &QStackedWidget::setCurrentIndex);
 }
-Mainwindow::~Mainwindow() { delete d; }
+
+//FIXME: animation not working.
+void Mainwindow::showDetail() {
+    d->dock->show();
+    auto *animation = new QPropertyAnimation(d->dock, "geometry");
+    qDebug()<<QString("dock size: (%1, %2)").arg(d->dock->width()).arg(d->dock->height());
+    QPoint p1(width(), 0);
+    QPoint p2(width() - d->dock->width(), 0);
+    QRect rcStart, rcEnd;
+    rcStart = QRect(p1, QSize(0, height()));
+    rcEnd = QRect(p1, QSize(d->dock->width(), height()));
+    animation->setDuration(1800);
+    animation->setStartValue(rcStart);
+    animation->setEndValue(rcEnd);
+    animation->start(QAbstractAnimation::DeleteWhenStopped);
+}
+
+Mainwindow::~Mainwindow() {
+    qDebug() << __func__;
+    delete d;
+}
 
 void Mainwindow::setupMenu() {
     auto *bar = this->menuBar();
@@ -109,12 +150,11 @@ void Mainwindow::setupToolbar() {
     bar->setToolButtonStyle(Qt::ToolButtonIconOnly);
 }
 
-//FIXME: geometry save/restore didnt work as expected.
+// FIXME: geometry save/restore didnt work as expected.
 void Mainwindow::closeEvent(QCloseEvent *event) {
     QSettings settings(qApp->organizationName(), qApp->applicationName());
     settings.setValue("geometry/splitter", d->base->saveGeometry());
-    qDebug()<<"close event before";
+    qDebug() << "close event before";
     QMainWindow::closeEvent(event);
-    qDebug()<<"close event after";
+    qDebug() << "close event after";
 }
-

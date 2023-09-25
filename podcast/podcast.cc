@@ -43,7 +43,6 @@ class Podcast::Private {
     QTabWidget *detail;
     // EpisodeListWidget *detaillist;
     EpisodeTreeWidget *detailtree;
-    EpisodeDetailWidget *ep_detail;
     PodModel *podsmodel;
     QString lastxml;
     QString totalxml;
@@ -70,9 +69,7 @@ Podcast::Podcast(QWidget *parent) : QWidget(parent) {
     d->detail = new QTabWidget(this);
     // d->detaillist = new EpisodeListWidget(this);
     d->detailtree = new EpisodeTreeWidget(this);
-    d->ep_detail = new EpisodeDetailWidget(this);
     d->detail->addTab(d->detailtree, "modal list");
-    d->detail->addTab(d->ep_detail, "ep detail");
 
     assert(d->listview != nullptr);
 
@@ -165,7 +162,6 @@ bool Podcast::load() {
 
 QWidget *Podcast::detail() const { return d->detail; }
 
-EpisodeDetailWidget *Podcast::ep_detail() const { return d->ep_detail; }
 
 void Podcast::importdlg() {
     QString filename = QFileDialog::getOpenFileName(/*paent wgt*/ this,

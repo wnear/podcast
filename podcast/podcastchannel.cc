@@ -8,6 +8,8 @@
 
 #include "sqlmanager.h"
 
+#include <QApplication>
+
 QString PodcastChannel::datapath() const {
     return util::ensureDirExist(util::datapath(), this->m_feedTitle);
 }
@@ -130,6 +132,7 @@ void PodcastChannel::addEpisodes(QList<EpisodeData *> &eps) {
 
     for (; it_new < eps.end(); it_new++) {
         this->addEpisode(*it_new);
+        QApplication::processEvents();
     }
     lastEpisodeUpdate = eps.back()->updatetime;
 }

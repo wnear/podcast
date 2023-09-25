@@ -79,7 +79,7 @@ void EpisodeDetailWidget::setData(EpisodeData *ep) {
     // d->detail.setText(m_cur_episode->description);
     // d->detail.textCursor();
 
-
+    d->detail.clear();
     auto cursor = d->detail.textCursor();
     cursor.beginEditBlock();
 
@@ -87,9 +87,8 @@ void EpisodeDetailWidget::setData(EpisodeData *ep) {
     normalFormat.setFontPointSize(10);
 
     QTextCharFormat titleFormat = normalFormat;
-    titleFormat.setFontPointSize(normalFormat.fontPointSize() + 2);
-    qDebug() << normalFormat.fontPointSize();
     titleFormat.setFontWeight(QFont::Bold);
+    titleFormat.setFontPointSize(normalFormat.fontPointSize() + 2);
     // highlightedFormat.setBackground(Qt::yellow);
 
     cursor.insertText(m_cur_episode->title, titleFormat);
