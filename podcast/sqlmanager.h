@@ -43,7 +43,8 @@ class SQLManager {
 
     // TODO: history, notes, play-position, etc.
     // if have ever been played, will have one , else , no need.
-    void updateEpisode();
+    void updateEpisode(){ assert(0); } //placer.
+    void updateEpisodePlayposition(EpisodeData *ep);
 
     void close() { m_sqldb.close(); }
     bool runScript(QString fileName);

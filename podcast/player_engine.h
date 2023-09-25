@@ -15,8 +15,8 @@ class PlayerEngine : public QObject , public std::enable_shared_from_this<Player
     static bool is_inited() { return ins != nullptr; }
     PlayerEngine(QObject *parent = nullptr);
     ~PlayerEngine() = default;
-    void play(const QString &url);
-    void play(QUrl);
+    void play(const QString &url, qint64 position=0);
+    void play(QUrl, qint64 position=0);
     void setVolume(int);
     void resume();
     void pause();
@@ -25,7 +25,9 @@ class PlayerEngine : public QObject , public std::enable_shared_from_this<Player
     void faster();
     void slower();
     void stop();
+
     int duration() const;
+    qint64 position() const;
   public slots:
     void setPosition(int);
     void setDuration(int);

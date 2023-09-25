@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS episodes (
 
     mediaSize  INTEGER,
     mediaDuration INTEGER,
+    play_position INTEGER,
     filesize INTEGER,
     duration INTEGER,
 
@@ -48,6 +49,8 @@ CREATE TABLE IF NOT EXISTS episodes_notes (
     note TEXT
 );
 
+-- change table: add column.
+-- ALTER TABLE episodes ADD play_position INTEGER NULL;
 
 -- CREATE TABLE IF NOT EXISTS channel-config ();
 -- updatetime.

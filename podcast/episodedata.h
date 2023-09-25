@@ -52,6 +52,7 @@ class EpisodeData : public QObject {
     QString description;
     QDateTime updatetime;
     QString updatetime_str;
+    int play_position;
 
     QList<bookmark_t> bookmarks;
     QString notes;

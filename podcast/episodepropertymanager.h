@@ -10,10 +10,10 @@ enum TreeColumn {
     SIZE,
     DURATION,
     URL,
+    PLAY_POSITION,
     DATETIME_LASTVIEW,
     DATETIME_UPDATED,
     LOCATION,
-    PLAYTIME,
     CNT_SENTEL
 };
 

@@ -40,18 +40,19 @@ PlayerEngine::PlayerEngine(QObject *parent) : QObject(parent) {
         [=](QMediaPlayer::Error error, const QString &msg) { binfo("error {}", error); });
 }
 
-void PlayerEngine::play(const QString &url) {
+void PlayerEngine::play(const QString &url, qint64 position) {
     qDebug() << "local file";
-    this->play(QUrl::fromLocalFile(url));
+    this->play(QUrl::fromLocalFile(url), position);
 }
 
-void PlayerEngine::play(QUrl url) {
+void PlayerEngine::play(QUrl url, qint64 position) {
     qDebug() << "trying to play: " << url.toString();
     m_player->stop();
     m_currentUrl = url;
     m_player->setSource(url);
+    m_player->setPosition(position);
     m_player_audio_ctrl->setVolume(100);
-    // TODO: wait in local Eventloop, to get GUI smooth.
+    // TODO: wait in local Eventloop, to get GUI smooth. play ok or canncealed.
     m_player->play();
     m_duration = m_player->duration();
 
@@ -73,6 +74,7 @@ void PlayerEngine::stop() {
     m_player->stop();
 }
 
+qint64 PlayerEngine::position() const { return m_player->position(); }
 void PlayerEngine::setPosition(int val) { m_player->setPosition(val); }
 
 int PlayerEngine::duration() const {
@@ -113,3 +115,4 @@ void PlayerEngine::slower() {
     m_speed -= 0.1;
     this->m_player->setPlaybackRate(m_speed);
 }
+

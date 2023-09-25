@@ -122,7 +122,7 @@ void SQLManager::loadEpisodes(PodcastChannel *channel) {
         QString(
             "select id, title, mediafileUrl, "
             "cached,cacheLocation,description,filesize,date_published,"
-            "duration from episodes where channelid = %1 order by date_published "
+            "duration, play_position from episodes where channelid = %1 order by date_published "
             "limit 30")
             .arg(channel->channelID);
     q.prepare(cmdstr);
@@ -143,6 +143,7 @@ void SQLManager::loadEpisodes(PodcastChannel *channel) {
         x->description = q.value("description").toString();
         x->filesize = q.value("filesize").toInt();
         x->updatetime = q.value("date_published").toDateTime();
+        x->play_position = q.value("play_position").toInt();
         x->setUpdatetime();
         x->duration = q.value("duration").toInt();
         // TODO: episode data init should be in one loadFromJsoon,
@@ -343,3 +344,14 @@ void SQLManager::clearEpisodes(int channelid) {
         return;
     }
 }
+
+void SQLManager::updateEpisodePlayposition(EpisodeData *ep){
+    QSqlQuery q;
+    QString cmdstr = QString("UPDATE episodes SET play_position = %1 WHERE id = %2").arg(ep->play_position).arg(ep->id);
+    q.prepare(cmdstr);
+    auto ok = q.exec();
+    checkReturn(ok, q, __PRETTY_FUNCTION__, __LINE__);
+    if (!ok) {
+        return;
+    }
+};

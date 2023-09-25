@@ -104,8 +104,7 @@ void EpisodeTreeView::mouseDoubleClickEvent(QMouseEvent *event) {
     if (srcIdx.isValid()) {
         auto urlIdx = d->data->index(srcIdx.row(), TreeColumn::URL - 1);
         auto *ep = static_cast<EpisodeData *>(urlIdx.internalPointer());
-        qDebug() << ep->title;
-        qDebug() << ep->description;
+        qDebug() << "double click to play:"<<ep->title;
         // auto url = d->data->data(urlIdx).toUrl();
         emit requestPlay(ep);
     }
