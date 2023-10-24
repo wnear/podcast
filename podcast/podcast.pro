@@ -80,3 +80,6 @@ SOURCES += downloadmanager.cc \
 RESOURCES += \
     $$PWD/resources/sqlfiles.qrc \
 
+DISTFILES += \
+    demo.qmodel
+

@@ -69,7 +69,7 @@ Podcast::Podcast(QWidget *parent) : QWidget(parent) {
     d->detail = new QTabWidget(this);
     // d->detaillist = new EpisodeListWidget(this);
     d->detailtree = new EpisodeTreeWidget(this);
-    d->detail->addTab(d->detailtree, "modal list");
+    d->detail->addTab(d->detailtree, "episode list");
 
     assert(d->listview != nullptr);
 

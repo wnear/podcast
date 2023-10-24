@@ -24,7 +24,7 @@ EpisodeTreeModel::EpisodeTreeModel(QObject *parent) : QAbstractItemModel(parent)
         {TreeColumn::TITLE, tr("title")},
         {TreeColumn::SIZE, tr("file size")},
         {TreeColumn::DURATION, tr("duration")},
-        {TreeColumn::PLAY_POSITION, tr("PLAY_POSITION")},
+        // {TreeColumn::PLAY_POSITION, tr("PLAY_POSITION")},
         // {TreeColumn::URL, tr("URL")},
         // {TreeColumn::URL, tr("URL")},
         {TreeColumn::DATETIME_UPDATED, tr("update")},
@@ -87,6 +87,8 @@ QVariant EpisodeTreeModel::data(const QModelIndex &index, int role) const {
     if (role == Qt::DecorationRole) {
         switch (index.column()) {
             case 0:
+                return QIcon(d->pod->coverfile());
+                // return d->pod->coverfile();
                 return QIcon::fromTheme("nvim");
             case 1:
                 return QIcon::fromTheme("mpv");

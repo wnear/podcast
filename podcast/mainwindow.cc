@@ -69,13 +69,11 @@ Mainwindow::Mainwindow(QWidget *parent) : QMainWindow(parent) {
     connect(d->localpod, &Podcast::requestPlay, d->rightPlayer,
             &PlayerControlWidget::addMedia);
     connect(d->localpod, &Podcast::requestDetail, this, [this](EpisodeData *ep) {
-        if(ep == nullptr){
-            if(d->dock->isVisible())
-                d->dock->hide();
+        if (ep == nullptr) {
+            if (d->dock->isVisible()) d->dock->hide();
         } else {
             d->episode_detail->setData(ep);
-            if(d->dock->isHidden())
-                showDetail();
+            if (d->dock->isHidden()) showDetail();
         }
     });
 
@@ -99,16 +97,20 @@ Mainwindow::Mainwindow(QWidget *parent) : QMainWindow(parent) {
             &QStackedWidget::setCurrentIndex);
 }
 
-//FIXME: animation not working.
+// FIXME: animation not working.
 void Mainwindow::showDetail() {
     d->dock->show();
     auto *animation = new QPropertyAnimation(d->dock, "geometry");
-    qDebug()<<QString("dock size: (%1, %2)").arg(d->dock->width()).arg(d->dock->height());
+    qDebug() << QString("dock size: pos(%3, %4), size(%1, %2)")
+                    .arg(d->dock->width())
+                    .arg(d->dock->height())
+                    .arg(d->dock->x())
+                    .arg(d->dock->y());
     QPoint p1(width(), 0);
     QPoint p2(width() - d->dock->width(), 0);
     QRect rcStart, rcEnd;
     rcStart = QRect(p1, QSize(0, height()));
-    rcEnd = QRect(p1, QSize(d->dock->width(), height()));
+    rcEnd = QRect(p2, QSize(d->dock->width(), height()));
     animation->setDuration(1800);
     animation->setStartValue(rcStart);
     animation->setEndValue(rcEnd);
@@ -133,8 +135,9 @@ void Mainwindow::setupToolbar() {
     auto *bar = this->addToolBar("file");
 
     auto icon = QIcon::fromTheme("download");
-    auto act = new QAction(icon, "hello");
-    act->setToolTip("world");
+    // auto act = new QAction(icon, "hello");
+    // act->setToolTip("world");
+
     auto download = new QAction(icon, "download");
     connect(download, &QAction::triggered, [this]() {
         DownloadManagerWidget dlg(this);
@@ -144,7 +147,7 @@ void Mainwindow::setupToolbar() {
         qDebug() << "after exec";
     });
 
-    bar->addAction(act);
+    // bar->addAction(act);
     bar->addAction(download);
 
     bar->setToolButtonStyle(Qt::ToolButtonIconOnly);

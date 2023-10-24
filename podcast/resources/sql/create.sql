@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS localchannel (
     title TEXT,
     feedurl TEXT,
     description TEXT,
+    update_since_boot INTEGER,
 
     iconUrl TEXT,
     websiteUrl TEXT,
@@ -50,7 +51,7 @@ CREATE TABLE IF NOT EXISTS episodes_notes (
 );
 
 -- change table: add column.
--- ALTER TABLE episodes ADD play_position INTEGER NULL;
+-- ALTER TABLE localchannel ADD update_since_boot INTEGER NULL;
 
 -- CREATE TABLE IF NOT EXISTS channel-config ();
 -- updatetime.
