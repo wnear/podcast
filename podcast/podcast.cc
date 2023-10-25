@@ -80,15 +80,30 @@ Podcast::Podcast(QWidget *parent) : QWidget(parent) {
     connect(d->listview, &QWidget::customContextMenuRequested, this,
             [this](const QPoint &pos) {
                 auto idx = d->listview->indexAt(pos);
+                d->listview->update(idx);
                 int row = idx.row();
                 PodcastChannel &pod = *m_channels[row];
                 pod.load();
                 auto menu = new QMenu(this);
-                menu->addAction("[debug]reparse", this, [&pod]() { pod.parserxml(); });
+                menu->addAction("[debug]reparse", this, [&pod, this, idx]() {
+                    pod.clearEpisodes();
+                    pod.parserxml();
+                    d->listview->update(idx);
+                });
                 menu->addAction("[debug]clear all episodes", this,
                                 [&pod]() { pod.clearEpisodes(); });
 
-                menu->addAction("update", this, [&pod]() { pod.updatexml(); });
+                menu->addAction("update", this, [&pod, this, idx]() {
+                    pod.updatexml();
+                    connect(
+                        &pod, &PodcastChannel::channelUpdated, this,
+                        [this, idx](bool ok) {
+                            if (ok) {
+                                d->listview->update(idx);
+                            }
+                        },
+                        Qt::SingleShotConnection);
+                });
                 menu->addAction("copy url", this, [&pod]() {
                     QClipboard *clipboard = QGuiApplication::clipboard();
                     clipboard->setText(pod.url());
@@ -161,7 +176,6 @@ bool Podcast::load() {
 }
 
 QWidget *Podcast::detail() const { return d->detail; }
-
 
 void Podcast::importdlg() {
     QString filename = QFileDialog::getOpenFileName(/*paent wgt*/ this,

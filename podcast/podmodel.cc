@@ -20,8 +20,8 @@ QVariant PodModel::data(const QModelIndex &index, int role) const {
         case Qt::DisplayRole:{
             QString res;
             res = cur->m_feedTitle;
-            if(cur->size()){
-                res += QString("(%1)").arg(cur->m_episodes.size());
+            if(cur->episodeCount != 0){
+                res += QString("(%1)").arg(cur->episodeCount);
             }
             return res;
         }

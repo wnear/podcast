@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS localchannel (
     title TEXT,
     feedurl TEXT,
     description TEXT,
-    update_since_boot INTEGER,
+    episodeCount INTEGER,
 
     iconUrl TEXT,
     websiteUrl TEXT,

@@ -122,10 +122,7 @@ bool RssParser::parse() {
                 break;
         }
     }
-
     m_podchannel->addEpisodes(m_episodes);
-    binfo("{} episode cnt, {}", m_pod->title.toStdString(), m_pod->episodes.length());
-    m_podchannel->finishUpdate();
     return m_podchannel->m_episodes.length() > 0;
 }
 

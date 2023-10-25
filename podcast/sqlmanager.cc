@@ -98,7 +98,7 @@ bool SQLManager::logSqlError(QSqlError error, bool fatal) {
 
 void SQLManager::loadChannels(QList<PodcastChannel *> &result) {
     QSqlQuery q;
-    QString cmdstr = QString("select id, title,feedurl from localchannel");
+    QString cmdstr = QString("select id, title, feedurl, episodeCount from localchannel");
     q.prepare(cmdstr);
     auto ok = q.exec();
     checkReturn(ok, q, __PRETTY_FUNCTION__, __LINE__);
@@ -108,23 +108,31 @@ void SQLManager::loadChannels(QList<PodcastChannel *> &result) {
 
     // TODO: load more data fields to channel.
     while (q.next()) {
-        auto id = q.value("id").toInt();
         auto title = q.value("title").toString();
         auto feed = q.value("feedurl").toString();
-        result.push_back(new PodcastChannel(title, feed));
-        result.back()->channelID = id;
+        auto *ch = new PodcastChannel(title, feed);
+        ch->channelID = q.value("id").toInt();
+        ch->episodeCount = q.value("episodeCount").toInt();
+        result.push_back(ch);
     }
 }
 
-void SQLManager::loadEpisodes(PodcastChannel *channel) {
+void SQLManager::loadEpisodes(PodcastChannel *channel, int limit, int offset) {
+    qDebug() << QString("load channel(%3) with limit(%1), offset(%2)")
+                    .arg(limit)
+                    .arg(offset)
+                    .arg(channel->m_feedTitle);
     QSqlQuery q;
-    QString cmdstr =
-        QString(
-            "select id, title, mediafileUrl, "
-            "cached,cacheLocation,description,filesize,date_published,"
-            "duration, play_position from episodes where channelid = %1 order by date_published "
-            "limit 30")
-            .arg(channel->channelID);
+    QString cmdstr = QString(
+                         "select id, title, mediafileUrl, "
+                         "cached,cacheLocation,description,filesize,date_published,"
+                         "duration, play_position from episodes where channelid = %1 "
+                         "order by date_published "
+                         "limit %2 "
+                         "offset %3")
+                         .arg(channel->channelID)
+                         .arg(limit)
+                         .arg(offset);
     q.prepare(cmdstr);
     auto ok = q.exec();
     checkReturn(ok, q, __PRETTY_FUNCTION__, __LINE__);
@@ -332,6 +340,21 @@ void SQLManager::checkReturn(bool ok, QSqlQuery &q, const QString &msg, int line
 
 void SQLManager::updateChannelData(int channelid, PodcastChannel *ch) {}
 
+void SQLManager::updateChannelDataField(int channelid, const QString &fieldname,
+                                        QVariant value) {
+    QSqlQuery q;
+    QString cmdstr = QString("update localchannel set %2=%3 where id=%1")
+                         .arg(channelid)
+                         .arg(fieldname)
+                         .arg(value.toString());
+    q.prepare(cmdstr);
+    auto ok = q.exec();
+    checkReturn(ok, q, __PRETTY_FUNCTION__, __LINE__);
+    if (!ok) {
+        return;
+    }
+}
+
 void SQLManager::updateChannelTiTleUrl(int channelid, PodcastChannel *ch) {}
 
 void SQLManager::clearEpisodes(int channelid) {
@@ -345,9 +368,11 @@ void SQLManager::clearEpisodes(int channelid) {
     }
 }
 
-void SQLManager::updateEpisodePlayposition(EpisodeData *ep){
+void SQLManager::updateEpisodePlayposition(EpisodeData *ep) {
     QSqlQuery q;
-    QString cmdstr = QString("UPDATE episodes SET play_position = %1 WHERE id = %2").arg(ep->play_position).arg(ep->id);
+    QString cmdstr = QString("UPDATE episodes SET play_position = %1 WHERE id = %2")
+                         .arg(ep->play_position)
+                         .arg(ep->id);
     q.prepare(cmdstr);
     auto ok = q.exec();
     checkReturn(ok, q, __PRETTY_FUNCTION__, __LINE__);
