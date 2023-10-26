@@ -21,7 +21,7 @@ class EpisodeTreeWidgetPrivate {
     QComboBox sortBy;
     QToolButton filter;
     QToolButton fetchmore;
-    PodcastChannel *data;
+    PodcastChannel *currentChannel{nullptr};
 
     QLabel status;
 };
@@ -60,12 +60,21 @@ EpisodeTreeWidget::EpisodeTreeWidget(QWidget *parent) : QFrame(parent) {
 
     this->setLayout(lay);
 
-    connect(d->view, &EpisodeTreeView::requestPlay, this, &EpisodeTreeWidget::requestPlay);
-    connect(d->view, &EpisodeTreeView::requestDetail, this, &EpisodeTreeWidget::requestDetail);
+    connect(d->view, &EpisodeTreeView::requestPlay, this,
+            &EpisodeTreeWidget::requestPlay);
+    connect(d->view, &EpisodeTreeView::requestDetail, this,
+            &EpisodeTreeWidget::requestDetail);
 }
 
-void EpisodeTreeWidget::setPod(PodcastChannel *pod) {
-    d->model->setupModelData(pod);
+void EpisodeTreeWidget::setPodcastChannel(PodcastChannel *channel) {
+    if (d->currentChannel != nullptr) {
+        d->currentChannel->disconnect(d->view);
+    }
+    d->currentChannel = channel;
+    connect(d->currentChannel, &PodcastChannel::channelUpdated, d->view,
+            &EpisodeTreeView::reset);
+
+    d->model->setupModelData(channel);
     d->view->reset();
 }
 EpisodeTreeWidget::~EpisodeTreeWidget() { delete d; }

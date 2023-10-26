@@ -140,9 +140,14 @@ void PodcastChannel::addEpisodes(QList<EpisodeData *> &eps) {
     this->episodeCount += std::distance(it_new, eps.end());
     SQLManager::instance()->updateChannelDataField(this->channelID, "episodeCount",
                                                    this->episodeCount);
-    for (; it_new < eps.end(); it_new++) {
-        this->addEpisode(*it_new);
+
+    //NOTE: sql insert is slow than memory operation.
+    for (auto it = it_new; it < eps.end(); it++) {
+        SQLManager::instance()->addEpisode(this->channelID, *it);
         QApplication::processEvents();
+    }
+    for (auto it = it_new; it < eps.end(); it++) {
+        m_episodes.push_front(*it);
     }
     this->lastEpisodeUpdate = eps.back()->updatetime;
 }
@@ -155,4 +160,5 @@ void PodcastChannel::clearEpisodes() {
     SQLManager::instance()->clearEpisodes(this->channelID);
     episodeCount = 0;
     m_episodes.clear();
+    emit channelUpdated(true);
 }

@@ -33,6 +33,7 @@
 #include "episode_detail_wgt.h"
 #include "podcastchannel.h"
 #include "podmodel.h"
+#include "qapplication.h"
 #include "sqlmanager.h"
 
 using namespace std;
@@ -88,7 +89,7 @@ Podcast::Podcast(QWidget *parent) : QWidget(parent) {
                 menu->addAction("[debug]reparse", this, [&pod, this, idx]() {
                     pod.clearEpisodes();
                     pod.parserxml();
-                    d->listview->update(idx);
+                    pod.channelUpdated(true);
                 });
                 menu->addAction("[debug]clear all episodes", this,
                                 [&pod]() { pod.clearEpisodes(); });
@@ -121,7 +122,7 @@ Podcast::Podcast(QWidget *parent) : QWidget(parent) {
         int cnt = m_channels[row]->m_episodes.count();
         qDebug() << "by load from cache, get episodes of count: " << cnt;
         // d->detaillist->setPod( m_pods[row]);
-        d->detailtree->setPod(m_channels[row]);
+        d->detailtree->setPodcastChannel(m_channels[row]);
     });
 }
 

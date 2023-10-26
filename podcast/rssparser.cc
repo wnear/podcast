@@ -171,7 +171,6 @@ void RssParser::parseEpisode() {
                     QString format = "ddd, d MMM yyyy hh:mm:ss tt";
                     episode->updatetime = QDateTime::fromString(date, format);
                     episode->setUpdatetime();
-                    qDebug()<<QString("parsing, date, from %1 to %2, to %3").arg(date).arg(episode->updatetime.toString()).arg(episode->updatetime_str);
                 } else if (name ==
                            "duration" /* && lower_namespace == kItunesNamespace */) {
                     // http://www.apple.com/itunes/podcasts/specs.html
