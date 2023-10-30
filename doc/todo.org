@@ -1,53 +1,47 @@
+** TODO genreral
+- [X] player_engine should only be accessed from player_widget.
+- [ ] save and restore widget size.
+- [ ] save and restore episode play position.
+- [ ] playcontrolwidget
+  - [ ] show artist/title
+  - [ ] show cover, with OpenGL.
+
 ** TODO episode update time and listen time.
-- [ ] show episode publish time.
+:LOGBOOK:
+- State "TODO"       from        [2023-09-23 六 09:43]
+:END:
+- [X] show episode publish time.
 - [ ] use icon to show episode status.
   - [ ] new episodes.
   - [ ] played, completed.
   - [ ] partly played.
   - [ ] if failed to download(network error) or played, unavailable.
-x
-
-
 
 ** TODO playlist :feature:
-three type of list, they are coexisted, but the next-prev button behavior differ.
-- current podcast, current list.
-  auto create, auto clean. reset on a detail click to play.
-- default playlist
-  current playlist, mannual created, auto clean on app close, support
-  - add to playqueue tail.
-  - add to playqueue next.
+:LOGBOOK:
+- State "TODO"       from              [2023-09-23 六 09:43]
+:END:
+three type.
+- default playlist, main playlist for play.
   - add to playqueue current.
+  - add to playqueue next.
+  - add to playqueue tail.
+- current podcast, current list.
+  auto create, auto clean. created on episode list click to play.
 - stored playlist.
-  wont clean or build automatically, have manually created, mannual deleted.
+  manually created, mannual deleted.
 
-** common, fix, bug, optimization. (TODO)
-- [X] player_engine should only be accessed from player_widget.
-  20230519
-- [ ] save and restore widget size.
-- [ ] save and restore current choosed.
-- [ ] playlist.
-- [ ] playcontrolwidget
-  - [ ] show artist/title
-  - [ ] show cover, with OpenGL.
-
-
+** play history, play time :featue:
 
 ** import and export, data layer. :basic:
 podcast episodes list append to json.episodes.list.
 
-** episode list and detail.
-- [ ] batch edit.
-- [ ] select.
-
-** download :feature:
+** download management :feature:
 - [ ] download widget to show current downloading.
 - [ ] set download speed limit.
-** play time :featue:
 
-** save and load local file
-- [ ] save the disk usage.
-  podgrab, subsonic. episode matching.
+** media file.
+- [ ] used mediafile downloaded by other service, like podgrabber.
 
 
 ** subsonic podcast :feature:

@@ -1,4 +1,5 @@
 #include "episode_detail_wgt.h"
+#include "qtoolbutton.h"
 #include "utils.h"
 
 #include <QSplitter>
@@ -15,6 +16,7 @@
 #include <QTextBrowser>
 
 #include <QStringListModel>
+#include <QLineEdit>
 
 using namespace util;
 
@@ -23,9 +25,8 @@ class EpisodeDetailPrivate {
     QScrollArea *base;
 
     QTextBrowser detail;
-    QPushButton play;
-    QPushButton star;
-    QPushButton ignore;
+    QToolButton getTimeStamp;
+    QPushButton commit;
 
     QListView bookmark;
     QTextEdit notes;
@@ -36,24 +37,24 @@ EpisodeDetailWidget::EpisodeDetailWidget(QWidget *parent) : QWidget(parent) {
 
     d->base = new QScrollArea;
     auto lay = new QVBoxLayout;
+    lay->setContentsMargins(0, 0, 0, 0);
     lay->addWidget(d->base);
     this->setLayout(lay);
 
     auto lay2 = new QVBoxLayout;
+    lay2->setContentsMargins(0,0,0,0);
     lay2->addWidget(&d->detail);
+
+    lay2->addWidget(&d->bookmark);
+
     auto lay_btn = new QHBoxLayout;
-    lay_btn->addWidget(&d->play);
-    lay_btn->addWidget(&d->star);
-    lay_btn->addWidget(&d->ignore);
+    d->getTimeStamp.setIcon(QIcon::fromTheme("clock"));
+    lay_btn->addWidget(&d->getTimeStamp);
+    lay_btn->addWidget(new QLineEdit);
+    d->commit.setText("comment");
+    lay_btn->addWidget(&d->commit);
     lay2->addLayout(lay_btn);
-
-    auto sp = new QSplitter;
-    sp->addWidget(&d->bookmark);
-    sp->addWidget(&d->notes);
-    lay2->addWidget(sp);
-
     auto model = new QStringListModel;
-    model->setStringList({"hello", "world"});
 
     d->bookmark.setModel(model);
 
@@ -79,7 +80,7 @@ void EpisodeDetailWidget::setData(EpisodeData *ep) {
     // d->detail.setText(m_cur_episode->description);
     // d->detail.textCursor();
 
-
+    d->detail.clear();
     auto cursor = d->detail.textCursor();
     cursor.beginEditBlock();
 
@@ -87,9 +88,8 @@ void EpisodeDetailWidget::setData(EpisodeData *ep) {
     normalFormat.setFontPointSize(10);
 
     QTextCharFormat titleFormat = normalFormat;
-    titleFormat.setFontPointSize(normalFormat.fontPointSize() + 2);
-    qDebug() << normalFormat.fontPointSize();
     titleFormat.setFontWeight(QFont::Bold);
+    titleFormat.setFontPointSize(normalFormat.fontPointSize() + 2);
     // highlightedFormat.setBackground(Qt::yellow);
 
     cursor.insertText(m_cur_episode->title, titleFormat);

@@ -20,12 +20,16 @@ class EpisodeTreeModelPrivate {
 
 EpisodeTreeModel::EpisodeTreeModel(QObject *parent) : QAbstractItemModel(parent) {
     d = new EpisodeTreeModelPrivate;
-    d->availproperty = {{TreeColumn::TITLE, tr("title")},
-                        {TreeColumn::SIZE, tr("file size")},
-                        {TreeColumn::DURATION, tr("duration")},
-                        {TreeColumn::URL, tr("URL")},
-                        {TreeColumn::DATETIME_UPDATED, tr("update")},
-                        {TreeColumn::DATETIME_LASTVIEW, tr("last view")}};
+    d->availproperty = {
+        {TreeColumn::TITLE, tr("title")},
+        {TreeColumn::SIZE, tr("file size")},
+        {TreeColumn::DURATION, tr("duration")},
+        // {TreeColumn::PLAY_POSITION, tr("PLAY_POSITION")},
+        // {TreeColumn::URL, tr("URL")},
+        // {TreeColumn::URL, tr("URL")},
+        {TreeColumn::DATETIME_UPDATED, tr("update")},
+        // {TreeColumn::DATETIME_LASTVIEW, tr("last view")}
+    };
     d->allproperty = {{TreeColumn::TITLE, tr("title")},
                       {TreeColumn::SIZE, tr("file size")},
                       {TreeColumn::DURATION, tr("duration")},
@@ -83,6 +87,8 @@ QVariant EpisodeTreeModel::data(const QModelIndex &index, int role) const {
     if (role == Qt::DecorationRole) {
         switch (index.column()) {
             case 0:
+                return QIcon(d->pod->coverfile());
+                // return d->pod->coverfile();
                 return QIcon::fromTheme("nvim");
             case 1:
                 return QIcon::fromTheme("mpv");
@@ -96,6 +102,7 @@ QVariant EpisodeTreeModel::data(const QModelIndex &index, int role) const {
     }
 
     if (role != Qt::DisplayRole && role != Qt::UserRole) return QVariant();
+    // NOTE: in following code, role can only be Qt::DisplayRole or Qt::UserRole.
 
     switch (realIndex) {
         case TreeColumn::TITLE:
@@ -116,6 +123,9 @@ QVariant EpisodeTreeModel::data(const QModelIndex &index, int role) const {
                 return int2hms(ep->duration);
             }
 
+        case TreeColumn::PLAY_POSITION:
+            return ep->play_position;
+            break;
         case TreeColumn::DATETIME_UPDATED:
             return ep->updatetime_str;
             break;

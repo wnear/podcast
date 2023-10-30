@@ -26,6 +26,8 @@ class PlayerControlWidget : public QFrame {
 
     void setVolume(int x);
 
+    void save_playposition();
+
     ~PlayerControlWidget();
 
   private:

@@ -3,6 +3,7 @@
 #include <QItemSelectionModel>
 #include "episodedata.h"
 #include "log.h"
+#include "qevent.h"
 
 #include <QMenu>
 #include <QDebug>
@@ -63,6 +64,19 @@ EpisodeTreeView::EpisodeTreeView(QAbstractItemModel *model, QWidget *parent)
     //             menu->exec(mapToGlobal(p));
     //         });
 
+    connect(this, &QTreeView::clicked, this, [this](const QModelIndex &idx) {
+        auto srcIdx = d->sortmodel->mapToSource(idx);
+        auto *ep = static_cast<EpisodeData *>(srcIdx.internalPointer());
+        emit requestDetail(ep);
+    });
+
+    auto *hidedetail = new QAction(this);
+    hidedetail->setShortcuts(QKeySequence::Cancel);
+    this->addAction(hidedetail);
+    connect(hidedetail, &QAction::triggered, [this](){
+        emit requestDetail(nullptr);
+    });
+
     connect(this, &QWidget::customContextMenuRequested, this,
             &EpisodeTreeView::onCustomContextMenuRequested);
 }
@@ -104,8 +118,7 @@ void EpisodeTreeView::mouseDoubleClickEvent(QMouseEvent *event) {
     if (srcIdx.isValid()) {
         auto urlIdx = d->data->index(srcIdx.row(), TreeColumn::URL - 1);
         auto *ep = static_cast<EpisodeData *>(urlIdx.internalPointer());
-        qDebug() << ep->title;
-        qDebug() << ep->description;
+        qDebug() << "double click to play:" << ep->title;
         // auto url = d->data->data(urlIdx).toUrl();
         emit requestPlay(ep);
     }

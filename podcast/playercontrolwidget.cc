@@ -2,6 +2,7 @@
 #include <QGridLayout>
 #include <QSlider>
 #include <QLabel>
+#include "sqlmanager.h"
 #include "player_engine.h"
 #include "podcastchannel.h"
 #include "episodedata.h"
@@ -41,6 +42,7 @@ class PlayerPrivate {
     }
 };
 PlayerControlWidget::~PlayerControlWidget(){
+    save_playposition();
     cout << "~PlayerControlWidget() called."<<endl;
 };
 PlayerControlWidget::PlayerControlWidget(QWidget *parent) : QFrame(parent) {
@@ -127,7 +129,17 @@ void PlayerControlWidget::Stop() { d->engine->stop(); }
 
 void PlayerControlWidget::setVolume(int x) { d->engine->setVolume(x); }
 void PlayerControlWidget::addMedia(EpisodeData *ep) {
+    save_playposition();
     d->cur_episode = ep;
-    d->engine->play(ep->url);
+    //TODO: option to play from last time or from media-start.
+    d->engine->play(ep->url, ep->play_position);
+}
+
+void PlayerControlWidget::save_playposition() {
+    if(d->cur_episode == nullptr){
+        return;
+    }
+    d->cur_episode->play_position = d->engine->position();
+    SQLManager::instance()->updateEpisodePlayposition(d->cur_episode);
 }
 

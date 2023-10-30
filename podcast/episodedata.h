@@ -52,6 +52,7 @@ class EpisodeData : public QObject {
     QString description;
     QDateTime updatetime;
     QString updatetime_str;
+    int play_position;
 
     QList<bookmark_t> bookmarks;
     QString notes;
@@ -73,7 +74,7 @@ class EpisodeData : public QObject {
 
     void setUpdatetime() {
         // TODO: format of update time.
-        QString format = "yyyy/mm/dd hh:mm";
+        QString format = "yyyy/MM/dd hh:mm";
         updatetime_str = updatetime.isValid() ? updatetime.toString(format) : "Invalid";
     }
 

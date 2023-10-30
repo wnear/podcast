@@ -8,6 +8,8 @@
 
 #include "sqlmanager.h"
 
+#include <QApplication>
+
 QString PodcastChannel::datapath() const {
     return util::ensureDirExist(util::datapath(), this->m_feedTitle);
 }
@@ -35,9 +37,13 @@ PodcastChannel::PodcastChannel(const QString &title, const QString &url, QObject
 // update should diff with load, add only new episodes => more fluent ui.
 bool PodcastChannel::load() {
     this->m_episodes.clear();
-    SQLManager::instance()->loadEpisodes(this);
-    if (m_episodes.size())
-        lastEpisodeUpdate = m_episodes.back()->updatetime;
+    int limit = 20;
+    int offset = 0;
+    if(this->episodeCount > limit){
+        offset = this->episodeCount - limit;
+    }
+    SQLManager::instance()->loadEpisodes(this, limit, offset);
+    if (m_episodes.size()) lastEpisodeUpdate = m_episodes.back()->updatetime;
     return true;
 
     bool ret;
@@ -71,6 +77,7 @@ bool PodcastChannel::updatexml() {
         auto status = DownloadManager::instance()->getJobStatus(pod.job_id);
         if (status == TASK_DOWNLOADING) {
             binfo("some one want's to try download  a pod twice?");
+            emit channelUpdated(false);
             return false;
         } else {
             binfo("retry a failed xml download({})", pod.url.toStdString());
@@ -86,6 +93,7 @@ bool PodcastChannel::updatexml() {
             if (id == pod.job_id && st == TASK_COMPLETE) {
                 this->parserxml();
             }
+            if (id == pod.job_id) emit channelUpdated(st == TASK_COMPLETE);
         },
         Qt::SingleShotConnection);
     return true;
@@ -97,6 +105,7 @@ bool PodcastChannel::parserxml() {
     QFile xml_file(xml);
     auto parser = RssParser(&xml_file, &pod);
     bool ret = parser.parse();
+    qDebug() << "end of podcastchannel::parsexml()";
     if (!pod.cover_url.isEmpty())
         if (!QFile(pod.coverfile()).exists()) {
             binfo("download cover");
@@ -128,10 +137,19 @@ void PodcastChannel::addEpisodes(QList<EpisodeData *> &eps) {
         if (it_new == eps.end()) return;
     }
 
-    for (; it_new < eps.end(); it_new++) {
-        this->addEpisode(*it_new);
+    this->episodeCount += std::distance(it_new, eps.end());
+    SQLManager::instance()->updateChannelDataField(this->channelID, "episodeCount",
+                                                   this->episodeCount);
+
+    //NOTE: sql insert is slow than memory operation.
+    for (auto it = it_new; it < eps.end(); it++) {
+        SQLManager::instance()->addEpisode(this->channelID, *it);
+        QApplication::processEvents();
     }
-    lastEpisodeUpdate = eps.back()->updatetime;
+    for (auto it = it_new; it < eps.end(); it++) {
+        m_episodes.push_front(*it);
+    }
+    this->lastEpisodeUpdate = eps.back()->updatetime;
 }
 
 void PodcastChannel::addEpisode(EpisodeData *ep) {
@@ -140,6 +158,7 @@ void PodcastChannel::addEpisode(EpisodeData *ep) {
 }
 void PodcastChannel::clearEpisodes() {
     SQLManager::instance()->clearEpisodes(this->channelID);
+    episodeCount = 0;
     m_episodes.clear();
+    emit channelUpdated(true);
 }
-

@@ -21,7 +21,7 @@ class EpisodeTreeWidget : public QFrame {
   public:
     EpisodeTreeWidget(QWidget *parent = nullptr);
     ~EpisodeTreeWidget();
-    void setPod(PodcastChannel *pod);
+    void setPodcastChannel(PodcastChannel *pod);
 
     // TODO:
     // chain: click on pod

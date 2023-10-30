@@ -38,7 +38,7 @@ class PodcastChannel : public QObject {
     QDateTime lastEpisodeUpdate;       // time of the last episode.
     QDateTime lastEpisodeUpdateCache;  // time of the last episode.
     QString language;
-    int episodeCount;
+    int episodeCount{0};
     int episodeDuratinSum;
     QList<EpisodeData *> m_episodes;
 
@@ -73,10 +73,6 @@ class PodcastChannel : public QObject {
     void addEpisodes(QList<EpisodeData *> &ep);
     void addEpisode(EpisodeData *ep);
     void clearEpisodes();
-    void finishUpdate() {
-        emit channelUpdated();
-        emit episodesUpdated();
-    }
 
     // will check both json and xml, check for existance and modification time.
     bool load();
@@ -90,8 +86,7 @@ class PodcastChannel : public QObject {
     bool save();
 
   signals:
-    void channelUpdated();
-    void episodesUpdated();
+    void channelUpdated(bool ok);
 };
 
 #endif

@@ -33,6 +33,7 @@
 #include "episode_detail_wgt.h"
 #include "podcastchannel.h"
 #include "podmodel.h"
+#include "qapplication.h"
 #include "sqlmanager.h"
 
 using namespace std;
@@ -43,7 +44,6 @@ class Podcast::Private {
     QTabWidget *detail;
     // EpisodeListWidget *detaillist;
     EpisodeTreeWidget *detailtree;
-    EpisodeDetailWidget *ep_detail;
     PodModel *podsmodel;
     QString lastxml;
     QString totalxml;
@@ -70,9 +70,7 @@ Podcast::Podcast(QWidget *parent) : QWidget(parent) {
     d->detail = new QTabWidget(this);
     // d->detaillist = new EpisodeListWidget(this);
     d->detailtree = new EpisodeTreeWidget(this);
-    d->ep_detail = new EpisodeDetailWidget(this);
-    d->detail->addTab(d->detailtree, "modal list");
-    d->detail->addTab(d->ep_detail, "ep detail");
+    d->detail->addTab(d->detailtree, "episode list");
 
     assert(d->listview != nullptr);
 
@@ -83,15 +81,30 @@ Podcast::Podcast(QWidget *parent) : QWidget(parent) {
     connect(d->listview, &QWidget::customContextMenuRequested, this,
             [this](const QPoint &pos) {
                 auto idx = d->listview->indexAt(pos);
+                d->listview->update(idx);
                 int row = idx.row();
                 PodcastChannel &pod = *m_channels[row];
                 pod.load();
                 auto menu = new QMenu(this);
-                menu->addAction("[debug]reparse", this, [&pod]() { pod.parserxml(); });
+                menu->addAction("[debug]reparse", this, [&pod, this, idx]() {
+                    pod.clearEpisodes();
+                    pod.parserxml();
+                    pod.channelUpdated(true);
+                });
                 menu->addAction("[debug]clear all episodes", this,
                                 [&pod]() { pod.clearEpisodes(); });
 
-                menu->addAction("update", this, [&pod]() { pod.updatexml(); });
+                menu->addAction("update", this, [&pod, this, idx]() {
+                    pod.updatexml();
+                    connect(
+                        &pod, &PodcastChannel::channelUpdated, this,
+                        [this, idx](bool ok) {
+                            if (ok) {
+                                d->listview->update(idx);
+                            }
+                        },
+                        Qt::SingleShotConnection);
+                });
                 menu->addAction("copy url", this, [&pod]() {
                     QClipboard *clipboard = QGuiApplication::clipboard();
                     clipboard->setText(pod.url());
@@ -109,7 +122,7 @@ Podcast::Podcast(QWidget *parent) : QWidget(parent) {
         int cnt = m_channels[row]->m_episodes.count();
         qDebug() << "by load from cache, get episodes of count: " << cnt;
         // d->detaillist->setPod( m_pods[row]);
-        d->detailtree->setPod(m_channels[row]);
+        d->detailtree->setPodcastChannel(m_channels[row]);
     });
 }
 
@@ -164,8 +177,6 @@ bool Podcast::load() {
 }
 
 QWidget *Podcast::detail() const { return d->detail; }
-
-EpisodeDetailWidget *Podcast::ep_detail() const { return d->ep_detail; }
 
 void Podcast::importdlg() {
     QString filename = QFileDialog::getOpenFileName(/*paent wgt*/ this,

@@ -16,6 +16,10 @@ class EpisodeTreeView : public QTreeView {
     void onCustomContextMenuRequested(const QPoint &p);
     // play
     void mouseDoubleClickEvent(QMouseEvent *event) override;
+    void reset() override {
+        QTreeView::reset();
+        qDebug() << "episode treeview reset.";
+    }
 
     // // into detail wgt.
     // void mousePressEvent(QMouseEvent *event) override;

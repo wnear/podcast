@@ -11,6 +11,8 @@ class Mainwindow : public QMainWindow {
     ~Mainwindow();
     void closeEvent(QCloseEvent *event) override;
 
+    void showDetail();
+
   private:
     void setupMenu();
     void setupToolbar();
